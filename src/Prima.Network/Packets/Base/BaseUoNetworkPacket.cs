@@ -3,26 +3,52 @@ using Prima.Network.Serializers;
 
 namespace Prima.Network.Packets.Base;
 
+/// <summary>
+/// Abstract base class for all Ultima Online network packets.
+/// Provides common functionality and implements the IUoNetworkPacket interface.
+/// </summary>
 public abstract class BaseUoNetworkPacket : IUoNetworkPacket
 {
+    /// <summary>
+    /// Gets the operation code that identifies the packet type.
+    /// </summary>
     public byte OpCode { get; }
 
+    /// <summary>
+    /// Initializes a new instance of the BaseUoNetworkPacket class with the specified operation code.
+    /// </summary>
+    /// <param name="opCode">The operation code that identifies this packet type.</param>
     protected BaseUoNetworkPacket(byte opCode)
     {
         OpCode = opCode;
     }
 
+    /// <summary>
+    /// Reads the packet data from the provided packet reader.
+    /// Default implementation throws NotImplementedException and should be overridden.
+    /// </summary>
+    /// <param name="reader">The packet reader containing the packet data.</param>
+    /// <exception cref="NotImplementedException">Thrown if this method is not overridden in derived classes.</exception>
     public virtual void Read(PacketReader reader)
     {
-        throw new NotImplementedException();
+
     }
 
+    /// <summary>
+    /// Writes the packet data to the provided packet writer.
+    /// Default implementation throws NotImplementedException and should be overridden.
+    /// </summary>
+    /// <param name="writer">The packet writer to write packet data to.</param>
+    /// <exception cref="NotImplementedException">Thrown if this method is not overridden in derived classes.</exception>
     public virtual void Write(PacketWriter writer)
     {
-        throw new NotImplementedException();
+
     }
 
-
+    /// <summary>
+    /// Returns a string representation of this packet.
+    /// </summary>
+    /// <returns>A string containing the packet type name and OpCode.</returns>
     public override string ToString()
     {
         return GetType().Name + " { OpCode: " + OpCode.ToString("X2") + " }";
