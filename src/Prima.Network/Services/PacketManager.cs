@@ -44,7 +44,7 @@ public class PacketManager : IPacketManager
             return;
         }
 
-        _logger.LogInformation("Registered packet: {Packet}", packet.GetType().Name);
+        _logger.LogInformation("Registered packet: {Packet} with opCode: {opCode}", packet.GetType().Name, "0x"+packet.OpCode.ToString("X2"));
     }
 
     /// <summary>
@@ -126,7 +126,8 @@ public class PacketManager : IPacketManager
         }
         else
         {
-            _logger.LogWarning("Packet with OpCode {OpCode} is not registered.", opCode);
+
+            _logger.LogWarning("Packet with OpCode {OpCode} is not registered.", opCode.ToString("X2"));
             return null;
         }
     }
