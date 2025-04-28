@@ -1,6 +1,8 @@
 using System.Net;
 using Microsoft.Extensions.Logging;
+using Orion.Foundations.Observable;
 using Orion.Foundations.Types;
+using Orion.Network.Core.Data;
 using Orion.Network.Core.Interfaces.Services;
 using Orion.Network.Tcp.Servers;
 using Prima.Core.Server.Data.Config;
@@ -22,7 +24,8 @@ public class NetworkService : INetworkService
 
 
     private readonly CancellationTokenSource _messageCancellationTokenSource = new();
-    private Dictionary<byte, List<INetworkPacketListener>> _listeners = new();
+    private readonly ChannelObservable<NetworkMessageData> _channelObservable;
+    private readonly Dictionary<byte, List<INetworkPacketListener>> _listeners = new();
 
     public NetworkService(
         ILogger<NetworkService> logger, PrimaServerConfig serverConfig, INetworkTransportManager networkTransportManager,
@@ -36,20 +39,14 @@ public class NetworkService : INetworkService
         _packetManager = packetManager;
 
         RegisterPackets();
+        _channelObservable = new ChannelObservable<NetworkMessageData>(networkTransportManager.IncomingMessages);
 
-        Task.Run(StartMessageListenTask);
+        _channelObservable.Subscribe(data => HandleIncomingMessages(data));
+
     }
 
-    private async Task StartMessageListenTask()
+    private async Task HandleIncomingMessages(NetworkMessageData data)
     {
-        while (!_messageCancellationTokenSource.IsCancellationRequested)
-        {
-            await foreach (var rawPacket in _networkTransportManager.IncomingMessages.Reader.ReadAllAsync())
-            {
-                _logger.LogDebug("Received packet  {Packet}", rawPacket.Message);
-            }
-
-        }
 
     }
 
