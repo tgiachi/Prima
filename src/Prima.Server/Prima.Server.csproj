@@ -7,24 +7,30 @@
         <LangVersion>latest</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <PublishAot>true</PublishAot>
         <InvariantGlobalization>true</InvariantGlobalization>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
     <ItemGroup>
-      <Content Include="..\..\.dockerignore">
-        <Link>.dockerignore</Link>
-      </Content>
+        <Content Include="..\..\.dockerignore">
+            <Link>.dockerignore</Link>
+        </Content>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.4" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.4"/>
+        <PackageReference Include="Serilog" Version="4.2.0" />
+        <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.1" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Prima.Core.Server\Prima.Core.Server.csproj" />
-      <ProjectReference Include="..\Prima.Network\Prima.Network.csproj" />
+        <ProjectReference Include="..\Prima.Core.Server\Prima.Core.Server.csproj"/>
+        <ProjectReference Include="..\Prima.Network\Prima.Network.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Remove="Assets\header.txt"/>
+        <EmbeddedResource Include="Assets\header.txt"/>
     </ItemGroup>
 
 </Project>
