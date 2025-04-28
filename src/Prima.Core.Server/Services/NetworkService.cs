@@ -4,7 +4,9 @@ using Orion.Foundations.Types;
 using Orion.Network.Core.Interfaces.Services;
 using Orion.Network.Tcp.Servers;
 using Prima.Core.Server.Data.Config;
+using Prima.Core.Server.Interfaces.Listeners;
 using Prima.Core.Server.Interfaces.Services;
+using Prima.Network.Interfaces.Packets;
 using Prima.Network.Interfaces.Services;
 using Prima.Network.Packets;
 
@@ -18,6 +20,10 @@ public class NetworkService : INetworkService
     private readonly INetworkTransportManager _networkTransportManager;
     private readonly IPacketManager _packetManager;
 
+
+    private readonly CancellationTokenSource _messageCancellationTokenSource = new();
+    private Dictionary<byte, List<INetworkPacketListener>> _listeners = new();
+
     public NetworkService(
         ILogger<NetworkService> logger, PrimaServerConfig serverConfig, INetworkTransportManager networkTransportManager,
         IPacketManager packetManager
@@ -30,13 +36,28 @@ public class NetworkService : INetworkService
         _packetManager = packetManager;
 
         RegisterPackets();
+
+        Task.Run(StartMessageListenTask);
+    }
+
+    private async Task StartMessageListenTask()
+    {
+        while (!_messageCancellationTokenSource.IsCancellationRequested)
+        {
+            await foreach (var rawPacket in _networkTransportManager.IncomingMessages.Reader.ReadAllAsync())
+            {
+                _logger.LogDebug("Received packet  {Packet}", rawPacket.Message);
+            }
+
+        }
+
     }
 
     public async Task StartAsync(CancellationToken cancellationToken = default)
     {
         // Adding login server
         _networkTransportManager.AddTransport(
-            new NonSecureTcpServer("login",ServerNetworkType.Servers, IPAddress.Any, _serverConfig.TcpServer.LoginPort)
+            new NonSecureTcpServer("login", ServerNetworkType.Servers, IPAddress.Any, _serverConfig.TcpServer.LoginPort)
         );
 
 
@@ -49,7 +70,6 @@ public class NetworkService : INetworkService
         _logger.LogInformation("Game server started on port {Port}", _serverConfig.TcpServer.GamePort);
 
         await _networkTransportManager.StartAsync(cancellationToken);
-
     }
 
     public async Task StopAsync(CancellationToken cancellationToken = default)
@@ -57,6 +77,20 @@ public class NetworkService : INetworkService
         _logger.LogInformation("Stopping network transport manager");
         await _networkTransportManager.StopAsync(cancellationToken);
         _logger.LogInformation("Network transport manager stopped");
+    }
+
+    public void RegisterPacketListener<TPacket>(INetworkPacketListener listener) where TPacket : IUoNetworkPacket, new()
+    {
+        var packet = new TPacket();
+        _logger.LogInformation("Registering packet listener for {PacketType}", "0x" + packet.OpCode.ToString("X2"));
+
+        if (!_listeners.TryGetValue(packet.OpCode, out var packetListeners))
+        {
+            packetListeners = new List<INetworkPacketListener>();
+            _listeners.Add(packet.OpCode, packetListeners);
+        }
+
+        packetListeners.Add(listener);
     }
 
     private void RegisterPackets()
