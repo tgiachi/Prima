@@ -7,7 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prima.Tests", "tests\Prima.Tests\Prima.Tests.csproj", "{C7E322FA-513E-4BF0-8674-E3309B317540}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prima.Network.Packets", "src\Prima.Network.Packets\Prima.Network.Packets.csproj", "{9E6C347E-A25E-4F38-969F-0AFF8139728B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prima.Network", "src\Prima.Network\Prima.Network.csproj", "{9E6C347E-A25E-4F38-969F-0AFF8139728B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prima.Server", "src\Prima.Server\Prima.Server.csproj", "{1CE36C34-0E2A-4233-A45C-C99B9185D161}"
 EndProject

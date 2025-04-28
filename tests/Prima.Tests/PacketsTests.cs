@@ -1,6 +1,6 @@
 ﻿namespace Prima.Tests;
 
-public class Tests
+public class PacketsTests
 {
     [SetUp]
     public void Setup()
