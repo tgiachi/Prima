@@ -1,10 +1,15 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Orion.Core.Server.Data.Config.Sections;
 using Orion.Core.Server.Extensions;
 using Orion.Core.Server.Modules.Container;
+using Orion.Network.Core.Interfaces.Services;
+using Orion.Network.Core.Services;
 using Prima.Core.Server.Data.Config;
 using Prima.Core.Server.Data.Options;
+using Prima.Core.Server.Types;
+using Prima.Server.Hosted;
 using Serilog;
 
 namespace Prima.Server;
@@ -15,7 +20,7 @@ class Program
     {
         var builder = Host.CreateApplicationBuilder(args);
 
-        var appContext = builder.Services.InitApplication<PrimaServerOptions, PrimaServerConfig>("prima");
+        var appContext = builder.Services.InitApplication<PrimaServerOptions, PrimaServerConfig>("prima", Enum.GetNames<DirectoryType>());
 
         builder.Services.AddSingleton(appContext);
 
@@ -25,13 +30,22 @@ class Program
 
         appContext.Options.ShowHeader(typeof(Program).Assembly);
 
-
         appContext.Config.SaveConfig(appContext.ConfigFilePath);
 
 
         builder.Services
             .AddModule<DefaultOrionServiceModule>()
-            .AddModule<DefaultOrionScriptsModule>();
+            .AddModule<DefaultOrionScriptsModule>()
+            .AddService<INetworkTransportManager, NetworkTransportManager>()
+            .AddSingleton(
+                new EventBusConfig()
+                {
+                    MaxConcurrentTasks = 4
+                }
+            )
+            ;
+
+        builder.Services.AddHostedService<PrimaHostedService>();
 
 
         var app = builder.Build();

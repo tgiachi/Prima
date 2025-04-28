@@ -7,5 +7,7 @@ public class PrimaServerConfig : IOrionServerConfig
 {
     public DebugConfig Debug { get; set; } = new();
 
+    public ProcessConfig Process { get; set; } = new();
+
     public string UoDirectory { get; set; }
 }
