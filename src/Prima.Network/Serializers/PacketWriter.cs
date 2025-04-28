@@ -25,10 +25,21 @@ public sealed class PacketWriter : BinaryWriter
 
     public void WriteFixedString(string text, int length)
     {
-        var bytes = new byte[length];
-        var stringBytes = Encoding.ASCII.GetBytes(text);
-        Array.Copy(stringBytes, bytes, Math.Min(length, stringBytes.Length));
+        if (text.Length > length)
+        {
+            text = text[..length];
+        }
+
+        var paddedText = text.PadRight(length, '\0');
+
+        var bytes = Encoding.ASCII.GetBytes(paddedText);
+
         Write(bytes);
+    }
+
+    public void WriteByte(byte value)
+    {
+        Write(value);
     }
 
     public void WriteString(string text)
@@ -42,6 +53,11 @@ public sealed class PacketWriter : BinaryWriter
     {
         byte byteValue = Convert.ToByte(value);
         Write(byteValue);
+    }
+
+    public byte[] ToArray()
+    {
+        return _stream.ToArray();
     }
 
     protected override void Dispose(bool disposing)
