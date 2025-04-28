@@ -10,4 +10,8 @@
       <PackageReference Include="Orion.Core.Server" Version="0.14.1" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Prima.Network\Prima.Network.csproj" />
+    </ItemGroup>
+
 </Project>
