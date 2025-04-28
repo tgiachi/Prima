@@ -3,7 +3,7 @@ using Prima.Network.Serializers;
 
 namespace Prima.Network.Packets;
 
-public class LoginRequest : BaseUoNetworkPacket
+public class LoginRequest() : BaseUoNetworkPacket(0x80)
 {
     public byte Command { get; set; }
 
@@ -12,10 +12,6 @@ public class LoginRequest : BaseUoNetworkPacket
     public string Password { get; set; }
 
     public byte NextLoginKey { get; set; }
-
-    public LoginRequest() : base(0x80)
-    {
-    }
 
 
     public override void Write(PacketWriter writer)

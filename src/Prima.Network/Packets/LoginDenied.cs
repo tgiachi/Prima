@@ -4,15 +4,11 @@ using Prima.Network.Types;
 
 namespace Prima.Network.Packets;
 
-public class LoginDenied : BaseUoNetworkPacket
+public class LoginDenied() : BaseUoNetworkPacket(0x82)
 {
     public byte Command { get; set; }
 
     public LoginDeniedReasonType Reason { get; set; }
-
-    public LoginDenied() : base(0x82)
-    {
-    }
 
     public override void Write(PacketWriter writer)
     {
