@@ -22,4 +22,9 @@
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.4" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Prima.Core.Server\Prima.Core.Server.csproj" />
+      <ProjectReference Include="..\Prima.Network\Prima.Network.csproj" />
+    </ItemGroup>
+
 </Project>
