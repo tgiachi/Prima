@@ -1,6 +1,10 @@
 # Prima - A Modern Ultima Online Server Implementation
 
-[//]: # (![Prima Logo]&#40;logo.png&#41;)
+
+![Prima Logo](Assets/prima_logo.png)
+
+[![Build Status](https://img.shields.io/github/workflow/status/tgiachi/prima/CI)]
+
 
 ## Overview
 
