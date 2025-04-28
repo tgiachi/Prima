@@ -3,7 +3,7 @@
 
 ![Prima Logo](Assets/prima_logo.png)
 
-[![Build Status](https://img.shields.io/github/workflow/status/tgiachi/prima/CI)]
+![Build Status](https://img.shields.io/github/workflow/status/tgiachi/prima/CI)
 
 
 ## Overview

@@ -5,4 +5,5 @@ namespace Prima.Core.Server.Data.Options;
 public class PrimaServerOptions : OrionServerOptions
 {
 
+
 }
