@@ -9,6 +9,7 @@ using Orion.Network.Core.Services;
 using Prima.Core.Server.Data.Config;
 using Prima.Core.Server.Data.Options;
 using Prima.Core.Server.Types;
+using Prima.Network.Modules;
 using Prima.Server.Hosted;
 using Serilog;
 
@@ -36,6 +37,7 @@ class Program
         builder.Services
             .AddModule<DefaultOrionServiceModule>()
             .AddModule<DefaultOrionScriptsModule>()
+            .AddModule<UoNetworkContainerModule>()
             .AddService<INetworkTransportManager, NetworkTransportManager>()
             .AddSingleton(
                 new EventBusConfig()

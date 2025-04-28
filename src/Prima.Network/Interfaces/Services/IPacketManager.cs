@@ -1,3 +1,4 @@
+using Orion.Core.Server.Interfaces.Services.Base;
 using Prima.Network.Interfaces.Packets;
 
 namespace Prima.Network.Interfaces.Services;
@@ -6,7 +7,7 @@ namespace Prima.Network.Interfaces.Services;
 /// Defines the interface for a packet manager service.
 /// The packet manager handles packet registration, serialization, and deserialization.
 /// </summary>
-public interface IPacketManager
+public interface IPacketManager : IOrionService
 {
     /// <summary>
     /// Registers a packet type with the packet manager.

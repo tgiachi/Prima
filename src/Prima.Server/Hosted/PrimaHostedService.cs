@@ -1,4 +1,6 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Orion.Core.Server.Data.Directories;
 using Orion.Core.Server.Hosted;
 using Orion.Core.Server.Interfaces.Services.System;
 using Orion.Core.Server.Internal.Services;
@@ -12,5 +14,12 @@ public class PrimaHostedService : BaseOrionHostedService
         IEventBusService eventBusService, IServiceProvider serviceProvider
     ) : base(logger, serviceDefinitions, eventBusService, serviceProvider)
     {
+    }
+
+
+    protected override async Task BeforeStartAsync()
+    {
+        var directoriesConfig = ServiceProvider.GetRequiredService<DirectoriesConfig>();
+        Logger.LogInformation("Root directory: {DirectoriesConfig}", directoriesConfig.Root);
     }
 }
