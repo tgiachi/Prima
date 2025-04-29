@@ -21,7 +21,7 @@ public class PacketReader : IDisposable
     {
         _buffer =  data ?? throw new ArgumentNullException(nameof(data));
         Size = Math.Min(size, data.Length);
-        Position = fixedSize ? 1 : 3;
+        Position = fixedSize ? 0 : 3;
     }
 
     /// <summary>
