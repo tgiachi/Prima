@@ -205,8 +205,6 @@ public class PacketManager : IPacketManager
 
             packetReader.Initialize(packetData, packetLength, true);
 
-            //using var packetReader = new PacketReader(packetData, packetLength, true);
-
             // Read the packet content
             packet.Read(packetReader);
             _logger.LogDebug("Successfully parsed packet: {PacketType}", packet.GetType().Name);
