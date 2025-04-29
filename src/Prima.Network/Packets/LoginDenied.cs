@@ -11,7 +11,7 @@ namespace Prima.Network.Packets;
 /// <remarks>
 /// OpCode: 0x82
 /// </remarks>
-public class LoginDenied() : BaseUoNetworkPacket(0x82)
+public class LoginDenied() : BaseUoNetworkPacket(0x82, -1)
 {
     /// <summary>
     /// Gets or sets the command byte for this packet.

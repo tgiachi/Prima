@@ -12,7 +12,7 @@ namespace Prima.Network.Packets;
 /// OpCode: 0x8C
 /// This packet provides the client with connection information for the selected game server.
 /// </remarks>
-public class ConnectToGameServer() : BaseUoNetworkPacket(0x8C)
+public class ConnectToGameServer() : BaseUoNetworkPacket(0x8C, 11)
 {
     /// <summary>
     /// Gets or sets the command byte for this packet.

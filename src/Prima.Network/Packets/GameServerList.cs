@@ -9,7 +9,7 @@ namespace Prima.Network.Packets;
 /// Game Server List packet (0xA8) - Sent by the server to provide a list of available game servers.
 /// Contains information about each server including its name, load percentage, timezone, and IP address.
 /// </summary>
-public class GameServerList() : BaseUoNetworkPacket(0xA8)
+public class GameServerList() : BaseUoNetworkPacket(0xA8, -1)
 {
     /// <summary>
     /// The command identifier for this packet.

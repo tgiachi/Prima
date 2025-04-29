@@ -10,7 +10,7 @@ namespace Prima.Network.Packets;
 /// <remarks>
 /// OpCode: 0x80
 /// </remarks>
-public class LoginRequest() : BaseUoNetworkPacket(0x80)
+public class LoginRequest() : BaseUoNetworkPacket(0x80, 62)
 {
     /// <summary>
     /// Gets or sets the command byte for this packet.

@@ -14,6 +14,12 @@ public interface IUoNetworkPacket
     /// </summary>
     byte OpCode { get; }
 
+
+    /// <summary>
+    ///  Gets or sets the length of the packet data.
+    /// </summary>
+    public int Length { get; }
+
     /// <summary>
     /// Reads the packet data from the provided packet reader.
     /// </summary>

@@ -14,13 +14,20 @@ public abstract class BaseUoNetworkPacket : IUoNetworkPacket
     /// </summary>
     public byte OpCode { get; }
 
+
+    /// <summary>
+    ///  Gets the length of the packet data.
+    /// </summary>
+    public int Length { get;  }
+
     /// <summary>
     /// Initializes a new instance of the BaseUoNetworkPacket class with the specified operation code.
     /// </summary>
     /// <param name="opCode">The operation code that identifies this packet type.</param>
-    protected BaseUoNetworkPacket(byte opCode)
+    protected BaseUoNetworkPacket(byte opCode, int length)
     {
         OpCode = opCode;
+        Length = length;
     }
 
     /// <summary>
