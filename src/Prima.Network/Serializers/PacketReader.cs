@@ -19,9 +19,9 @@ public class PacketReader : IDisposable
     /// <param name="fixedSize">Whether the packet has a fixed size header.</param>
     public PacketReader(byte[] data, int size, bool fixedSize)
     {
-        _buffer =  data ?? throw new ArgumentNullException(nameof(data));
+        _buffer = data ?? throw new ArgumentNullException(nameof(data));
         Size = Math.Min(size, data.Length);
-        Position = fixedSize ? 0 : 3;
+        Position = fixedSize ? 1 : 3;
     }
 
     /// <summary>

@@ -13,11 +13,6 @@ namespace Prima.Network.Packets;
 public class LoginRequest() : BaseUoNetworkPacket(0x80, 62)
 {
     /// <summary>
-    /// Gets or sets the command byte for this packet.
-    /// </summary>
-    public byte Command { get; set; }
-
-    /// <summary>
     /// Gets or sets the account username.
     /// Length is fixed at 30 characters, padded with null terminators.
     /// </summary>
@@ -40,10 +35,9 @@ public class LoginRequest() : BaseUoNetworkPacket(0x80, 62)
     /// <param name="writer">The packet writer to write data to.</param>
     public override void Write(PacketWriter writer)
     {
-        writer.WriteByte(Command);
         writer.WriteFixedString(Username, 30);
         writer.WriteFixedString(Password, 30);
-        writer.WriteByte(NextLoginKey);
+        writer.Write(NextLoginKey);
     }
 
     /// <summary>
@@ -52,7 +46,6 @@ public class LoginRequest() : BaseUoNetworkPacket(0x80, 62)
     /// <param name="reader">The packet reader to read data from.</param>
     public override void Read(PacketReader reader)
     {
-        Command = reader.ReadByte();
         Username = reader.ReadFixedString(30);
         Password = reader.ReadFixedString(30);
         NextLoginKey = reader.ReadByte();
@@ -65,6 +58,6 @@ public class LoginRequest() : BaseUoNetworkPacket(0x80, 62)
     public override string ToString()
     {
         return
-            $"{base.ToString()} {{ Command: {Command}, Username: {Username}, Password: {Password}, NextLoginKey: {NextLoginKey} }}";
+            $"{base.ToString()} {{  Username: {Username}, Password: {Password}, NextLoginKey: {NextLoginKey} }}";
     }
 }

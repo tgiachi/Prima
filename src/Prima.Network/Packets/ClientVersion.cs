@@ -6,8 +6,6 @@ namespace Prima.Network.Packets;
 
 public class ClientVersion : BaseUoNetworkPacket
 {
-    public byte Command { get; set; }
-
     public int Seed { get; set; }
 
     public IPAddress ClientIP { get; set; }
@@ -27,8 +25,6 @@ public class ClientVersion : BaseUoNetworkPacket
 
     public override void Read(PacketReader reader)
     {
-        Command = reader.ReadByte();
-
         Seed = reader.ReadInt32();
 
         ClientIP = new IPAddress(Seed);
@@ -43,6 +39,6 @@ public class ClientVersion : BaseUoNetworkPacket
     public override string ToString()
     {
         return base.ToString() +
-               $" {{ Command: {Command:X2}, Seed: {Seed}, ClientIP: {ClientIP}, v{MajorVersion}.{MinorVersion}.{Revision}.{Prototype} }}";
+               $" {{ Seed: {Seed}, ClientIP: {ClientIP}, v{MajorVersion}.{MinorVersion}.{Revision}.{Prototype} }}";
     }
 }
