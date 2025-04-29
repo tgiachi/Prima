@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Orion.Foundations.Pool;
 using Prima.Network.Interfaces.Packets;
 using Prima.Network.Interfaces.Services;
 using Prima.Network.Internal;
@@ -21,6 +22,17 @@ public class PacketManager : IPacketManager
     /// Dictionary mapping OpCodes to packet factory functions.
     /// </summary>
     private readonly Dictionary<byte, Func<IUoNetworkPacket>> _packets = new();
+
+
+    /// <summary>
+    ///  Object pool for reusing PacketReader instances.
+    /// </summary>
+    private readonly ObjectPool<PacketReader> _readerPool = new();
+
+    /// <summary>
+    /// Object pool for reusing PacketWriter instances.
+    /// </summary>
+    private readonly ObjectPool<PacketWriter> _writerPool = new();
 
     /// <summary>
     /// Initializes a new instance of the PacketManager class.
@@ -60,7 +72,7 @@ public class PacketManager : IPacketManager
     /// <returns>A byte array containing the serialized packet data.</returns>
     public byte[] WritePacket<T>(T packet) where T : IUoNetworkPacket
     {
-        using var packetWriter = new PacketWriter();
+        var packetWriter = _writerPool.Get();
 
         // Write OpCode
         packetWriter.Write(packet.OpCode);
@@ -123,7 +135,7 @@ public class PacketManager : IPacketManager
         }
 
         IUoNetworkPacket packet = packetFunc();
-        int expectedLength = DeterminePacketLength(packet, buffer) ;
+        int expectedLength = DeterminePacketLength(packet, buffer);
 
         if (expectedLength < 0)
         {
@@ -161,7 +173,7 @@ public class PacketManager : IPacketManager
         // Fixed length packet
         if (length != -1)
         {
-            return length ;
+            return length;
         }
 
         // Variable length packet - need at least 3 bytes (OpCode + Length field)
@@ -189,11 +201,19 @@ public class PacketManager : IPacketManager
     {
         try
         {
-            using var packetReader = new PacketReader(packetData, packetLength, true);
+            var packetReader = _readerPool.Get();
+
+            packetReader.Initialize(packetData, packetLength, true);
+
+            //using var packetReader = new PacketReader(packetData, packetLength, true);
 
             // Read the packet content
             packet.Read(packetReader);
             _logger.LogDebug("Successfully parsed packet: {PacketType}", packet.GetType().Name);
+
+            // Return the packet to the pool
+            _readerPool.Return(packetReader);
+
             return true;
         }
         catch (Exception ex)
