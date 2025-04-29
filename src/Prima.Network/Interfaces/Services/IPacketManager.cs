@@ -28,5 +28,5 @@ public interface IPacketManager : IOrionService
     /// </summary>
     /// <param name="data">The byte array containing the packet data.</param>
     /// <returns>The deserialized packet, or null if the packet type is not registered.</returns>
-    IUoNetworkPacket ReadPacket(byte[] data);
+    IUoNetworkPacket? ReadPacket(byte[] data);
 }

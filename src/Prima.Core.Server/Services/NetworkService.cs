@@ -1,5 +1,7 @@
 using System.Net;
 using Microsoft.Extensions.Logging;
+using Orion.Core.Server.Interfaces.Services.System;
+using Orion.Foundations.Extensions;
 using Orion.Foundations.Observable;
 using Orion.Foundations.Types;
 using Orion.Network.Core.Data;
@@ -22,14 +24,18 @@ public class NetworkService : INetworkService
     private readonly INetworkTransportManager _networkTransportManager;
     private readonly IPacketManager _packetManager;
 
+    private readonly IProcessQueueService _processQueueService;
+
 
     private readonly CancellationTokenSource _messageCancellationTokenSource = new();
     private readonly ChannelObservable<NetworkMessageData> _channelObservable;
     private readonly Dictionary<byte, List<INetworkPacketListener>> _listeners = new();
 
+    private readonly string _listenersContext = "network_server_listeners";
+
     public NetworkService(
         ILogger<NetworkService> logger, PrimaServerConfig serverConfig, INetworkTransportManager networkTransportManager,
-        IPacketManager packetManager
+        IPacketManager packetManager, IProcessQueueService processQueueService
     )
     {
         _logger = logger;
@@ -37,17 +43,58 @@ public class NetworkService : INetworkService
         _serverConfig = serverConfig;
         _networkTransportManager = networkTransportManager;
         _packetManager = packetManager;
+        _processQueueService = processQueueService;
+        _processQueueService.EnsureContext(_listenersContext);
 
         RegisterPackets();
         _channelObservable = new ChannelObservable<NetworkMessageData>(networkTransportManager.IncomingMessages);
 
         _channelObservable.Subscribe(data => HandleIncomingMessages(data));
-
     }
 
     private async Task HandleIncomingMessages(NetworkMessageData data)
     {
+        try
+        {
+            var packet = _packetManager.ReadPacket(data.Message);
 
+            if (packet == null)
+            {
+                _logger.LogWarning(
+                    "Received unknown packet with length {Length} => {Buffer}",
+                    data.Message.Length,
+                    data.Message.HumanizedContent()
+                );
+
+                return;
+            }
+
+            if (_listeners.TryGetValue(packet.OpCode, out var packetListeners))
+            {
+                foreach (var listener in packetListeners)
+                {
+                    try
+                    {
+                        _processQueueService.Enqueue(
+                            _listenersContext,
+                            async () => { await listener.OnMessageReceived(data.SessionId, packet); }
+                        );
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error while handling packet {PacketType}", packet.GetType().Name);
+                    }
+                }
+            }
+            else
+            {
+                _logger.LogWarning("No listeners registered for packet {PacketType}", packet.GetType().Name);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error while handling incoming message");
+        }
     }
 
     public async Task StartAsync(CancellationToken cancellationToken = default)
@@ -97,5 +144,11 @@ public class NetworkService : INetworkService
         _packetManager.RegisterPacket<SelectServer>();
         _packetManager.RegisterPacket<GameServerList>();
         _packetManager.RegisterPacket<LoginDenied>();
+    }
+
+    public void Dispose()
+    {
+        _messageCancellationTokenSource.Dispose();
+        GC.SuppressFinalize(this);
     }
 }
