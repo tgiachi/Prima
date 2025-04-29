@@ -44,7 +44,11 @@ public class PacketManager : IPacketManager
             return;
         }
 
-        _logger.LogInformation("Registered packet: {Packet} with opCode: {opCode}", packet.GetType().Name, "0x"+packet.OpCode.ToString("X2"));
+        _logger.LogInformation(
+            "Registered packet: {Packet} with opCode: {opCode}",
+            packet.GetType().Name,
+            "0x" + packet.OpCode.ToString("X2")
+        );
     }
 
     /// <summary>
@@ -65,9 +69,6 @@ public class PacketManager : IPacketManager
         packet.Write(dataWriter);
         var packetData = dataWriter.ToArray();
 
-        // Write packet data length (as ushort to support larger packets)
-        packetWriter.WriteUInt16BE((ushort)packetData.Length);
-
         // Write the packet data
         packetWriter.Write(packetData);
 
@@ -75,60 +76,98 @@ public class PacketManager : IPacketManager
     }
 
     /// <summary>
-    /// Deserializes a byte array into a packet.
+    /// Deserializes a byte array into a list of network packets.
     /// </summary>
     /// <param name="data">The byte array containing the packet data.</param>
-    /// <returns>The deserialized packet, or null if the packet type is not registered.</returns>
-    public IUoNetworkPacket ReadPacket(byte[] data)
+    /// <returns>A list of deserialized packets, or an empty list if no valid packets could be parsed.</returns>
+    public List<IUoNetworkPacket> ReadPackets(byte[] data)
     {
-        if (data.Length < 3) // At minimum we need OpCode(1) + Length(2)
+        List<IUoNetworkPacket> packets = new();
+
+        // Create a copy of the original buffer to work with
+        var buffer = new Memory<byte>(data);
+
+        while (buffer.Length > 0)
         {
-            _logger.LogWarning("Packet data too small to contain a valid packet: {Length} bytes", data.Length);
-            return null;
-        }
-
-        var opCode = data[0];
-
-        if (_packets.TryGetValue(opCode, out var packetFunc))
-        {
-            var packet = packetFunc();
-            using var reader = new PacketReader(data);
-
-            // Read and verify OpCode
-            var readOpCode = reader.ReadByte();
-            if (readOpCode != opCode)
+            // Check if we have at least enough data for OpCode
+            if (buffer.Length < 1)
             {
-                _logger.LogWarning("OpCode mismatch. Expected: {Expected}, Actual: {Actual}", opCode, readOpCode);
-                return null;
+                break;
             }
 
-            // Read length (2 bytes)
-            ushort length = reader.ReadUInt16BE();
+            var opCode = buffer.Span[0];
 
-            // Ensure we have enough data
-            if (data.Length < 3 + length)
+            if (!_packets.TryGetValue(opCode, out var packetFunc))
+            {
+                _logger.LogWarning("Packet with OpCode {OpCode} is not registered.", opCode.ToString("X2"));
+                break; // We can't continue if we don't know the packet type
+            }
+
+            var packet = packetFunc();
+
+            // Check if we have enough data for this entire packet
+            int expectedPacketLength = packet.Length;
+
+            // If Length is -1, it means variable length packet that needs to be parsed
+            // to determine its actual length
+            if (expectedPacketLength == -1)
+            {
+                // For variable length packets, we need at least 3 bytes (OpCode + Length field)
+                if (buffer.Length < 3)
+                {
+                    _logger.LogWarning("Buffer too small for variable length packet header: {Length} bytes", buffer.Length);
+                    break;
+                }
+
+                // Read the length from the packet (assuming it's at bytes 1-2)
+                ushort length = (ushort)((buffer.Span[1] << 8) | buffer.Span[2]);
+                expectedPacketLength = 3 + length; // OpCode(1) + LengthField(2) + Payload(length)
+            }
+
+            // Check if we have enough data for the entire packet
+            if (buffer.Length < expectedPacketLength)
             {
                 _logger.LogWarning(
                     "Packet data truncated. Expected length: {Expected}, Actual available: {Actual}",
-                    length,
-                    data.Length - 3
+                    expectedPacketLength,
+                    buffer.Length
                 );
-                return null;
+                break;
             }
 
-            // Read the packet data
-            byte[] packetData = reader.ReadBytes(length);
+            // Extract the packet data
+            var packetData = buffer[..expectedPacketLength].ToArray();
 
-            using var packetReader = new PacketReader(packetData);
-            packet.Read(packetReader);
+            // Process the packet
+            using (var packetReader = new PacketReader(packetData, expectedPacketLength, true))
+            {
+                try
+                {
+                    // Skip OpCode as it's already been read
+                    //packetReader.ReadByte();
 
-            return packet;
+                    // If it's a variable length packet, skip the length bytes too
+                    if (packet.Length == -1)
+                    {
+                        packetReader.ReadUInt16BE();
+                    }
+
+                    // Read the packet content
+                    packet.Read(packetReader);
+                    packets.Add(packet);
+
+                    _logger.LogDebug("Successfully parsed packet: {PacketType}", packet.GetType().Name);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error parsing packet with OpCode {OpCode}", opCode.ToString("X2"));
+                }
+            }
+
+            // Remove the processed packet from the buffer
+            buffer = buffer[expectedPacketLength..];
         }
-        else
-        {
 
-            _logger.LogWarning("Packet with OpCode {OpCode} is not registered.", opCode.ToString("X2"));
-            return null;
-        }
+        return packets;
     }
 }

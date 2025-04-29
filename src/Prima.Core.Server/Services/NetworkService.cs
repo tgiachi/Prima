@@ -99,9 +99,9 @@ public class NetworkService : INetworkService
     {
         try
         {
-            var packet = _packetManager.ReadPacket(data.Message);
+            var packets = _packetManager.ReadPackets(data.Message);
 
-            if (packet == null)
+            if (packets.Count == 0)
             {
                 _logger.LogWarning(
                     "Received unknown packet with length {Length} => {Buffer}",
@@ -112,28 +112,32 @@ public class NetworkService : INetworkService
                 return;
             }
 
-            _logger.LogDebug("Received packet: {Packet}", packet);
 
-            if (_listeners.TryGetValue(packet.OpCode, out var packetListeners))
+            foreach (var packet in packets)
             {
-                foreach (var listener in packetListeners)
+                _logger.LogDebug("Received packet: {Packet}", packet);
+
+                if (_listeners.TryGetValue(packet.OpCode, out var packetListeners))
                 {
-                    try
+                    foreach (var listener in packetListeners)
                     {
-                        _processQueueService.Enqueue(
-                            _listenersContext,
-                            async () => { await listener.OnMessageReceived(data.SessionId, packet); }
-                        );
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Error while handling packet {PacketType}", packet.GetType().Name);
+                        try
+                        {
+                            _processQueueService.Enqueue(
+                                _listenersContext,
+                                async () => { await listener.OnMessageReceived(data.SessionId, packet); }
+                            );
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Error while handling packet {PacketType}", packet.GetType().Name);
+                        }
                     }
                 }
-            }
-            else
-            {
-                _logger.LogWarning("No listeners registered for packet {PacketType}", packet.GetType().Name);
+                else
+                {
+                    _logger.LogWarning("No listeners registered for packet {PacketType}", packet.GetType().Name);
+                }
             }
         }
         catch (Exception ex)

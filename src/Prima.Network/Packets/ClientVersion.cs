@@ -8,17 +8,17 @@ public class ClientVersion : BaseUoNetworkPacket
 {
     public byte Command { get; set; }
 
-    public ushort Seed { get; set; }
+    public int Seed { get; set; }
 
     public IPAddress ClientIP { get; set; }
 
-    public ushort MajorVersion { get; set; }
+    public int MajorVersion { get; set; }
 
-    public ushort MinorVersion { get; set; }
+    public int MinorVersion { get; set; }
 
-    public ushort Revision { get; set; }
+    public int Revision { get; set; }
 
-    public ushort Prototype { get; set; }
+    public int Prototype { get; set; }
 
 
     public ClientVersion() : base(0xEF, 21)
@@ -29,19 +29,14 @@ public class ClientVersion : BaseUoNetworkPacket
     {
         Command = reader.ReadByte();
 
-        // IP address bytes are reversed in the packet
-        var ipBytes = reader.ReadBytes(4);
-        Array.Reverse(ipBytes);
-        ClientIP = new IPAddress(ipBytes);
+        Seed = reader.ReadInt32();
 
-        //bytes to ushort
+        ClientIP = new IPAddress(reader.ReadBytes(4));
 
-        Seed = BitConverter.ToUInt16(ipBytes, 0);
-
-        MajorVersion = reader.ReadUInt16BE();
-        MinorVersion = reader.ReadUInt16BE();
-        Revision = reader.ReadUInt16BE();
-        Prototype = reader.ReadUInt16BE();
+        MajorVersion = reader.ReadInt32();
+        MinorVersion = reader.ReadInt32();
+        Revision = reader.ReadInt32();
+        Prototype = reader.ReadInt32();
     }
 
 

@@ -52,14 +52,16 @@ public class PacketTests
 
         // Act
         var serialized = _packetManager.WritePacket(packet);
-        var deserialized = _packetManager.ReadPacket(serialized) as LoginRequest;
+        var deserialized = _packetManager.ReadPackets(serialized);
+
+        var deserializedPacket = deserialized.FirstOrDefault(p => p is LoginRequest) as LoginRequest;
 
         // Assert
-        Assert.That(deserialized, Is.Not.Null);
-        Assert.That(deserialized.Command, Is.EqualTo(packet.Command));
-        Assert.That(deserialized.Username, Is.EqualTo(packet.Username));
-        Assert.That(deserialized.Password, Is.EqualTo(packet.Password));
-        Assert.That(deserialized.NextLoginKey, Is.EqualTo(packet.NextLoginKey));
+        Assert.That(deserializedPacket, Is.Not.Null);
+        Assert.That(deserializedPacket.Command, Is.EqualTo(packet.Command));
+        Assert.That(deserializedPacket.Username, Is.EqualTo(packet.Username));
+        Assert.That(deserializedPacket.Password, Is.EqualTo(packet.Password));
+        Assert.That(deserializedPacket.NextLoginKey, Is.EqualTo(packet.NextLoginKey));
     }
 
     /// <summary>
@@ -77,12 +79,16 @@ public class PacketTests
 
         // Act
         var serialized = _packetManager.WritePacket(packet);
-        var deserialized = _packetManager.ReadPacket(serialized) as LoginDenied;
+
+
+        var deserialized = _packetManager.ReadPackets(serialized);
+
+        var deserializedPacket = deserialized.FirstOrDefault(p => p is LoginDenied) as LoginDenied;
 
         // Assert
-        Assert.That(deserialized, Is.Not.Null);
-        Assert.That(deserialized.Command, Is.EqualTo(packet.Command));
-        Assert.That(deserialized.Reason, Is.EqualTo(packet.Reason));
+        Assert.That(deserializedPacket, Is.Not.Null);
+        Assert.That(deserializedPacket.Command, Is.EqualTo(packet.Command));
+        Assert.That(deserializedPacket.Reason, Is.EqualTo(packet.Reason));
     }
 
     /// <summary>
@@ -121,7 +127,9 @@ public class PacketTests
 
         // Act
         var serialized = _packetManager.WritePacket(packet);
-        var deserialized = _packetManager.ReadPacket(serialized) as GameServerList;
+        var deserializedPacket = _packetManager.ReadPackets(serialized);
+
+        var deserialized = deserializedPacket.FirstOrDefault(p => p is GameServerList) as GameServerList;
 
         // Assert
         Assert.That(deserialized, Is.Not.Null);
@@ -160,12 +168,14 @@ public class PacketTests
 
         // Act
         var serialized = _packetManager.WritePacket(packet);
-        var deserialized = _packetManager.ReadPacket(serialized) as SelectServer;
+        var deserialized = _packetManager.ReadPackets(serialized);
+
+        var deserializedPacket = deserialized.FirstOrDefault(p => p is SelectServer) as SelectServer;
 
         // Assert
         Assert.That(deserialized, Is.Not.Null);
-        Assert.That(deserialized.Command, Is.EqualTo(packet.Command));
-        Assert.That(deserialized.ShardId, Is.EqualTo(packet.ShardId));
+        Assert.That(deserializedPacket.Command, Is.EqualTo(packet.Command));
+        Assert.That(deserializedPacket.ShardId, Is.EqualTo(packet.ShardId));
     }
 
     /// <summary>
@@ -185,7 +195,9 @@ public class PacketTests
 
         // Act
         var serialized = _packetManager.WritePacket(packet);
-        var deserialized = _packetManager.ReadPacket(serialized) as ConnectToGameServer;
+        var deserializedPacket = _packetManager.ReadPackets(serialized);
+
+        var deserialized = deserializedPacket.FirstOrDefault(p => p is ConnectToGameServer) as ConnectToGameServer;
 
         // Assert
         Assert.That(deserialized, Is.Not.Null);
@@ -239,7 +251,7 @@ public class PacketTests
         var unknownPacketData = new byte[] { 0xFF, 0x01, 0x00 };
 
         // Act
-        var result = packetManager.ReadPacket(unknownPacketData);
+        var result = packetManager.ReadPackets(unknownPacketData);
 
         // Assert
         Assert.That(result, Is.Null);
@@ -255,7 +267,7 @@ public class PacketTests
         var packet = new GameServerList
         {
             Command = 0xA8,
-            SystemInfoFlag = 0x05
+            SystemInfoFlag = 0x05,
         };
 
         // Add 255 servers
@@ -273,7 +285,9 @@ public class PacketTests
 
         // Act
         var serialized = _packetManager.WritePacket(packet);
-        var deserialized = _packetManager.ReadPacket(serialized) as GameServerList;
+        var deserializedPackets = _packetManager.ReadPackets(serialized);
+
+        var deserialized = deserializedPackets.FirstOrDefault(p => p is GameServerList) as GameServerList;
 
         // Assert
         Assert.That(deserialized, Is.Not.Null);
