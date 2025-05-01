@@ -6,4 +6,5 @@ public enum DirectoryType
     Logs,
     Database,
     WorldSaves,
+    Templates,
 }
