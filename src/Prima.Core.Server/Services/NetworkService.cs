@@ -40,6 +40,8 @@ public class NetworkService : INetworkService
     private readonly IDisposable _channelObservableSubscription;
     private readonly Dictionary<byte, List<INetworkPacketListener>> _listeners = new();
 
+    private List<NetworkSession> _inSeedSessions = new();
+
 
     public NetworkService(
         ILogger<NetworkService> logger, PrimaServerConfig serverConfig, INetworkTransportManager networkTransportManager,
@@ -68,9 +70,28 @@ public class NetworkService : INetworkService
 
     private void NetworkTransportManagerOnClientDisconnected(string transportId, string sessionId, string endpoint)
     {
+        var session = _networkSessionService.GetSession(sessionId);
+
+        session.OnSendPacket -= SendPacket;
+
         if (transportId == _loginContext)
         {
             _logger.LogInformation("Client disconnected from login server: {SessionId} => {Endpoint}", sessionId, endpoint);
+
+            if (session.IsSeed)
+            {
+                _inSeedSessions.Add(
+                    new NetworkSession()
+                    {
+                        Id = session.Id,
+                        Seed = session.Seed,
+                        IsSeed = session.IsSeed
+                    }
+                );
+            }
+
+            _networkSessionService.RemoveSession(sessionId);
+
             return;
         }
 
@@ -88,12 +109,35 @@ public class NetworkService : INetworkService
             _logger.LogInformation("Client connected to login server: {SessionId} => {Endpoint}", sessionId, endpoint);
 
             var session = _networkSessionService.AddSession(sessionId);
+
+            session.OnSendPacket += SendPacket;
         }
         else if (transportId == _gameContext)
         {
             _logger.LogInformation("Client connected to game server: {SessionId} => {Endpoint}", sessionId, endpoint);
         }
     }
+
+    private async Task SendPacket(string sessionId, IUoNetworkPacket packet)
+    {
+        try
+        {
+            var data = _packetManager.WritePacket(packet);
+            _networkTransportManager.EnqueueMessageAsync(
+                new NetworkMessageData(sessionId, data, ServerNetworkType.None)
+            );
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(
+                e,
+                "Error while sending packet {PacketType} to session {SessionId}",
+                packet.GetType().Name,
+                sessionId
+            );
+        }
+    }
+
 
     private async Task HandleIncomingMessages(NetworkMessageData data)
     {

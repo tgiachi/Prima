@@ -1,5 +1,8 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Orion.Core.Server.Interfaces.Services.Base;
+using Orion.Core.Server.Interfaces.Services.System;
+using Prima.Core.Server.Data.Session;
 using Prima.Core.Server.Interfaces.Listeners;
 using Prima.Core.Server.Interfaces.Services;
 using Prima.Network.Interfaces.Packets;
@@ -19,7 +22,9 @@ public abstract class BasePacketListenerHandler : INetworkPacketListener, IOrion
     protected abstract void RegisterHandlers();
 
 
-    protected BasePacketListenerHandler(ILogger<BasePacketListenerHandler> logger, INetworkService networkService, IServiceProvider serviceProvider)
+    protected BasePacketListenerHandler(
+        ILogger<BasePacketListenerHandler> logger, INetworkService networkService, IServiceProvider serviceProvider
+    )
     {
         Logger = logger;
         _networkService = networkService;
@@ -56,5 +61,10 @@ public abstract class BasePacketListenerHandler : INetworkPacketListener, IOrion
         _packetHandlers[typeof(TPacket)] = handler;
         Logger.LogDebug("{PacketType} registered in {ClassType}", typeof(TPacket), GetType());
         _networkService.RegisterPacketListener<TPacket>(this);
+    }
+
+    protected NetworkSession? GetSession(string sessionId)
+    {
+        return _serviceProvider.GetRequiredService<INetworkSessionService<NetworkSession>>().GetSession(sessionId);
     }
 }

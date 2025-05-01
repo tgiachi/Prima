@@ -14,6 +14,7 @@ using Prima.Core.Server.Data.Options;
 using Prima.Core.Server.Modules.Container;
 using Prima.Core.Server.Types;
 using Prima.Network.Modules;
+using Prima.Server.Handlers;
 using Prima.Server.Hosted;
 using Prima.Server.Modules.Container;
 using Prima.Server.Routes;
@@ -58,6 +59,9 @@ class Program
                 }
             )
             ;
+
+
+        builder.Services.AddService<LoginHandler>();
 
         builder.Services.AddHostedService<PrimaHostedService>();
 
