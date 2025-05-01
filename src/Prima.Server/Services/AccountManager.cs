@@ -106,7 +106,7 @@ public class AccountManager : IAccountManager
         {
             Username = "admin",
             Email = "admin@admin.com",
-            HashedPassword = generatedPassword,
+            HashedPassword = HashUtils.CreatePassword(generatedPassword),
             IsAdmin = true,
             IsVerified = true,
         };

@@ -60,7 +60,7 @@ public class AuthService : IAuthService
     {
         AccountEntity userEntity = null;
 
-        if (loginRequest.Email == null)
+        if (loginRequest.EmailOrUsername == null)
         {
             _logger.LogWarning("Login failed: Username and email are both null.");
 
@@ -68,7 +68,14 @@ public class AuthService : IAuthService
         }
 
 
-        userEntity = await _databaseService.FirstOrDefaultAsync<AccountEntity>(s => s.Email == loginRequest.Email);
+        userEntity = await _databaseService.FirstOrDefaultAsync<AccountEntity>(s => s.Email == loginRequest.EmailOrUsername);
+
+        if (userEntity == null)
+        {
+            userEntity = await _databaseService.FirstOrDefaultAsync<AccountEntity>(s =>
+                s.Username == loginRequest.EmailOrUsername
+            );
+        }
 
         if (userEntity == null)
         {
