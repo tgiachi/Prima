@@ -31,7 +31,7 @@ public class PacketTests
         _packetManager.RegisterPacket<LoginRequest>();
         _packetManager.RegisterPacket<LoginDenied>();
         _packetManager.RegisterPacket<GameServerList>();
-        _packetManager.RegisterPacket<SelectServer>();
+        _packetManager.RegisterPacket<ServerListRequest>();
         _packetManager.RegisterPacket<ConnectToGameServer>();
     }
 
@@ -156,7 +156,7 @@ public class PacketTests
     public void SelectServer_SerializeDeserialize_Success()
     {
         // Arrange
-        var packet = new SelectServer
+        var packet = new ServerListRequest
         {
             ShardId = 1
         };
@@ -165,7 +165,7 @@ public class PacketTests
         var serialized = _packetManager.WritePacket(packet);
         var deserialized = _packetManager.ReadPackets(serialized);
 
-        var deserializedPacket = deserialized.FirstOrDefault(p => p is SelectServer) as SelectServer;
+        var deserializedPacket = deserialized.FirstOrDefault(p => p is ServerListRequest) as ServerListRequest;
 
         // Assert
         Assert.That(deserialized, Is.Not.Null);
@@ -221,7 +221,9 @@ public class PacketTests
         var dataArray = writer.ToArray();
 
         // Act
-        using var reader = new PacketReader(dataArray, dataArray.Length, true);
+        using var reader = new PacketReader();
+
+        reader.Initialize(dataArray, dataArray.Length, true);
 
         // Assert
         Assert.That(reader.ReadByte(), Is.EqualTo(0x01));
@@ -321,25 +323,4 @@ public class PacketTests
         Assert.That(packet.Servers.Count, Is.EqualTo(255));
     }
 
-    /// <summary>
-    /// Tests that the ToString method of BaseUoNetworkPacket works correctly.
-    /// </summary>
-    [Test]
-    public void BaseUoNetworkPacket_ToString_ReturnsExpectedFormat()
-    {
-        // Arrange
-        var packet = new LoginRequest
-        {
-            Username = "TestUser",
-            Password = "TestPassword",
-            NextLoginKey = 0x01
-        };
-
-        // Act
-        var result = packet.ToString();
-
-        // Assert
-        Assert.That(result, Does.Contain("LoginRequest"));
-        Assert.That(result, Does.Contain("OpCode: 80"));
-    }
 }

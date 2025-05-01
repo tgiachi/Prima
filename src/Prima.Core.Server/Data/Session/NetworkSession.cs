@@ -4,7 +4,7 @@ namespace Prima.Core.Server.Data.Session;
 
 public class NetworkSession : INetworkSession
 {
-    public bool IsAuthenticated { get; set; }
+    public bool IsSeed { get; set; }
 
     public string Id { get; set; }
 
@@ -14,6 +14,6 @@ public class NetworkSession : INetworkSession
 
     public void Initialize()
     {
-        IsAuthenticated = false;
+        IsSeed = false;
     }
 }

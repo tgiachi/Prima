@@ -125,7 +125,7 @@ public class NetworkService : INetworkService
                         {
                             _processQueueService.Enqueue(
                                 _listenersContext,
-                                async () => { await listener.OnMessageReceived(data.SessionId, packet); }
+                                async () => { await listener.OnPacketReceived(data.SessionId, packet); }
                             );
                         }
                         catch (Exception ex)
@@ -196,7 +196,7 @@ public class NetworkService : INetworkService
         _packetManager.RegisterPacket<ClientVersion>();
         _packetManager.RegisterPacket<LoginRequest>();
         _packetManager.RegisterPacket<ConnectToGameServer>();
-        _packetManager.RegisterPacket<SelectServer>();
+        _packetManager.RegisterPacket<ServerListRequest>();
         _packetManager.RegisterPacket<GameServerList>();
         _packetManager.RegisterPacket<LoginDenied>();
     }

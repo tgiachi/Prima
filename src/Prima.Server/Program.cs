@@ -12,6 +12,7 @@ using Prima.Core.Server.Modules.Container;
 using Prima.Core.Server.Types;
 using Prima.Network.Modules;
 using Prima.Server.Hosted;
+using Prima.Server.Modules.Container;
 using Serilog;
 
 namespace Prima.Server;
@@ -40,6 +41,7 @@ class Program
             .AddModule<DefaultOrionScriptsModule>()
             .AddModule<UoNetworkContainerModule>()
             .AddModule<PrimaServerModuleContainer>()
+            .AddModule<DatabaseModule>()
             .AddService<INetworkTransportManager, NetworkTransportManager>()
             .AddSingleton(
                 new EventBusConfig()

@@ -95,7 +95,7 @@ public class PacketManager : IPacketManager
     /// <returns>A list of deserialized packets, or an empty list if no valid packets could be parsed.</returns>
     public List<IUoNetworkPacket> ReadPackets(byte[] data)
     {
-        List<IUoNetworkPacket> packets = new();
+        List<IUoNetworkPacket> packets = [];
         var buffer = new Memory<byte>(data);
 
         while (buffer.Length > 0)
