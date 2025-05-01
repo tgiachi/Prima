@@ -9,6 +9,9 @@ public class AuthServicesModule : IOrionContainerModule
 {
     public IServiceCollection RegisterServices(IServiceCollection services)
     {
-        return services.AddService<IAuthService, AuthService>();
+        return services
+                .AddService<IAuthService, AuthService>()
+                .AddService<IAccountManager, AccountManager>()
+            ;
     }
 }

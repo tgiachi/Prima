@@ -4,7 +4,7 @@ using Prima.Core.Server.Entities;
 
 namespace Prima.Core.Server.Interfaces.Services;
 
-public interface IAccountManager : IOrionService
+public interface IAccountManager : IOrionService, IOrionStartService
 {
     Task<AccountResult> CreateAccountAsync(string username, string password, string? email = null);
     Task<AccountEntity> LoginAsync(string username, string password);
