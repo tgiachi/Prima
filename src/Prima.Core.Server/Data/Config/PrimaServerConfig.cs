@@ -17,5 +17,7 @@ public class PrimaServerConfig : IOrionServerConfig
 
     public AccountServerConfig Accounts { get; set; } = new();
 
+    public SmtpConfig Smtp { get; set; } = new();
+
     public TcpServerConfig TcpServer { get; set; } = new();
 }

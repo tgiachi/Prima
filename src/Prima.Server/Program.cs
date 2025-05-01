@@ -80,6 +80,8 @@ class Program
         builder.Services.AddSwaggerGen();
 
 
+        Environment.SetEnvironmentVariable("PRIMA_HTTP_PORT", appContext.Config.TcpServer.WebServerPort.ToString());
+
         builder.WebHost.ConfigureKestrel(s =>
             {
                 s.AddServerHeader = false;
@@ -101,12 +103,16 @@ class Program
             .WithName("Prima API V1")
             .WithTags("Prima API V1");
 
-        group.MapAuthRoutes();
+        group
+            .MapAuthRoutes()
+            .MapAccountRoutes()
+            .MapStatusRoutes()
+            ;
 
         await app.RunAsync();
     }
 
-    static void InitJwtAuth(IServiceCollection services, PrimaServerConfig config)
+    private static void InitJwtAuth(IServiceCollection services, PrimaServerConfig config)
     {
         IdentityModelEventSource.ShowPII = true;
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
