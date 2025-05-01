@@ -15,4 +15,9 @@
       <ProjectReference Include="..\Prima.Network\Prima.Network.csproj" />
     </ItemGroup>
 
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+    </ItemGroup>
+
 </Project>

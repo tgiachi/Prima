@@ -16,4 +16,8 @@ public class AccountEntity : BaseDbEntity
     public string? Email { get; set; }
 
     public bool IsVerified { get; set; }
+
+    public string? RefreshToken { get; set; }
+
+    public DateTime? RefreshTokenExpiry { get; set; }
 }

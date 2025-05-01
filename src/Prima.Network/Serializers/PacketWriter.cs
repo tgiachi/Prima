@@ -10,7 +10,7 @@ using System.Text;
 public sealed class PacketWriter : IDisposable
 {
     private readonly byte[] _buffer = new byte[4];
-    private int _capacity;
+    private readonly int _capacity;
     private bool _disposed;
 
 
@@ -57,7 +57,7 @@ public sealed class PacketWriter : IDisposable
     /// <param name="value">The boolean value to write.</param>
     public void Write(bool value)
     {
-        UnderlyingStream.WriteByte((byte)(value ? 1 : 0));
+        UnderlyingStream.WriteByte((byte)(value ? 255 : 0));
     }
 
     /// <summary>

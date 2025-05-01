@@ -5,4 +5,5 @@ public enum DirectoryType
     Scripts,
     Logs,
     Database,
+    WorldSaves,
 }
