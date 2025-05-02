@@ -61,7 +61,9 @@ class Program
             ;
 
 
-        builder.Services.AddService<LoginHandler>();
+        builder.Services
+            .AddService<ConnectionHandler>()
+            .AddService<LoginHandler>();
 
         builder.Services.AddHostedService<PrimaHostedService>();
 
