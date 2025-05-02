@@ -10,6 +10,7 @@ using Orion.Core.Server.Modules.Container;
 using Orion.Foundations.Utils;
 using Orion.Network.Core.Interfaces.Services;
 using Orion.Network.Core.Services;
+using Prima.Core.Server.Data;
 using Prima.Core.Server.Data.Config;
 using Prima.Core.Server.Data.Config.Internal.EventLoop;
 using Prima.Core.Server.Data.Options;
@@ -52,11 +53,13 @@ class Program
             .AddEventBusService()
             .AddProcessQueueService()
             .AddScriptEngineService()
-            .AddDiagnosticService(new DiagnosticServiceConfig()
-            {
-                MetricsIntervalInSeconds = 60,
-                PidFileName = "prima_server.pid",
-            });
+            .AddDiagnosticService(
+                new DiagnosticServiceConfig()
+                {
+                    MetricsIntervalInSeconds = 60,
+                    PidFileName = "prima_server.pid",
+                }
+            );
 
         builder.Services
             .AddModule<DefaultOrionServiceModule>()
@@ -107,6 +110,8 @@ class Program
         );
 
         var app = builder.Build();
+
+        PrimaServerContext.ServiceProvider = app.Services;
 
         app.MapOpenApi();
         app.UseSwagger();
