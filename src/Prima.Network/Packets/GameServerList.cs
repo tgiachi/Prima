@@ -11,10 +11,6 @@ namespace Prima.Network.Packets;
 /// </summary>
 public class GameServerList() : BaseUoNetworkPacket(0xA8, -1)
 {
-    /// <summary>
-    /// The command identifier for this packet.
-    /// </summary>
-    public byte Command { get; set; } = 0xA8;
 
     /// <summary>
     /// System Information Flag - typically set to 0x05.

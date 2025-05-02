@@ -58,6 +58,6 @@ public abstract class BaseUoNetworkPacket : IUoNetworkPacket
     /// <returns>A string containing the packet type name and OpCode.</returns>
     public override string ToString()
     {
-        return GetType().Name + " { OpCode: " + OpCode.ToString("X2") + " }";
+        return GetType().Name + " { OpCode: 0x" + OpCode.ToString("X2") + " }";
     }
 }

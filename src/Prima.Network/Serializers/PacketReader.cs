@@ -8,7 +8,7 @@ namespace Prima.Network.Serializers;
 /// </summary>
 public class PacketReader : IDisposable
 {
-    private readonly byte[] _buffer;
+    private byte[] _buffer;
     private bool _disposed;
 
     /// <summary>
@@ -17,19 +17,16 @@ public class PacketReader : IDisposable
     /// <param name="data">The byte array containing packet data.</param>
     /// <param name="size">The size of the packet data.</param>
     /// <param name="fixedSize">Whether the packet has a fixed size header.</param>
-    public PacketReader(byte[] data, int size, bool fixedSize)
+    public PacketReader()
     {
-        _buffer =  data ?? throw new ArgumentNullException(nameof(data));
-        Size = Math.Min(size, data.Length);
-        Position = fixedSize ? 1 : 3;
     }
 
-    /// <summary>
-    ///     Initializes a new instance of the <see cref="PacketReader" /> class.
-    /// </summary>
-    /// <param name="data">The byte array containing packet data.</param>
-    public PacketReader(byte[] data) : this(data, data.Length, false)
+
+    public void Initialize(byte[] data, int size, bool fixedSize)
     {
+        _buffer = data ?? throw new ArgumentNullException(nameof(data));
+        Size = Math.Min(size, data.Length);
+        Position = fixedSize ? 1 : 3;
     }
 
     /// <summary>
@@ -40,7 +37,7 @@ public class PacketReader : IDisposable
     /// <summary>
     ///     Gets the size of the packet.
     /// </summary>
-    public int Size { get; }
+    public int Size { get; private set; }
 
     /// <summary>
     ///     Gets the current position in the buffer.

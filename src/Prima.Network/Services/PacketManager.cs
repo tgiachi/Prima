@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Logging;
+using Orion.Foundations.Pool;
 using Prima.Network.Interfaces.Packets;
 using Prima.Network.Interfaces.Services;
+using Prima.Network.Internal;
 using Prima.Network.Serializers;
 
 namespace Prima.Network.Services;
@@ -20,6 +22,17 @@ public class PacketManager : IPacketManager
     /// Dictionary mapping OpCodes to packet factory functions.
     /// </summary>
     private readonly Dictionary<byte, Func<IUoNetworkPacket>> _packets = new();
+
+
+    /// <summary>
+    ///  Object pool for reusing PacketReader instances.
+    /// </summary>
+    private readonly ObjectPool<PacketReader> _readerPool = new();
+
+    /// <summary>
+    /// Object pool for reusing PacketWriter instances.
+    /// </summary>
+    private readonly ObjectPool<PacketWriter> _writerPool = new();
 
     /// <summary>
     /// Initializes a new instance of the PacketManager class.
@@ -59,7 +72,7 @@ public class PacketManager : IPacketManager
     /// <returns>A byte array containing the serialized packet data.</returns>
     public byte[] WritePacket<T>(T packet) where T : IUoNetworkPacket
     {
-        using var packetWriter = new PacketWriter();
+        var packetWriter = _writerPool.Get();
 
         // Write OpCode
         packetWriter.Write(packet.OpCode);
@@ -82,92 +95,129 @@ public class PacketManager : IPacketManager
     /// <returns>A list of deserialized packets, or an empty list if no valid packets could be parsed.</returns>
     public List<IUoNetworkPacket> ReadPackets(byte[] data)
     {
-        List<IUoNetworkPacket> packets = new();
-
-        // Create a copy of the original buffer to work with
+        List<IUoNetworkPacket> packets = [];
         var buffer = new Memory<byte>(data);
 
         while (buffer.Length > 0)
         {
-            // Check if we have at least enough data for OpCode
-            if (buffer.Length < 1)
+            var packetResult = TryReadPacket(buffer);
+            if (!packetResult.Success)
             {
                 break;
             }
 
-            var opCode = buffer.Span[0];
-
-            if (!_packets.TryGetValue(opCode, out var packetFunc))
-            {
-                _logger.LogWarning("Packet with OpCode {OpCode} is not registered.", opCode.ToString("X2"));
-                break; // We can't continue if we don't know the packet type
-            }
-
-            var packet = packetFunc();
-
-            // Check if we have enough data for this entire packet
-            int expectedPacketLength = packet.Length;
-
-            // If Length is -1, it means variable length packet that needs to be parsed
-            // to determine its actual length
-            if (expectedPacketLength == -1)
-            {
-                // For variable length packets, we need at least 3 bytes (OpCode + Length field)
-                if (buffer.Length < 3)
-                {
-                    _logger.LogWarning("Buffer too small for variable length packet header: {Length} bytes", buffer.Length);
-                    break;
-                }
-
-                // Read the length from the packet (assuming it's at bytes 1-2)
-                ushort length = (ushort)((buffer.Span[1] << 8) | buffer.Span[2]);
-                expectedPacketLength = 3 + length; // OpCode(1) + LengthField(2) + Payload(length)
-            }
-
-            // Check if we have enough data for the entire packet
-            if (buffer.Length < expectedPacketLength)
-            {
-                _logger.LogWarning(
-                    "Packet data truncated. Expected length: {Expected}, Actual available: {Actual}",
-                    expectedPacketLength,
-                    buffer.Length
-                );
-                break;
-            }
-
-            // Extract the packet data
-            var packetData = buffer[..expectedPacketLength].ToArray();
-
-            // Process the packet
-            using (var packetReader = new PacketReader(packetData, expectedPacketLength, true))
-            {
-                try
-                {
-                    // Skip OpCode as it's already been read
-                    //packetReader.ReadByte();
-
-                    // If it's a variable length packet, skip the length bytes too
-                    if (packet.Length == -1)
-                    {
-                        packetReader.ReadUInt16BE();
-                    }
-
-                    // Read the packet content
-                    packet.Read(packetReader);
-                    packets.Add(packet);
-
-                    _logger.LogDebug("Successfully parsed packet: {PacketType}", packet.GetType().Name);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error parsing packet with OpCode {OpCode}", opCode.ToString("X2"));
-                }
-            }
-
-            // Remove the processed packet from the buffer
-            buffer = buffer[expectedPacketLength..];
+            packets.Add(packetResult.Packet);
+            buffer = buffer[packetResult.ConsumedBytes..];
         }
 
         return packets;
+    }
+
+    /// <summary>
+    /// Attempts to read a single packet from the buffer.
+    /// </summary>
+    /// <param name="buffer">The memory buffer containing packet data.</param>
+    /// <returns>A result object containing the packet, consumed bytes, and success status.</returns>
+    private PacketReadResult TryReadPacket(Memory<byte> buffer)
+    {
+        // Check if we have at least enough data for OpCode
+        if (buffer.Length < 1)
+        {
+            _logger.LogWarning("Buffer too small for packet header");
+            return PacketReadResult.Failed();
+        }
+
+        byte opCode = buffer.Span[0];
+        if (!_packets.TryGetValue(opCode, out var packetFunc))
+        {
+            _logger.LogWarning("Packet with OpCode {OpCode} is not registered", opCode.ToString("X2"));
+            return PacketReadResult.Failed();
+        }
+
+        IUoNetworkPacket packet = packetFunc();
+        int expectedLength = DeterminePacketLength(packet, buffer);
+
+        if (expectedLength < 0)
+        {
+            return PacketReadResult.Failed();
+        }
+
+        if (buffer.Length < expectedLength)
+        {
+            _logger.LogWarning(
+                "Packet data truncated. Expected length: {Expected}, Actual available: {Actual}",
+                expectedLength,
+                buffer.Length
+            );
+            return PacketReadResult.Failed();
+        }
+
+        if (!TryParsePacket(packet, buffer[..expectedLength].ToArray(), expectedLength))
+        {
+            return PacketReadResult.Failed();
+        }
+
+        return new PacketReadResult(packet, expectedLength, true);
+    }
+
+    /// <summary>
+    /// Determines the expected length of a packet based on its type and buffer content.
+    /// </summary>
+    /// <param name="packet">The packet to determine length for.</param>
+    /// <param name="buffer">The buffer containing the packet data.</param>
+    /// <returns>The expected length in bytes, or -1 if length cannot be determined.</returns>
+    private int DeterminePacketLength(IUoNetworkPacket packet, Memory<byte> buffer)
+    {
+        int length = packet.Length;
+
+        // Fixed length packet
+        if (length != -1)
+        {
+            return length;
+        }
+
+        // Variable length packet - need at least 3 bytes (OpCode + Length field)
+        if (buffer.Length < 3)
+        {
+            _logger.LogWarning("Buffer too small for variable length packet header: {Length} bytes", buffer.Length);
+            return -1;
+        }
+
+        // Read the length from the packet (assuming it's at bytes 1-2)
+        ushort packetLength = (ushort)((buffer.Span[1] << 8) | buffer.Span[2]);
+
+        // Length field includes the entire packet length, no need to add OpCode bytes
+        return packetLength;
+    }
+
+    /// <summary>
+    /// Attempts to parse a packet from the provided data.
+    /// </summary>
+    /// <param name="packet">The packet instance to populate.</param>
+    /// <param name="packetData">The raw packet data.</param>
+    /// <param name="packetLength">The length of the packet data.</param>
+    /// <returns>True if parsing was successful, false otherwise.</returns>
+    private bool TryParsePacket(IUoNetworkPacket packet, byte[] packetData, int packetLength)
+    {
+        try
+        {
+            var packetReader = _readerPool.Get();
+
+            packetReader.Initialize(packetData, packetLength, true);
+
+            // Read the packet content
+            packet.Read(packetReader);
+            _logger.LogDebug("Successfully parsed packet: {PacketType}", packet.GetType().Name);
+
+            // Return the packet to the pool
+            _readerPool.Return(packetReader);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error parsing packet with OpCode {OpCode}", packetData[0].ToString("X2"));
+            return false;
+        }
     }
 }

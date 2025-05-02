@@ -11,13 +11,8 @@ namespace Prima.Network.Packets;
 /// <remarks>
 /// OpCode: 0x82
 /// </remarks>
-public class LoginDenied() : BaseUoNetworkPacket(0x82, -1)
+public class LoginDenied() : BaseUoNetworkPacket(0x82, 1)
 {
-    /// <summary>
-    /// Gets or sets the command byte for this packet.
-    /// </summary>
-    public byte Command { get; set; }
-
     /// <summary>
     /// Gets or sets the reason why the login was denied.
     /// </summary>
@@ -29,7 +24,6 @@ public class LoginDenied() : BaseUoNetworkPacket(0x82, -1)
     /// <param name="writer">The packet writer to write data to.</param>
     public override void Write(PacketWriter writer)
     {
-        writer.WriteByte(Command);
         writer.WriteEnum(Reason);
     }
 
@@ -39,7 +33,6 @@ public class LoginDenied() : BaseUoNetworkPacket(0x82, -1)
     /// <param name="reader">The packet reader to read data from.</param>
     public override void Read(PacketReader reader)
     {
-        Command = reader.ReadByte();
         Reason = reader.ReadEnum<LoginDeniedReasonType>();
     }
 }

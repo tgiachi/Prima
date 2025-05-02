@@ -15,11 +15,6 @@ namespace Prima.Network.Packets;
 public class ConnectToGameServer() : BaseUoNetworkPacket(0x8C, 11)
 {
     /// <summary>
-    /// Gets or sets the command byte for this packet.
-    /// </summary>
-    public byte Command { get; set; }
-
-    /// <summary>
     /// Gets or sets the IP address of the game server to connect to.
     /// </summary>
     public IPAddress GameServerIP { get; set; }

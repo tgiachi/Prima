@@ -10,12 +10,8 @@ namespace Prima.Network.Packets;
 /// <remarks>
 /// OpCode: 0xA0
 /// </remarks>
-public class SelectServer() : BaseUoNetworkPacket(0xA0, 3)
+public class ServerListRequest() : BaseUoNetworkPacket(0xA0, 3)
 {
-    /// <summary>
-    /// Gets or sets the command byte for this packet.
-    /// </summary>
-    public byte Command { get; set; }
 
     /// <summary>
     /// Gets or sets the ID of the selected shard (game server).
@@ -29,7 +25,6 @@ public class SelectServer() : BaseUoNetworkPacket(0xA0, 3)
     /// <param name="reader">The packet reader to read data from.</param>
     public override void Read(PacketReader reader)
     {
-        Command = reader.ReadByte();
         ShardId = reader.ReadUInt16BE();
     }
 
@@ -39,7 +34,6 @@ public class SelectServer() : BaseUoNetworkPacket(0xA0, 3)
     /// <param name="writer">The packet writer to write data to.</param>
     public override void Write(PacketWriter writer)
     {
-        writer.WriteByte(Command);
         writer.WriteUInt16BE(ShardId);
     }
 }

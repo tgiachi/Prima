@@ -47,6 +47,9 @@ RUN adduser -D -h /app prima && \
 RUN mkdir -p /app/data /app/logs /app/scripts && \
     chown -R prima:prima /app/data /app/logs /app/scripts
 
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:${PRIMA_HTTP_PORT:-23000}/api/v1/status/health || exit 1
+
 USER prima
 ENV ASPNETCORE_URLS=""
 ENTRYPOINT ["./Prima.Server"]
