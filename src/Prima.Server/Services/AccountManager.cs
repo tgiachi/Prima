@@ -133,6 +133,7 @@ public class AccountManager : IAccountManager
             HashedPassword = HashUtils.CreatePassword(generatedPassword),
             IsAdmin = true,
             IsVerified = true,
+            IsActive = true
         };
 
         var result = await _databaseService.InsertAsync(defaultAdminUser);
