@@ -1,3 +1,5 @@
+using System.Net;
+
 namespace Prima.Network.Serializers;
 
 using System;
@@ -178,6 +180,16 @@ public sealed class PacketWriter : IDisposable
             return;
 
         UnderlyingStream.Write(buffer, 0, buffer.Length);
+    }
+
+    public void WriteIpAddress(IPAddress ipAddress)
+    {
+        if  (ipAddress == null)
+            return;
+
+        byte[] ipBytes = ipAddress.GetAddressBytes();
+        Array.Reverse(ipBytes);
+        UnderlyingStream.Write(ipBytes, 0, ipBytes.Length);
     }
 
     /// <summary>

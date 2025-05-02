@@ -261,7 +261,7 @@ public class NetworkService : INetworkService
         _packetManager.RegisterPacket<ClientVersion>();
         _packetManager.RegisterPacket<LoginRequest>();
         _packetManager.RegisterPacket<ConnectToGameServer>();
-        _packetManager.RegisterPacket<ServerListRequest>();
+        _packetManager.RegisterPacket<SelectServer>();
         _packetManager.RegisterPacket<GameServerList>();
         _packetManager.RegisterPacket<LoginDenied>();
     }

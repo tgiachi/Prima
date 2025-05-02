@@ -31,7 +31,7 @@ public class PacketTests
         _packetManager.RegisterPacket<LoginRequest>();
         _packetManager.RegisterPacket<LoginDenied>();
         _packetManager.RegisterPacket<GameServerList>();
-        _packetManager.RegisterPacket<ServerListRequest>();
+        _packetManager.RegisterPacket<SelectServer>();
         _packetManager.RegisterPacket<ConnectToGameServer>();
     }
 
@@ -156,7 +156,7 @@ public class PacketTests
     public void SelectServer_SerializeDeserialize_Success()
     {
         // Arrange
-        var packet = new ServerListRequest
+        var packet = new SelectServer
         {
             ShardId = 1
         };
@@ -165,7 +165,7 @@ public class PacketTests
         var serialized = _packetManager.WritePacket(packet);
         var deserialized = _packetManager.ReadPackets(serialized);
 
-        var deserializedPacket = deserialized.FirstOrDefault(p => p is ServerListRequest) as ServerListRequest;
+        var deserializedPacket = deserialized.FirstOrDefault(p => p is SelectServer) as SelectServer;
 
         // Assert
         Assert.That(deserialized, Is.Not.Null);
@@ -184,7 +184,7 @@ public class PacketTests
         {
             GameServerIP = IPAddress.Parse("192.168.1.100"),
             GameServerPort = 2593,
-            SessionKey = 0x12345678
+            AuthKey = 0x12345678
         };
 
         // Act
@@ -197,7 +197,7 @@ public class PacketTests
         Assert.That(deserialized, Is.Not.Null);
         Assert.That(deserialized.GameServerIP.ToString(), Is.EqualTo(packet.GameServerIP.ToString()));
         Assert.That(deserialized.GameServerPort, Is.EqualTo(packet.GameServerPort));
-        Assert.That(deserialized.SessionKey, Is.EqualTo(packet.SessionKey));
+        Assert.That(deserialized.AuthKey, Is.EqualTo(packet.AuthKey));
     }
 
     /// <summary>

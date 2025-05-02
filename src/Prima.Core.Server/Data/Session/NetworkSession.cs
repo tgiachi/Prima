@@ -15,6 +15,8 @@ public class NetworkSession : INetworkSession
 
     public int Seed { get; set; }
 
+    public uint AuthId { get; set; }
+
     public string ClientVersion { get; set; }
 
 
@@ -27,6 +29,7 @@ public class NetworkSession : INetworkSession
         IsSeed = false;
         Id = string.Empty;
         Seed = 0;
+        AuthId = 0;
     }
 
     public async Task SendPacketAsync(params IUoNetworkPacket[] packets)
