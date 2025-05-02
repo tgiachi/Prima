@@ -22,6 +22,6 @@ public class ConnectionHandler : BasePacketListenerHandler, INetworkPacketListen
     public async Task OnPacketReceived(NetworkSession session, ClientVersion packet)
     {
         session.Seed = packet.Seed;
-        session.ClientVersion = $"{packet.MajorVersion}.{packet.MajorVersion}.{packet.Revision}.{packet.Prototype}";
+        session.ClientVersion = packet;
     }
 }

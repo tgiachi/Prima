@@ -184,7 +184,7 @@ public class PacketTests
         {
             GameServerIP = IPAddress.Parse("192.168.1.100"),
             GameServerPort = 2593,
-            AuthKey = 0x12345678
+            SessionKey = 0x12345678
         };
 
         // Act
@@ -197,7 +197,37 @@ public class PacketTests
         Assert.That(deserialized, Is.Not.Null);
         Assert.That(deserialized.GameServerIP.ToString(), Is.EqualTo(packet.GameServerIP.ToString()));
         Assert.That(deserialized.GameServerPort, Is.EqualTo(packet.GameServerPort));
-        Assert.That(deserialized.AuthKey, Is.EqualTo(packet.AuthKey));
+        Assert.That(deserialized.SessionKey, Is.EqualTo(packet.SessionKey));
+    }
+
+
+    [Test]
+    public void ConnectToGameServer_Parse()
+    {
+
+
+
+        //                     8c    5f    8d     20   3a    0a    1e    cf    7f    8f    b5
+        var array = new byte[] { 0x8c, 0x5f, 0x8d, 0x20, 0x3a, 0x0a, 0x1e, 0xcf, 0x7f, 0x8f, 0xb5 };
+
+        var deserializedPacket = _packetManager.ReadPackets(array);
+
+        var deserialized = deserializedPacket.FirstOrDefault(p => p is ConnectToGameServer) as ConnectToGameServer;
+
+        // Assert
+        Assert.That(deserialized, Is.Not.Null);
+
+        var connectToServer = new ConnectToGameServer();
+
+        connectToServer.GameServerIP = IPAddress.Parse("95.141.32.58");
+        connectToServer.GameServerPort = 2590;
+        connectToServer.SessionKey = -813723723;
+
+        var serialized = _packetManager.WritePacket(connectToServer);
+
+        Assert.That(serialized, Is.EqualTo(array));
+
+
     }
 
     /// <summary>
@@ -322,5 +352,4 @@ public class PacketTests
         // Assert
         Assert.That(packet.Servers.Count, Is.EqualTo(255));
     }
-
 }

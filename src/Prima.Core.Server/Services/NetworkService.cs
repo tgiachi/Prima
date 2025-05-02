@@ -70,6 +70,20 @@ public class NetworkService : INetworkService
 
         _networkTransportManager.ClientConnected += NetworkTransportManagerOnClientConnected;
         _networkTransportManager.ClientDisconnected += NetworkTransportManagerOnClientDisconnected;
+
+        _networkTransportManager.RawPacketIn += (id, transportId, data) =>
+        {
+            var transport = _networkTransportManager.GetTransport(transportId);
+
+            _logger.LogDebug("<- {Session} {Transport} {Data}", id, transport.Id, data.HumanizedContent(20));
+        };
+
+        _networkTransportManager.RawPacketOut += (id, transportId, data) =>
+        {
+            var transport = _networkTransportManager.GetTransport(transportId);
+
+            _logger.LogDebug("-> {Session} {Transport} {Data}", id, transport.Id, data.HumanizedContent(20));
+        };
     }
 
     private void NetworkTransportManagerOnClientDisconnected(string transportId, string sessionId, string endpoint)
@@ -77,6 +91,7 @@ public class NetworkService : INetworkService
         var session = _networkSessionService.GetSession(sessionId);
 
         session.OnSendPacket -= SendPacket;
+        session.OnDisconnect -= DisconnectSession;
 
         if (transportId == _loginContext)
         {
@@ -115,11 +130,20 @@ public class NetworkService : INetworkService
             var session = _networkSessionService.AddSession(sessionId);
 
             session.OnSendPacket += SendPacket;
+            session.OnDisconnect += DisconnectSession;
         }
         else if (transportId == _gameContext)
         {
             _logger.LogInformation("Client connected to game server: {SessionId} => {Endpoint}", sessionId, endpoint);
         }
+    }
+
+    private async Task DisconnectSession(string id)
+    {
+        _eventLoopService.EnqueueAction(
+            "disconnect_session_" + id,
+            async () => { await _networkTransportManager.DisconnectAsync(id); }
+        );
     }
 
 

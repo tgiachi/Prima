@@ -1,4 +1,5 @@
 using System.Net;
+using System.Security.Cryptography;
 using Microsoft.Extensions.Logging;
 using Prima.Core.Server.Data.Config;
 using Prima.Core.Server.Data.Session;
@@ -19,7 +20,7 @@ public class LoginHandler
 
     private readonly PrimaServerConfig _primaServerConfig;
 
-    private List<GameServerEntry> _gameServerEntries = new();
+    private readonly List<GameServerEntry> _gameServerEntries = new();
 
     public LoginHandler(
         ILogger<LoginHandler> logger, INetworkService networkService, IServiceProvider serviceProvider,
@@ -80,28 +81,45 @@ public class LoginHandler
         gameServerList.Servers.AddRange(_gameServerEntries);
 
 
+        session.AccountId = login.Id.ToString();
+
+
         await session.SendPacketAsync(gameServerList);
     }
 
     public async Task OnPacketReceived(NetworkSession session, SelectServer packet)
     {
-        session.AuthId = (uint)Random.Shared.Next();
         Logger.LogInformation(
-            "User selected server {ServerId} generated authKey: {AuthKey}",
-            packet.ShardId,
-            session.AuthId
+            "User selected server {ServerId}",
+            packet.ShardId
         );
+
+        var sessionKey = GenerateSessionKey();
 
 
         var gameServer = _gameServerEntries[packet.ShardId];
 
-        await session.SendPacketAsync(
-            new ConnectToGameServer()
-            {
-                GameServerIP = gameServer.IP,
-                GameServerPort = (ushort)_primaServerConfig.TcpServer.GamePort,
-                AuthKey = session.AuthId,
-            }
-        );
+        var connectToServer = new ConnectToGameServer()
+        {
+            GameServerIP = gameServer.IP,
+            GameServerPort = (short)_primaServerConfig.TcpServer.GamePort,
+            SessionKey = sessionKey
+        };
+
+
+        await session.SendPacketAsync(connectToServer);
+
+        //await session.Disconnect();
+    }
+
+    public static int GenerateSessionKey()
+    {
+        byte[] keyBytes = new byte[4];
+        using (var rng = RandomNumberGenerator.Create())
+        {
+            rng.GetBytes(keyBytes);
+        }
+
+        return BitConverter.ToInt32(keyBytes, 0);
     }
 }

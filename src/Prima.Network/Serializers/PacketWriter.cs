@@ -188,7 +188,7 @@ public sealed class PacketWriter : IDisposable
             return;
 
         byte[] ipBytes = ipAddress.GetAddressBytes();
-        Array.Reverse(ipBytes);
+        //Array.Reverse(ipBytes);
         UnderlyingStream.Write(ipBytes, 0, ipBytes.Length);
     }
 
