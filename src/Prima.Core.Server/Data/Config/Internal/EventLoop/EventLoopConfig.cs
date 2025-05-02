@@ -9,7 +9,7 @@ public class EventLoopConfig
     /// Gets or sets the interval in milliseconds between each tick of the event loop.
     /// Default is 50ms (20 ticks per second).
     /// </summary>
-    public int TickIntervalMs { get; set; } = 50;
+    public int TickIntervalMs { get; set; } = 90;
 
     /// <summary>
     /// Gets or sets the maximum number of actions to process in a single tick.

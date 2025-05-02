@@ -1,5 +1,7 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using Orion.Core.Server.Events.Diagnostic;
+using Orion.Core.Server.Interfaces.Metrics;
 using Orion.Core.Server.Interfaces.Services.System;
 using Prima.Core.Server.Data.Config.Internal.EventLoop;
 using Prima.Core.Server.Data.Metrics.EventLoop;
@@ -12,7 +14,7 @@ namespace Prima.Server.Services;
 /// Implementation of the event loop service that manages execution of actions with different priorities.
 /// The event loop runs in a dedicated background task.
 /// </summary>
-public class EventLoopService : IEventLoopService, IDisposable
+public class EventLoopService : IEventLoopService, IDisposable, IMetricsProvider
 {
     private readonly ILogger<EventLoopService> _logger;
     private readonly IEventBusService _eventBusService;
@@ -28,6 +30,15 @@ public class EventLoopService : IEventLoopService, IDisposable
 
     public event IEventLoopService.EventLoopTickHandler? OnTick;
     public event IEventLoopService.EventLoopResetHandler? OnTickReset;
+
+    public string ProviderName => "EventLoop";
+
+
+    public object GetMetrics()
+    {
+        return Metrics;
+    }
+
 
     /// <summary>
     /// Gets or sets the interval in milliseconds between each tick of the event loop.
@@ -54,23 +65,28 @@ public class EventLoopService : IEventLoopService, IDisposable
         _logger = logger;
         _eventBusService = eventBusService;
         _config = config;
+
     }
 
     /// <summary>
     /// Starts the event loop service.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    public Task StartAsync(CancellationToken cancellationToken = default)
+    public async Task StartAsync(CancellationToken cancellationToken = default)
     {
         if (_isRunning)
-            return Task.CompletedTask;
+        {
+            return;
+        }
+
+        await _eventBusService.PublishAsync(new RegisterMetricEvent(this));
 
         _isRunning = true;
         _cancellationTokenSource = new CancellationTokenSource();
         _loopTask = Task.Run(EventLoopAsync, _cancellationTokenSource.Token);
 
         _logger.LogInformation("EventLoopService started with tick interval of {TickIntervalMs}ms", TickIntervalMs);
-        return Task.CompletedTask;
+
     }
 
     /// <summary>
@@ -333,7 +349,7 @@ public class EventLoopService : IEventLoopService, IDisposable
             Metrics.LastTickTimeMs = tickDurationMs;
             Metrics.QueuedActionsCount = _actionQueue.Count + _delayedActions.Count;
 
-            // Log action processing stats periodically (mantenuto dal tuo codice)
+            // Log action processing stats periodically
             if (Metrics.TotalActionsProcessed % 1000 == 0 && Metrics.TotalActionsProcessed > 0)
             {
                 _logger.LogDebug(
@@ -515,4 +531,8 @@ public class EventLoopService : IEventLoopService, IDisposable
         _isDisposed = true;
         GC.SuppressFinalize(this);
     }
+
+
+
+
 }
