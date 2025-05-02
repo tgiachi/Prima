@@ -54,7 +54,8 @@ class Program
             .AddScriptEngineService()
             .AddDiagnosticService(new DiagnosticServiceConfig()
             {
-                MetricsInterval = 60 * 1000
+                MetricsIntervalInSeconds = 60,
+                PidFileName = "prima_server.pid",
             });
 
         builder.Services
