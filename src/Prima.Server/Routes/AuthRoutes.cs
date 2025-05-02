@@ -14,9 +14,9 @@ public static class AuthRoutes
 
         group.MapPost(
             "/login",
-            async (LoginRequestObject request, IAuthService loginService) =>
+            async (LoginRequestObject request, IAccountManager loginService) =>
             {
-                var result = await loginService.LoginAsync(request);
+                var result = await loginService.LoginWebAsync(request);
 
                 if (result.IsSuccess)
                 {

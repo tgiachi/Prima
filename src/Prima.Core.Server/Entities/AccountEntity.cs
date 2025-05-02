@@ -20,4 +20,6 @@ public class AccountEntity : BaseDbEntity
     public string? RefreshToken { get; set; }
 
     public DateTime? RefreshTokenExpiry { get; set; }
+
+    public bool IsActive { get; set; }
 }

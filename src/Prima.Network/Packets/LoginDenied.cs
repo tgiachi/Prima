@@ -18,6 +18,14 @@ public class LoginDenied() : BaseUoNetworkPacket(0x82, 1)
     /// </summary>
     public LoginDeniedReasonType Reason { get; set; }
 
+
+    public LoginDenied(LoginDeniedReasonType reason) : this()
+    {
+        Reason = reason;
+    }
+
+
+
     /// <summary>
     /// Writes the packet data to the provided packet writer.
     /// </summary>

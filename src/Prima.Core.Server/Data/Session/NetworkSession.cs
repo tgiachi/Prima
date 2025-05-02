@@ -29,7 +29,7 @@ public class NetworkSession : INetworkSession
         Seed = 0;
     }
 
-    public async Task SendPacket(params IUoNetworkPacket[] packets)
+    public async Task SendPacketAsync(params IUoNetworkPacket[] packets)
     {
         foreach (var packet in packets)
         {

@@ -1,3 +1,4 @@
+using Prima.Core.Server.Data.Session;
 using Prima.Core.Server.Handlers.Base;
 using Prima.Core.Server.Interfaces.Listeners;
 using Prima.Core.Server.Interfaces.Services;
@@ -18,10 +19,8 @@ public class ConnectionHandler : BasePacketListenerHandler, INetworkPacketListen
         RegisterHandler<ClientVersion>(this);
     }
 
-    public async Task OnPacketReceived(string sessionId, ClientVersion packet)
+    public async Task OnPacketReceived(NetworkSession session, ClientVersion packet)
     {
-        var session = GetSession(sessionId);
-
         session.Seed = packet.Seed;
         session.ClientVersion = $"{packet.MajorVersion}.{packet.MajorVersion}.{packet.Revision}.{packet.Prototype}";
     }

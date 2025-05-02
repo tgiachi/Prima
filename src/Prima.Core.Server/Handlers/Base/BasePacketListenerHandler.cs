@@ -17,6 +17,9 @@ public abstract class BasePacketListenerHandler : INetworkPacketListener, IOrion
     private readonly IServiceProvider _serviceProvider;
 
 
+    protected INetworkSessionService<NetworkSession> SessionService =>
+        _serviceProvider.GetRequiredService<INetworkSessionService<NetworkSession>>();
+
     protected ILogger Logger { get; }
 
     protected abstract void RegisterHandlers();
@@ -39,11 +42,14 @@ public abstract class BasePacketListenerHandler : INetworkPacketListener, IOrion
         if (_packetHandlers.TryGetValue(packetType, out var handlerObj))
         {
             var handlerInterfaceType = typeof(INetworkPacketListener<>).MakeGenericType(packetType);
-            var methodInfo = handlerInterfaceType.GetMethod(nameof(OnPacketReceived), [typeof(string), packetType]);
+            var methodInfo = handlerInterfaceType.GetMethod(nameof(OnPacketReceived), [typeof(NetworkSession), packetType]);
+
+            var session = SessionService.GetSession(sessionId);
+
 
             if (methodInfo != null)
             {
-                return (Task)methodInfo.Invoke(handlerObj, [sessionId, packet]);
+                return (Task)methodInfo.Invoke(handlerObj, [session, packet]);
             }
 
             Logger.LogWarning(
