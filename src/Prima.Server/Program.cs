@@ -125,6 +125,7 @@ class Program
         group
             .MapAuthRoutes()
             .MapAccountRoutes()
+            .MapMetricsRoutes()
             .MapStatusRoutes()
             ;
 
