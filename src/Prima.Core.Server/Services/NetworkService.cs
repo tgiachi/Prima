@@ -90,7 +90,7 @@ public class NetworkService : INetworkService
     {
         var session = _networkSessionService.GetSession(sessionId);
 
-        session.OnSendPacket -= SendPacket;
+        session.OnSendPacket -= SendPacketViaEventLoop;
         session.OnDisconnect -= DisconnectSession;
 
         if (transportId == _loginContext)
@@ -129,7 +129,7 @@ public class NetworkService : INetworkService
 
             var session = _networkSessionService.AddSession(sessionId);
 
-            session.OnSendPacket += SendPacket;
+            session.OnSendPacket += SendPacketViaEventLoop;
             session.OnDisconnect += DisconnectSession;
         }
         else if (transportId == _gameContext)
@@ -149,11 +149,15 @@ public class NetworkService : INetworkService
 
     public Task SendPacket<TPacket>(string sessionId, TPacket packet) where TPacket : IUoNetworkPacket
     {
-        return SendPacket(sessionId, (IUoNetworkPacket)packet);
+        return SendPacketInternal(sessionId, (IUoNetworkPacket)packet);
+    }
+    public Task SendPacketViaEventLoop<TPacket>(string sessionId, TPacket packet) where TPacket : IUoNetworkPacket
+    {
+        return SendPacketViaEventLoop(sessionId, (IUoNetworkPacket)packet);
     }
 
 
-    private async Task SendPacket(string sessionId, IUoNetworkPacket packet)
+    private async Task SendPacketViaEventLoop(string sessionId, IUoNetworkPacket packet)
     {
         _eventLoopService.EnqueueAction(
             $"send_packet_{sessionId.ToShortSessionId()}_{packet.OpCode}",

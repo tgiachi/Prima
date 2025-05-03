@@ -102,17 +102,18 @@ public class LoginHandler
         var connectToServer = new ConnectToGameServer()
         {
             GameServerIP = gameServer.IP,
-            GameServerPort = (short)_primaServerConfig.TcpServer.GamePort,
+            GameServerPort = (ushort)_primaServerConfig.TcpServer.GamePort,
             SessionKey = sessionKey
         };
 
 
-        await session.SendPacketAsync(connectToServer);
+        await NetworkService.SendPacket(session.Id, connectToServer);
+        // await session.SendPacketAsync(connectToServer);
 
         //await session.Disconnect();
     }
 
-    public static int GenerateSessionKey()
+    public static uint GenerateSessionKey()
     {
         byte[] keyBytes = new byte[4];
         using (var rng = RandomNumberGenerator.Create())
@@ -120,6 +121,6 @@ public class LoginHandler
             rng.GetBytes(keyBytes);
         }
 
-        return BitConverter.ToInt32(keyBytes, 0);
+        return BitConverter.ToUInt32(keyBytes, 0);
     }
 }

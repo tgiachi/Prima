@@ -22,13 +22,13 @@ public class ConnectToGameServer() : BaseUoNetworkPacket(0x8c, 11)
     /// <summary>
     /// Gets or sets the port of the game server to connect to.
     /// </summary>
-    public short GameServerPort { get; set; }
+    public ushort GameServerPort { get; set; }
 
     /// <summary>
     /// Gets or sets the session key to authenticate with the game server.
     /// This ensures the connection is coming from a properly authenticated client.
     /// </summary>
-    public int SessionKey { get; set; }
+    public uint SessionKey { get; set; }
 
     /// <summary>
     /// Reads the packet data from the provided packet reader.
@@ -38,8 +38,8 @@ public class ConnectToGameServer() : BaseUoNetworkPacket(0x8c, 11)
     {
         byte[] ipBytes = reader.ReadBytes(4);
         GameServerIP = new IPAddress(ipBytes);
-        GameServerPort = reader.ReadInt16();
-        SessionKey = reader.ReadInt32();
+        GameServerPort = reader.ReadUInt16();
+        SessionKey = reader.ReadUInt32();
     }
 
     /// <summary>
@@ -49,7 +49,7 @@ public class ConnectToGameServer() : BaseUoNetworkPacket(0x8c, 11)
     public override void Write(PacketWriter writer)
     {
         writer.WriteIpAddress(GameServerIP);
-        writer.Write((ushort)GameServerPort);
+        writer.Write(GameServerPort);
         writer.Write(SessionKey);
     }
 }

@@ -13,7 +13,7 @@ public abstract class BasePacketListenerHandler : INetworkPacketListener, IOrion
 {
     private readonly Dictionary<Type, object> _packetHandlers = new();
 
-    private readonly INetworkService _networkService;
+    protected INetworkService NetworkService { get; }
     private readonly IServiceProvider _serviceProvider;
 
 
@@ -30,7 +30,7 @@ public abstract class BasePacketListenerHandler : INetworkPacketListener, IOrion
     )
     {
         Logger = logger;
-        _networkService = networkService;
+        NetworkService = networkService;
         _serviceProvider = serviceProvider;
         RegisterHandlers();
     }
@@ -66,7 +66,7 @@ public abstract class BasePacketListenerHandler : INetworkPacketListener, IOrion
     {
         _packetHandlers[typeof(TPacket)] = handler;
         Logger.LogDebug("{PacketType} registered in {ClassType}", typeof(TPacket), GetType());
-        _networkService.RegisterPacketListener<TPacket>(this);
+        NetworkService.RegisterPacketListener<TPacket>(this);
     }
 
     protected NetworkSession? GetSession(string sessionId)

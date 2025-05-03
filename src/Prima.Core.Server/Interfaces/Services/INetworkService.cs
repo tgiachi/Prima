@@ -8,5 +8,7 @@ public interface INetworkService : IOrionService, IOrionStartService, IDisposabl
 {
     void RegisterPacketListener<TPacket>(INetworkPacketListener listener) where TPacket : IUoNetworkPacket, new();
 
+    Task SendPacketViaEventLoop<TPacket>(string sessionId, TPacket packet) where TPacket : IUoNetworkPacket;
+
     Task SendPacket<TPacket>(string sessionId, TPacket packet) where TPacket : IUoNetworkPacket;
 }
