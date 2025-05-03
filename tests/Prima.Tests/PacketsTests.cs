@@ -221,7 +221,7 @@ public class PacketTests
 
         connectToServer.GameServerIP = IPAddress.Parse("95.141.32.58");
         connectToServer.GameServerPort = 2590;
-        connectToServer.SessionKey = -813723723;
+        connectToServer.SessionKey = 3481243573;
 
         var serialized = _packetManager.WritePacket(connectToServer);
 
