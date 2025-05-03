@@ -3,14 +3,18 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Orion.Core.Server.Data.Config.Internal;
 using Orion.Core.Server.Data.Config.Sections;
 using Orion.Core.Server.Extensions;
 using Orion.Core.Server.Modules.Container;
 using Orion.Foundations.Utils;
 using Orion.Network.Core.Interfaces.Services;
 using Orion.Network.Core.Services;
+using Prima.Core.Server.Data;
 using Prima.Core.Server.Data.Config;
+using Prima.Core.Server.Data.Config.Internal.EventLoop;
 using Prima.Core.Server.Data.Options;
+using Prima.Core.Server.Interfaces.Services;
 using Prima.Core.Server.Modules.Container;
 using Prima.Core.Server.Types;
 using Prima.Network.Modules;
@@ -18,6 +22,7 @@ using Prima.Server.Handlers;
 using Prima.Server.Hosted;
 using Prima.Server.Modules.Container;
 using Prima.Server.Routes;
+using Prima.Server.Services;
 using Serilog;
 
 namespace Prima.Server;
@@ -45,23 +50,31 @@ class Program
 
 
         builder.Services
+            .AddEventBusService()
+            .AddProcessQueueService()
+            .AddScriptEngineService()
+            .AddDiagnosticService(
+                new DiagnosticServiceConfig()
+                {
+                    MetricsIntervalInSeconds = 60,
+                    PidFileName = "prima_server.pid",
+                }
+            );
+
+        builder.Services
             .AddModule<DefaultOrionServiceModule>()
             .AddModule<DefaultOrionScriptsModule>()
             .AddModule<UoNetworkContainerModule>()
             .AddModule<PrimaServerModuleContainer>()
             .AddModule<AuthServicesModule>()
             .AddModule<DatabaseModule>()
-            .AddService<INetworkTransportManager, NetworkTransportManager>()
-            .AddSingleton(
-                new EventBusConfig()
-                {
-                    MaxConcurrentTasks = 4
-                }
-            )
-            ;
+            .AddService<IEventLoopService, EventLoopService>()
+            .AddSingleton(new EventLoopConfig())
+            .AddService<INetworkTransportManager, NetworkTransportManager>();
 
-
-        builder.Services.AddService<LoginHandler>();
+        builder.Services
+            .AddService<ConnectionHandler>()
+            .AddService<LoginHandler>();
 
         builder.Services.AddHostedService<PrimaHostedService>();
 
@@ -98,6 +111,8 @@ class Program
 
         var app = builder.Build();
 
+        PrimaServerContext.ServiceProvider = app.Services;
+
         app.MapOpenApi();
         app.UseSwagger();
         app.UseSwaggerUI(options => { options.SwaggerEndpoint("/openapi/v1.json", "Prima UO server API v1"); }
@@ -110,6 +125,7 @@ class Program
         group
             .MapAuthRoutes()
             .MapAccountRoutes()
+            .MapMetricsRoutes()
             .MapStatusRoutes()
             ;
 

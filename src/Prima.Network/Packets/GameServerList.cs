@@ -11,11 +11,14 @@ namespace Prima.Network.Packets;
 /// </summary>
 public class GameServerList() : BaseUoNetworkPacket(0xA8, -1)
 {
-
     /// <summary>
-    /// System Information Flag - typically set to 0x05.
+    /// System Information Flag - Different values control client behavior:
+    /// 0xCC - Do not send video card info
+    /// 0x64 - Send video card info
+    /// 0x5D - Used by RunUO and SteamEngine
+    /// Default is set to 0x5D to match common server implementations.
     /// </summary>
-    public byte SystemInfoFlag { get; set; } = 0x05;
+    public byte SystemInfoFlag { get; set; } = 0x5D;
 
     /// <summary>
     /// Collection of game servers to be included in the list.
@@ -41,7 +44,8 @@ public class GameServerList() : BaseUoNetworkPacket(0xA8, -1)
     ///
     /// Packet Structure:
     /// BYTE[1] Command (0xA8)
-    /// BYTE[1] SystemInfoFlag (0x05)
+    /// BYTE[2] Length (variable, calculated) - part of the packet header
+    /// BYTE[1] SystemInfoFlag (0x5D, 0x64, or 0xCC)
     /// BYTE[2] Number of servers (big endian)
     /// For each server:
     ///   BYTE[2] Server index (0-based, big endian)
@@ -53,21 +57,46 @@ public class GameServerList() : BaseUoNetworkPacket(0xA8, -1)
     /// <param name="writer">The packet writer to write the data to.</param>
     public override void Write(PacketWriter writer)
     {
+        var servers = GetServers();
+
+        writer.Write((ushort)servers.Length);
+
+        // Write the system info flag
         writer.Write(SystemInfoFlag);
+
+        // Write the number of servers
         writer.WriteUInt16BE((ushort)Servers.Count);
 
-        foreach (var server in Servers)
-        {
-            writer.WriteUInt16BE(server.Index);
-            writer.WriteFixedString(server.Name, 32);
-            writer.Write(server.LoadPercent);
-            writer.Write(server.TimeZone);
+        writer.Write(servers);
+    }
 
-            // IP address bytes need to be reversed for network byte order
+    private byte[] GetServers()
+    {
+        using var stream = new PacketWriter();
+        for (var i = 0; i < Servers.Count; i++)
+        {
+            var server = Servers[i];
+
+            // Write server index
+            stream.WriteUInt16BE(server.Index);
+
+            // Write server name (fixed 32 bytes)
+            stream.WriteFixedString(server.Name, 32);
+
+            // Write load percentage
+            stream.Write(server.LoadPercent);
+
+            // Write timezone
+            stream.Write(server.TimeZone);
+
+            // Write IP address in reverse order (as specified in the protocol)
+            // For example, 192.168.0.1 is sent as 0100A8C0
             var ipBytes = server.IP.GetAddressBytes();
             Array.Reverse(ipBytes);
-            writer.Write(ipBytes);
+            stream.Write(ipBytes);
         }
+
+        return stream.ToArray();
     }
 
     /// <summary>
@@ -93,6 +122,7 @@ public class GameServerList() : BaseUoNetworkPacket(0xA8, -1)
             };
 
             // IP address bytes are reversed in the packet
+            // For example, 0100A8C0 needs to be converted to 192.168.0.1
             byte[] ipBytes = reader.ReadBytes(4);
             Array.Reverse(ipBytes);
             entry.IP = new IPAddress(ipBytes);
@@ -107,6 +137,6 @@ public class GameServerList() : BaseUoNetworkPacket(0xA8, -1)
     /// <returns>A string containing the packet type, OpCode, and number of servers.</returns>
     public override string ToString()
     {
-        return base.ToString() + $" {{ ServerCount: {Servers.Count} }}";
+        return base.ToString() + $" {{ SystemInfoFlag: 0x{SystemInfoFlag:X2}, ServerCount: {Servers.Count} }}";
     }
 }

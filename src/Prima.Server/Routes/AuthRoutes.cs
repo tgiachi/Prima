@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using Prima.Core.Server.Data.Rest;
 using Prima.Core.Server.Data.Rest.Base;
 using Prima.Core.Server.Extensions;
@@ -13,19 +14,38 @@ public static class AuthRoutes
 
 
         group.MapPost(
-            "/login",
-            async (LoginRequestObject request, IAuthService loginService) =>
-            {
-                var result = await loginService.LoginAsync(request);
-
-                if (result.IsSuccess)
+                "/login",
+                async (LoginRequestObject request, IAccountManager loginService) =>
                 {
-                    return RestResultObject<LoginResponseObject>.CreateSuccess(result).ToResult();
-                }
+                    var result = await loginService.LoginWebAsync(request);
 
-                return RestResultObject<LoginResponseObject>.CreateError(result.Message).ToResult();
-            }
-        );
+                    if (result.IsSuccess)
+                    {
+                        return RestResultObject<LoginResponseObject>.CreateSuccess(result).ToResult();
+                    }
+
+                    return RestResultObject<LoginResponseObject>.CreateError(result.Message).ToResult();
+                }
+            )
+            .Produces<RestResultObject<LoginResponseObject>>()
+            .WithName("Login");
+
+
+        group.MapPost(
+                "/change_password",
+                async ([FromBody] ChangePasswordObject changePassword, IAccountManager accountManager) =>
+                {
+                    var changed = await accountManager.ChangePasswordAsync(
+                        changePassword.AccountName,
+                        changePassword.OldPassword,
+                        changePassword.NewPassword
+                    );
+
+                    return RestResultObject<bool>.CreateSuccess(changed).ToResult();
+                }
+            )
+            .WithName("ChangePassword")
+            .Produces<RestResultObject<bool>>();
 
 
         group.AllowAnonymous().ProducesValidationProblem();

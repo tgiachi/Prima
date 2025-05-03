@@ -26,9 +26,7 @@ public class ClientVersion : BaseUoNetworkPacket
     public override void Read(PacketReader reader)
     {
         Seed = reader.ReadInt32();
-
         ClientIP = new IPAddress(Seed);
-
         MajorVersion = reader.ReadInt32();
         MinorVersion = reader.ReadInt32();
         Revision = reader.ReadInt32();

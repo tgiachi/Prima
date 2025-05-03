@@ -13,9 +13,12 @@ public abstract class BasePacketListenerHandler : INetworkPacketListener, IOrion
 {
     private readonly Dictionary<Type, object> _packetHandlers = new();
 
-    private readonly INetworkService _networkService;
+    protected INetworkService NetworkService { get; }
     private readonly IServiceProvider _serviceProvider;
 
+
+    protected INetworkSessionService<NetworkSession> SessionService =>
+        _serviceProvider.GetRequiredService<INetworkSessionService<NetworkSession>>();
 
     protected ILogger Logger { get; }
 
@@ -27,7 +30,7 @@ public abstract class BasePacketListenerHandler : INetworkPacketListener, IOrion
     )
     {
         Logger = logger;
-        _networkService = networkService;
+        NetworkService = networkService;
         _serviceProvider = serviceProvider;
         RegisterHandlers();
     }
@@ -39,11 +42,14 @@ public abstract class BasePacketListenerHandler : INetworkPacketListener, IOrion
         if (_packetHandlers.TryGetValue(packetType, out var handlerObj))
         {
             var handlerInterfaceType = typeof(INetworkPacketListener<>).MakeGenericType(packetType);
-            var methodInfo = handlerInterfaceType.GetMethod(nameof(OnPacketReceived), [typeof(string), packetType]);
+            var methodInfo = handlerInterfaceType.GetMethod(nameof(OnPacketReceived), [typeof(NetworkSession), packetType]);
+
+            var session = SessionService.GetSession(sessionId);
+
 
             if (methodInfo != null)
             {
-                return (Task)methodInfo.Invoke(handlerObj, [sessionId, packet]);
+                return (Task)methodInfo.Invoke(handlerObj, [session, packet]);
             }
 
             Logger.LogWarning(
@@ -60,7 +66,7 @@ public abstract class BasePacketListenerHandler : INetworkPacketListener, IOrion
     {
         _packetHandlers[typeof(TPacket)] = handler;
         Logger.LogDebug("{PacketType} registered in {ClassType}", typeof(TPacket), GetType());
-        _networkService.RegisterPacketListener<TPacket>(this);
+        NetworkService.RegisterPacketListener<TPacket>(this);
     }
 
     protected NetworkSession? GetSession(string sessionId)

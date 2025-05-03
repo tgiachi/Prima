@@ -12,12 +12,12 @@ namespace Prima.Network.Packets;
 /// OpCode: 0x8C
 /// This packet provides the client with connection information for the selected game server.
 /// </remarks>
-public class ConnectToGameServer() : BaseUoNetworkPacket(0x8C, 11)
+public class ConnectToGameServer() : BaseUoNetworkPacket(0x8c, 11)
 {
     /// <summary>
     /// Gets or sets the IP address of the game server to connect to.
     /// </summary>
-    public IPAddress GameServerIP { get; set; }
+    public IPAddress GameServerIP { get; set; } = IPAddress.None;
 
     /// <summary>
     /// Gets or sets the port of the game server to connect to.
@@ -38,8 +38,8 @@ public class ConnectToGameServer() : BaseUoNetworkPacket(0x8C, 11)
     {
         byte[] ipBytes = reader.ReadBytes(4);
         GameServerIP = new IPAddress(ipBytes);
-        GameServerPort = reader.ReadUInt16BE();
-        SessionKey = reader.ReadUInt32BE();
+        GameServerPort = reader.ReadUInt16();
+        SessionKey = reader.ReadUInt32();
     }
 
     /// <summary>
@@ -48,8 +48,8 @@ public class ConnectToGameServer() : BaseUoNetworkPacket(0x8C, 11)
     /// <param name="writer">The packet writer to write data to.</param>
     public override void Write(PacketWriter writer)
     {
-        writer.Write(GameServerIP.GetAddressBytes());
-        writer.WriteUInt16BE(GameServerPort);
-        writer.WriteUInt32BE(SessionKey);
+        writer.WriteIpAddress(GameServerIP);
+        writer.Write(GameServerPort);
+        writer.Write(SessionKey);
     }
 }

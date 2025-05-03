@@ -10,7 +10,7 @@ namespace Prima.Network.Packets;
 /// <remarks>
 /// OpCode: 0xA0
 /// </remarks>
-public class ServerListRequest() : BaseUoNetworkPacket(0xA0, 3)
+public class SelectServer() : BaseUoNetworkPacket(0xA0, 3)
 {
 
     /// <summary>

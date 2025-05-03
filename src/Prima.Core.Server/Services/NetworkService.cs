@@ -5,12 +5,14 @@ using Orion.Foundations.Extensions;
 using Orion.Foundations.Observable;
 using Orion.Foundations.Types;
 using Orion.Network.Core.Data;
+using Orion.Network.Core.Extensions;
 using Orion.Network.Core.Interfaces.Services;
 using Orion.Network.Tcp.Servers;
 using Prima.Core.Server.Data.Config;
 using Prima.Core.Server.Data.Session;
 using Prima.Core.Server.Interfaces.Listeners;
 using Prima.Core.Server.Interfaces.Services;
+using Prima.Core.Server.Types;
 using Prima.Network.Interfaces.Packets;
 using Prima.Network.Interfaces.Services;
 using Prima.Network.Packets;
@@ -31,6 +33,7 @@ public class NetworkService : INetworkService
 
     private readonly INetworkTransportManager _networkTransportManager;
     private readonly IPacketManager _packetManager;
+    private readonly IEventLoopService _eventLoopService;
 
     private readonly IProcessQueueService _processQueueService;
 
@@ -46,7 +49,7 @@ public class NetworkService : INetworkService
     public NetworkService(
         ILogger<NetworkService> logger, PrimaServerConfig serverConfig, INetworkTransportManager networkTransportManager,
         IPacketManager packetManager, IProcessQueueService processQueueService,
-        INetworkSessionService<NetworkSession> networkSessionService
+        INetworkSessionService<NetworkSession> networkSessionService, IEventLoopService eventLoopService
     )
     {
         _logger = logger;
@@ -56,6 +59,7 @@ public class NetworkService : INetworkService
         _packetManager = packetManager;
         _processQueueService = processQueueService;
         _networkSessionService = networkSessionService;
+        _eventLoopService = eventLoopService;
         _processQueueService.EnsureContext(_listenersContext);
 
         RegisterPackets();
@@ -66,13 +70,28 @@ public class NetworkService : INetworkService
 
         _networkTransportManager.ClientConnected += NetworkTransportManagerOnClientConnected;
         _networkTransportManager.ClientDisconnected += NetworkTransportManagerOnClientDisconnected;
+
+        _networkTransportManager.RawPacketIn += (id, transportId, data) =>
+        {
+            var transport = _networkTransportManager.GetTransport(transportId);
+
+            _logger.LogDebug("<- {Session} {Transport} {Data}", id, transport.Id, data.HumanizedContent(20));
+        };
+
+        _networkTransportManager.RawPacketOut += (id, transportId, data) =>
+        {
+            var transport = _networkTransportManager.GetTransport(transportId);
+
+            _logger.LogDebug("-> {Session} {Transport} {Data}", id, transport.Id, data.HumanizedContent(20));
+        };
     }
 
     private void NetworkTransportManagerOnClientDisconnected(string transportId, string sessionId, string endpoint)
     {
         var session = _networkSessionService.GetSession(sessionId);
 
-        session.OnSendPacket -= SendPacket;
+        session.OnSendPacket -= SendPacketViaEventLoop;
+        session.OnDisconnect -= DisconnectSession;
 
         if (transportId == _loginContext)
         {
@@ -110,7 +129,8 @@ public class NetworkService : INetworkService
 
             var session = _networkSessionService.AddSession(sessionId);
 
-            session.OnSendPacket += SendPacket;
+            session.OnSendPacket += SendPacketViaEventLoop;
+            session.OnDisconnect += DisconnectSession;
         }
         else if (transportId == _gameContext)
         {
@@ -118,12 +138,40 @@ public class NetworkService : INetworkService
         }
     }
 
-    private async Task SendPacket(string sessionId, IUoNetworkPacket packet)
+    private async Task DisconnectSession(string id)
+    {
+        _eventLoopService.EnqueueAction(
+            "disconnect_session_" + id,
+            async () => { await _networkTransportManager.DisconnectAsync(id); }
+        );
+    }
+
+
+    public Task SendPacket<TPacket>(string sessionId, TPacket packet) where TPacket : IUoNetworkPacket
+    {
+        return SendPacketInternal(sessionId, (IUoNetworkPacket)packet);
+    }
+    public Task SendPacketViaEventLoop<TPacket>(string sessionId, TPacket packet) where TPacket : IUoNetworkPacket
+    {
+        return SendPacketViaEventLoop(sessionId, (IUoNetworkPacket)packet);
+    }
+
+
+    private async Task SendPacketViaEventLoop(string sessionId, IUoNetworkPacket packet)
+    {
+        _eventLoopService.EnqueueAction(
+            $"send_packet_{sessionId.ToShortSessionId()}_{packet.OpCode}",
+            () => { SendPacketInternal(sessionId, packet); },
+            EventLoopPriority.High
+        );
+    }
+
+    private async Task SendPacketInternal(string sessionId, IUoNetworkPacket packet)
     {
         try
         {
             var data = _packetManager.WritePacket(packet);
-            _networkTransportManager.EnqueueMessageAsync(
+            await _networkTransportManager.EnqueueMessageAsync(
                 new NetworkMessageData(sessionId, data, ServerNetworkType.None)
             );
         }
@@ -235,12 +283,13 @@ public class NetworkService : INetworkService
         packetListeners.Add(listener);
     }
 
+
     private void RegisterPackets()
     {
         _packetManager.RegisterPacket<ClientVersion>();
         _packetManager.RegisterPacket<LoginRequest>();
         _packetManager.RegisterPacket<ConnectToGameServer>();
-        _packetManager.RegisterPacket<ServerListRequest>();
+        _packetManager.RegisterPacket<SelectServer>();
         _packetManager.RegisterPacket<GameServerList>();
         _packetManager.RegisterPacket<LoginDenied>();
     }

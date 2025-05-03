@@ -1,5 +1,11 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
 using Orion.Core.Server.Interfaces.Services.System;
 using Orion.Foundations.Utils;
+using Prima.Core.Server.Data.Config;
+using Prima.Core.Server.Data.Rest;
 using Prima.Core.Server.Data.Results.Account;
 using Prima.Core.Server.Entities;
 using Prima.Core.Server.Events.Account;
@@ -11,13 +17,19 @@ public class AccountManager : IAccountManager
 {
     private readonly IDatabaseService _databaseService;
 
+
+    private readonly PrimaServerConfig _primaServerConfig;
     private readonly IEventBusService _eventBusService;
     private readonly ILogger _logger;
 
-    public AccountManager(ILogger<AccountManager> logger, IDatabaseService databaseService, IEventBusService eventBusService)
+    public AccountManager(
+        ILogger<AccountManager> logger, IDatabaseService databaseService, IEventBusService eventBusService,
+        PrimaServerConfig primaServerConfig
+    )
     {
         _databaseService = databaseService;
         _eventBusService = eventBusService;
+        _primaServerConfig = primaServerConfig;
         _logger = logger;
     }
 
@@ -48,9 +60,21 @@ public class AccountManager : IAccountManager
         return AccountResult.Success(result.Username);
     }
 
-    public Task<AccountEntity> LoginAsync(string username, string password)
+    public async Task<AccountEntity> LoginGameAsync(string username, string password)
     {
-        throw new NotImplementedException();
+        var account = await FindAccountByUsername(username);
+
+        if (account == null)
+        {
+            return null;
+        }
+
+        if (!HashUtils.VerifyPassword(password, account.HashedPassword))
+        {
+            return null;
+        }
+
+        return account;
     }
 
     public async Task<AccountEntity?> FindAccountByUsername(string username)
@@ -109,6 +133,7 @@ public class AccountManager : IAccountManager
             HashedPassword = HashUtils.CreatePassword(generatedPassword),
             IsAdmin = true,
             IsVerified = true,
+            IsActive = true
         };
 
         var result = await _databaseService.InsertAsync(defaultAdminUser);
@@ -120,5 +145,99 @@ public class AccountManager : IAccountManager
             generatedPassword
         );
         _logger.LogInformation("----------------------------");
+    }
+
+
+    private string GenerateJwtToken(AccountEntity user)
+    {
+        var claims = new[]
+        {
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new Claim("username", user.Username),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            new Claim(JwtRegisteredClaimNames.Sid, user.Id.ToString()),
+        };
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_primaServerConfig.JwtAuth.Secret));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
+
+        var token = new JwtSecurityToken(
+            issuer: _primaServerConfig.JwtAuth.Issuer,
+            audience: _primaServerConfig.JwtAuth.Audience,
+            claims: claims,
+            expires: DateTime.Now.AddMinutes(_primaServerConfig.JwtAuth.ExpirationInMinutes),
+            signingCredentials: creds
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    public async Task<LoginResponseObject> LoginWebAsync(LoginRequestObject loginRequest)
+    {
+        AccountEntity userEntity = null;
+
+        if (loginRequest.EmailOrUsername == null)
+        {
+            _logger.LogWarning("Login failed: Username and email are both null.");
+
+            return new LoginResponseObject(null, null, null, "Login failed: Username and email are both null.", false);
+        }
+
+
+        userEntity = await _databaseService.FirstOrDefaultAsync<AccountEntity>(s => s.Email == loginRequest.EmailOrUsername);
+
+        if (userEntity == null)
+        {
+            userEntity = await _databaseService.FirstOrDefaultAsync<AccountEntity>(s =>
+                s.Username == loginRequest.EmailOrUsername
+            );
+        }
+
+        if (userEntity == null)
+        {
+            _logger.LogWarning("Login failed: User not found.");
+
+            return new LoginResponseObject(null, null, null, "Login failed: User not found.", false);
+        }
+
+        if (!userEntity.IsAdmin)
+        {
+            _logger.LogWarning("Login failed: User is not an admin.");
+
+            return new LoginResponseObject(null, null, null, "Login failed: User is not an admin.", false);
+        }
+
+        var cleanedPassword = userEntity.HashedPassword.Replace("hash:", "");
+        var passwordHash = cleanedPassword.Split(":")[0];
+        var salt = cleanedPassword.Split(":")[1];
+
+        var isOk = HashUtils.VerifyPassword(loginRequest.Password, passwordHash + ":" + salt);
+
+        if (!isOk)
+        {
+            _logger.LogWarning("Login failed: Invalid password.");
+
+            return new LoginResponseObject(null, null, null, "Login failed: Invalid password.", false);
+        }
+
+        var token = GenerateJwtToken(userEntity);
+        var refreshToken = HashUtils.GenerateRandomRefreshToken(64);
+
+        userEntity.RefreshToken = refreshToken;
+        userEntity.RefreshTokenExpiry = DateTime.UtcNow.AddDays(_primaServerConfig.JwtAuth.RefreshTokenExpiryDays);
+
+        await _databaseService.UpdateAsync(userEntity);
+
+
+        _logger.LogInformation("Login successful for user: {Email}", userEntity.Email);
+
+
+        return new LoginResponseObject(
+            token,
+            refreshToken,
+            userEntity.RefreshTokenExpiry,
+            null,
+            true
+        );
     }
 }
