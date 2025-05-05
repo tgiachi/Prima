@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Orion.Core.Server.Data.Config.Internal;
-using Orion.Core.Server.Data.Config.Sections;
+
 using Orion.Core.Server.Extensions;
 using Orion.Core.Server.Modules.Container;
 using Orion.Foundations.Utils;
@@ -18,6 +18,7 @@ using Prima.Core.Server.Interfaces.Services;
 using Prima.Core.Server.Modules.Container;
 using Prima.Core.Server.Types;
 using Prima.Network.Modules;
+
 using Prima.Server.Handlers;
 using Prima.Server.Hosted;
 using Prima.Server.Modules.Container;
@@ -38,7 +39,9 @@ class Program
 
         builder.Services.AddSingleton(appContext);
 
-        Log.Logger = appContext.LoggerConfiguration.CreateLogger();
+        Log.Logger = appContext.LoggerConfiguration
+            .WriteTo.Console()
+            .CreateLogger();
 
         builder.Logging.ClearProviders().AddSerilog();
 
@@ -108,6 +111,8 @@ class Program
                 Log.Logger.Information("Listening on {ipAddress}", ipAddress);
             }
         );
+
+        builder.Services.AddHostedService<ConsoleCommandService>();
 
         var app = builder.Build();
 
