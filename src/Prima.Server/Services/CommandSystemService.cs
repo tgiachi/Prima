@@ -45,7 +45,8 @@ public class CommandSystemService : ICommandSystemService
             Arguments = arguments.Select(a => a.Key).ToArray(),
             Aliases = aliases ?? [],
             Type = type,
-            Permission = permission
+            Permission = permission,
+            Execute = execute
         };
 
         _commandIndex[commandDefinition.Command] = commandDefinition;
@@ -103,6 +104,66 @@ public class CommandSystemService : ICommandSystemService
 
     public async Task StartAsync(CancellationToken cancellationToken = new CancellationToken())
     {
+        RegisterCommand(
+            "clear",
+            "Cleans up the server",
+            new Dictionary<string, string>(),
+            async args =>
+            {
+                Console.Clear();
+                // Cleanup logic here
+                await Task.CompletedTask;
+            },
+            ["cls", "reset"],
+            CommandType.Console,
+            CommandPermissionType.Admin
+        );
+
+
+        RegisterCommand(
+            "help",
+            "Displays help information",
+            new Dictionary<string, string>(),
+            async args =>
+            {
+                if (args.Length == 0)
+                {
+
+                    var commands = _commandIndex.Values
+                        .Select(c => $"{c.Command} - {c.Description}")
+                        .ToArray();
+
+                    foreach (var cmd in commands)
+                    {
+                        Console.WriteLine(cmd);
+                    }
+
+                    return;
+                }
+
+                var commandName = args[0];
+
+                if (_commandIndex.TryGetValue(commandName, out var commandDefinition))
+                {
+                    Console.WriteLine($"{commandDefinition.Command} - {commandDefinition.Description}");
+                    Console.WriteLine("Arguments:");
+                    foreach (var arg in commandDefinition.Arguments)
+                    {
+                        Console.WriteLine($"- {arg}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"Command '{commandName}' not found");
+                }
+
+
+                await Task.CompletedTask;
+            },
+            null,
+            CommandType.Console,
+            CommandPermissionType.All
+        );
     }
 
     public async Task StopAsync(CancellationToken cancellationToken = new CancellationToken())
