@@ -24,6 +24,8 @@ public class CommandsScriptModule
     /// <param name="type"></param>
     /// <param name="permission"></param>
     /// <returns></returns>
+    ///
+    [ScriptFunction("Register a console command")]
     public bool RegisterConsoleCommand(
         string command, string description, Func<string[], Task> execute, string[] aliases = null,
         CommandType type = CommandType.Console, CommandPermissionType permission = CommandPermissionType.Admin
