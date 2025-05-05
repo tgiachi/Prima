@@ -1,4 +1,6 @@
 using System.Text;
+using Prima.Core.Server.Interfaces.Services;
+using Prima.Core.Server.Types;
 using Spectre.Console;
 
 namespace Prima.Server.Services;
@@ -15,45 +17,48 @@ public class ConsoleCommandService : IHostedService, IDisposable
     private bool _isDisposed;
     private readonly Action<ConsoleKeyInfo> _tabHandler;
 
+    private readonly ICommandSystemService _commandSystemService;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="ConsoleCommandService"/> class.
     /// </summary>
     /// <param name="prompt">The prompt to display before each command input.</param>
     /// <param name="commandHandler">The function to handle command input.</param>
-    public ConsoleCommandService(string prompt = "prima> ", Action<string>? commandHandler = null)
+    public ConsoleCommandService(ICommandSystemService commandSystemService, string prompt = "prima> ")
     {
+        _commandSystemService = commandSystemService;
         _prompt = prompt;
-        _commandHandler = commandHandler ?? DefaultCommandHandler;
-        _tabHandler = info => { AnsiConsole.WriteLine("TAB pressed - Command completion not implemented"); };
+        _commandHandler = DefaultCommandHandler;
+        _tabHandler = info =>
+        {
+            _commandSystemService.AutoComplete(info.KeyChar.ToString())
+                .ToList()
+                .ForEach(s => { AnsiConsole.MarkupLine($"[green]{s}[/]"); });
+        };
     }
 
     /// <summary>
     /// Default command handler implementation.
     /// </summary>
     /// <param name="command">The command to process.</param>
-    private static void DefaultCommandHandler(string command)
+    private async void DefaultCommandHandler(string command)
     {
         if (string.IsNullOrWhiteSpace(command))
             return;
 
-        switch (command.ToLower())
+        var result = await _commandSystemService.ExecuteCommandAsync(
+            command,
+            CommandType.Console,
+            CommandPermissionType.All
+        );
+
+        if (result.ResultType == CommandResultType.Success)
         {
-            case "clear":
-                Console.Clear();
-                break;
-
-            case "exit":
-            case "quit":
-                Environment.Exit(0);
-                break;
-
-            case "help":
-                AnsiConsole.MarkupLineInterpolated($"[green]Available commands: clear, help, exit [/]");
-                break;
-
-            default:
-                AnsiConsole.MarkupLineInterpolated($"[yellow]Unknown command: {command}[/]");
-                break;
+            AnsiConsole.MarkupLine($"[green]Command executed successfully: {command}[/]");
+        }
+        else
+        {
+            AnsiConsole.MarkupLine($"[red]Error executing command: {command} - {result.Message}[/]");
         }
     }
 

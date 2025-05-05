@@ -2,12 +2,12 @@ using Prima.Core.Server.Types;
 
 namespace Prima.Core.Server.Data.Commands;
 
-public class CommandResult
+public readonly struct CommandResult
 {
-    public CommandResultType ResultType { get; set; }
+    public CommandResultType ResultType { get; init; }
 
-    public Exception? Exception { get; set; }
-    public string Message { get; set; }
+    public Exception? Exception { get; init; }
+    public string Message { get; init; }
 
     public static CommandResult Success(string message)
     {

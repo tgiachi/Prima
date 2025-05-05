@@ -10,6 +10,7 @@ public class CommandDefinitionData
     public string[] Aliases { get; set; }
 
     public CommandType Type { get; set; }
-
     public CommandPermissionType Permission { get; set; }
+
+    public Func<string[], Task> Execute { get; set; } = null!;
 }

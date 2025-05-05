@@ -5,4 +5,5 @@ public enum CommandType
 {
     Console,
     InGame,
+    All = Console | InGame
 }

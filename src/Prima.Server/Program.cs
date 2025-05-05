@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Orion.Core.Server.Data.Config.Internal;
-
 using Orion.Core.Server.Extensions;
 using Orion.Core.Server.Modules.Container;
 using Orion.Foundations.Utils;
@@ -18,10 +17,10 @@ using Prima.Core.Server.Interfaces.Services;
 using Prima.Core.Server.Modules.Container;
 using Prima.Core.Server.Types;
 using Prima.Network.Modules;
-
 using Prima.Server.Handlers;
 using Prima.Server.Hosted;
 using Prima.Server.Modules.Container;
+using Prima.Server.Modules.Scripts;
 using Prima.Server.Routes;
 using Prima.Server.Services;
 using Serilog;
@@ -72,8 +71,12 @@ class Program
             .AddModule<AuthServicesModule>()
             .AddModule<DatabaseModule>()
             .AddService<IEventLoopService, EventLoopService>()
+            .AddService<ICommandSystemService, CommandSystemService>()
             .AddSingleton(new EventLoopConfig())
             .AddService<INetworkTransportManager, NetworkTransportManager>();
+
+
+        builder.Services.AddScriptModule<CommandsScriptModule>();
 
         builder.Services
             .AddService<ConnectionHandler>()
