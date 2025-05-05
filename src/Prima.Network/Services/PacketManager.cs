@@ -72,7 +72,7 @@ public class PacketManager : IPacketManager
     /// <returns>A byte array containing the serialized packet data.</returns>
     public byte[] WritePacket<T>(T packet) where T : IUoNetworkPacket
     {
-        var packetWriter = _writerPool.Get();
+        using var packetWriter = new PacketWriter();
 
         // Write OpCode
         packetWriter.Write(packet.OpCode);

@@ -23,5 +23,7 @@ public class ConnectionHandler : BasePacketListenerHandler, INetworkPacketListen
     {
         session.Seed = packet.Seed;
         session.ClientVersion = packet;
+
+        session.FirstPacketReceived = true;
     }
 }

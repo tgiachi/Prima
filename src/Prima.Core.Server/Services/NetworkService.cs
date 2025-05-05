@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.NetworkInformation;
 using Microsoft.Extensions.Logging;
 using Orion.Core.Server.Interfaces.Services.System;
 using Orion.Foundations.Extensions;
@@ -16,6 +17,7 @@ using Prima.Core.Server.Types;
 using Prima.Network.Interfaces.Packets;
 using Prima.Network.Interfaces.Services;
 using Prima.Network.Packets;
+
 
 namespace Prima.Core.Server.Services;
 
@@ -151,6 +153,7 @@ public class NetworkService : INetworkService
     {
         return SendPacketInternal(sessionId, (IUoNetworkPacket)packet);
     }
+
     public Task SendPacketViaEventLoop<TPacket>(string sessionId, TPacket packet) where TPacket : IUoNetworkPacket
     {
         return SendPacketViaEventLoop(sessionId, (IUoNetworkPacket)packet);
@@ -301,4 +304,13 @@ public class NetworkService : INetworkService
 
         GC.SuppressFinalize(this);
     }
+
+    public static IEnumerable<IPEndPoint> GetListeningAddresses(IPEndPoint ipep) =>
+        NetworkInterface.GetAllNetworkInterfaces()
+            .SelectMany(adapter =>
+                adapter.GetIPProperties()
+                    .UnicastAddresses
+                    .Where(uip => ipep.AddressFamily == uip.Address.AddressFamily)
+                    .Select(uip => new IPEndPoint(uip.Address, ipep.Port))
+            );
 }

@@ -59,13 +59,13 @@ public class GameServerList() : BaseUoNetworkPacket(0xA8, -1)
     {
         var servers = GetServers();
 
-        writer.Write((ushort)servers.Length);
+        writer.Write((ushort)(servers.Length + 6));
 
         // Write the system info flag
         writer.Write(SystemInfoFlag);
 
         // Write the number of servers
-        writer.WriteUInt16BE((ushort)Servers.Count);
+        writer.Write((ushort)Servers.Count);
 
         writer.Write(servers);
     }
@@ -78,10 +78,10 @@ public class GameServerList() : BaseUoNetworkPacket(0xA8, -1)
             var server = Servers[i];
 
             // Write server index
-            stream.WriteUInt16BE(server.Index);
+            stream.Write((ushort)i);
 
             // Write server name (fixed 32 bytes)
-            stream.WriteFixedString(server.Name, 32);
+            stream.WriteAsciiFixed(server.Name, 32);
 
             // Write load percentage
             stream.Write(server.LoadPercent);
@@ -91,9 +91,9 @@ public class GameServerList() : BaseUoNetworkPacket(0xA8, -1)
 
             // Write IP address in reverse order (as specified in the protocol)
             // For example, 192.168.0.1 is sent as 0100A8C0
-            var ipBytes = server.IP.GetAddressBytes();
-            Array.Reverse(ipBytes);
-            stream.Write(ipBytes);
+            //var ipBytes = server.IP.GetAddressBytes();
+            //Array.Reverse(ipBytes);
+            stream.WriteIpAddress(server.IP);
         }
 
         return stream.ToArray();
@@ -105,8 +105,12 @@ public class GameServerList() : BaseUoNetworkPacket(0xA8, -1)
     /// <param name="reader">The packet reader to read the data from.</param>
     public override void Read(PacketReader reader)
     {
+        reader.ReadByte();
+        reader.ReadByte();
+
+
         SystemInfoFlag = reader.ReadByte();
-        ushort serverCount = reader.ReadUInt16BE();
+        var serverCount = reader.ReadInt16();
 
         // Clear existing servers before reading new ones
         Servers.Clear();

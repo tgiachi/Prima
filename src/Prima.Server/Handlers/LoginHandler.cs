@@ -42,7 +42,7 @@ public class LoginHandler
                 IP = IPAddress.Parse("127.0.0.1"),
                 LoadPercent = 0x0,
                 Name = _primaServerConfig.Shard.Name,
-                TimeZone = 0
+                TimeZone = 2
             }
         );
     }
@@ -55,6 +55,13 @@ public class LoginHandler
 
     public async Task OnPacketReceived(NetworkSession session, LoginRequest packet)
     {
+        if (session.Seed == 0)
+        {
+            Logger.LogWarning("User {SessionId} tried to login without a valid seed", session.Id);
+            await session.SendPacketAsync(new LoginDenied(LoginDeniedReasonType.CommunicationProblem));
+            return;
+        }
+
         var login = await _accountManager.LoginGameAsync(packet.Username, packet.Password);
 
         if (login == null)
@@ -96,7 +103,6 @@ public class LoginHandler
 
         var sessionKey = GenerateSessionKey();
 
-
         var gameServer = _gameServerEntries[packet.ShardId];
 
         var connectToServer = new ConnectToGameServer()
@@ -107,20 +113,18 @@ public class LoginHandler
         };
 
 
-        await NetworkService.SendPacket(session.Id, connectToServer);
-        // await session.SendPacketAsync(connectToServer);
-
-        //await session.Disconnect();
+        await session.SendPacketAsync(connectToServer);
     }
 
-    public static uint GenerateSessionKey()
+    public static int GenerateSessionKey()
     {
-        byte[] keyBytes = new byte[4];
-        using (var rng = RandomNumberGenerator.Create())
+        var randomNumber = RandomNumberGenerator.GetInt32(0, int.MaxValue);
+
+        if (Random.Shared.Next(2) == 0)
         {
-            rng.GetBytes(keyBytes);
+            randomNumber |= 1 << 31;
         }
 
-        return BitConverter.ToUInt32(keyBytes, 0);
+        return randomNumber;
     }
 }

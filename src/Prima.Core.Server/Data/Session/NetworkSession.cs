@@ -20,6 +20,8 @@ public class NetworkSession : INetworkSession
 
     public int Seed { get; set; }
 
+    public bool FirstPacketReceived { get; set; }
+
     public int AuthId { get; set; }
 
     public string AccountId { get; set; }

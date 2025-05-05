@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NUnit.Framework;
 using Prima.Network.Interfaces.Services;
 using Prima.Network.Packets;
 using Prima.Network.Packets.Entries;
@@ -9,7 +8,7 @@ using Prima.Network.Serializers;
 using Prima.Network.Services;
 using Prima.Network.Types;
 
-namespace Prima.Tests.Network;
+namespace Prima.Tests;
 
 /// <summary>
 /// Test suite for network packet serialization and deserialization functionality.
@@ -205,10 +204,10 @@ public class PacketTests
     public void ConnectToGameServer_Parse()
     {
 
-
-
         //                     8c    5f    8d     20   3a    0a    1e    cf    7f    8f    b5
-        var array = new byte[] { 0x8c, 0x5f, 0x8d, 0x20, 0x3a, 0x0a, 0x1e, 0xcf, 0x7f, 0x8f, 0xb5 };
+        //var array = new byte[] { 0x8c, 0x5f, 0x8d, 0x20, 0x3a, 0x0a, 0x1e, 0xcf, 0x7f, 0x8f, 0xb5 };
+
+        var array = new byte[] { 0x8c, 0x7F, 0x00, 0x00, 0x01, 0xA, 0x21, 0x43, 0x75, 0xEF, 0x25 };
 
         var deserializedPacket = _packetManager.ReadPackets(array);
 
@@ -219,14 +218,54 @@ public class PacketTests
 
         var connectToServer = new ConnectToGameServer();
 
-        connectToServer.GameServerIP = IPAddress.Parse("95.141.32.58");
-        connectToServer.GameServerPort = 2590;
-        connectToServer.SessionKey = 3481243573;
+        connectToServer.GameServerIP = IPAddress.Parse("127.0.0.1");
+        connectToServer.GameServerPort = 2593;
+        connectToServer.SessionKey = 1131802405;
 
         var serialized = _packetManager.WritePacket(connectToServer);
 
         Assert.That(serialized, Is.EqualTo(array));
 
+
+    }
+
+    [Test]
+    public void GameListMessage_Parse()
+    {
+        byte[] array = new byte[]
+        {
+            0xa8, 0x00, 0x2e, 0x5d, 0x00, 0x01, 0x00, 0x00,
+            0x4d, 0x6f, 0x64, 0x65, 0x72, 0x6e, 0x55, 0x4f,
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x02, 0x01, 0x00, 0x00, 0x7f
+        };
+
+
+        var deserializedPacket = _packetManager.ReadPackets(array);
+
+        var deserialized = deserializedPacket.FirstOrDefault(p => p is GameServerList) as GameServerList;
+
+        Assert.That(deserialized, Is.Not.Null);
+
+        var gameServerList = new GameServerList()
+        {
+            SystemInfoFlag = 0x5d,
+        };
+
+        gameServerList.AddServer(new GameServerEntry()
+        {
+            Index = 1,
+            Name = "ModernUO",
+            LoadPercent = 0,
+            TimeZone = 2,
+            IP = IPAddress.Parse("127.0.0.1")
+        });
+
+        var serialized = _packetManager.WritePacket(gameServerList);
+
+        Assert.That(serialized, Is.EqualTo(array));
 
     }
 
@@ -242,9 +281,9 @@ public class PacketTests
         // Write various data types
         writer.Write((byte)0x00);
         writer.Write((byte)0x01);
-        writer.WriteUInt16BE(0x0203);
-        writer.WriteUInt32BE(0x04050607);
-        writer.WriteFixedString("Test", 10);
+        writer.Write((ushort)0x0203);
+        writer.Write((uint)0x04050607);
+        writer.WriteAsciiFixed("Test", 10);
         writer.WriteAsciiNull("Variable");
         writer.WriteEnum(LoginDeniedReasonType.AccountBlocked);
 
