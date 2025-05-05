@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Orion.Core.Server.Data.Config.Internal;
-using Orion.Core.Server.Data.Config.Sections;
 using Orion.Core.Server.Extensions;
 using Orion.Core.Server.Modules.Container;
 using Orion.Foundations.Utils;
@@ -21,6 +20,7 @@ using Prima.Network.Modules;
 using Prima.Server.Handlers;
 using Prima.Server.Hosted;
 using Prima.Server.Modules.Container;
+using Prima.Server.Modules.Scripts;
 using Prima.Server.Routes;
 using Prima.Server.Services;
 using Serilog;
@@ -38,7 +38,9 @@ class Program
 
         builder.Services.AddSingleton(appContext);
 
-        Log.Logger = appContext.LoggerConfiguration.CreateLogger();
+        Log.Logger = appContext.LoggerConfiguration
+            .WriteTo.Console()
+            .CreateLogger();
 
         builder.Logging.ClearProviders().AddSerilog();
 
@@ -69,8 +71,12 @@ class Program
             .AddModule<AuthServicesModule>()
             .AddModule<DatabaseModule>()
             .AddService<IEventLoopService, EventLoopService>()
+            .AddService<ICommandSystemService, CommandSystemService>()
             .AddSingleton(new EventLoopConfig())
             .AddService<INetworkTransportManager, NetworkTransportManager>();
+
+
+        builder.Services.AddScriptModule<CommandsScriptModule>();
 
         builder.Services
             .AddService<ConnectionHandler>()
@@ -108,6 +114,8 @@ class Program
                 Log.Logger.Information("Listening on {ipAddress}", ipAddress);
             }
         );
+
+        builder.Services.AddHostedService<ConsoleCommandService>();
 
         var app = builder.Build();
 

@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using System.Net;
 
 namespace Prima.Network.Serializers;
@@ -54,12 +55,11 @@ public sealed class PacketWriter : IDisposable
     public MemoryStream UnderlyingStream { get; }
 
     /// <summary>
-    /// Writes a 1-byte boolean value to the underlying stream. False is represented by 0, true by 1.
+    ///     Writes a 1-byte boolean value to the underlying stream. False is represented by 0, true by 1.
     /// </summary>
-    /// <param name="value">The boolean value to write.</param>
     public void Write(bool value)
     {
-        UnderlyingStream.WriteByte((byte)(value ? 255 : 0));
+        UnderlyingStream.WriteByte((byte)(value ? 1 : 0));
     }
 
     /// <summary>
@@ -113,14 +113,6 @@ public sealed class PacketWriter : IDisposable
         UnderlyingStream.Write(_buffer, 0, 2);
     }
 
-    /// <summary>
-    /// Writes a 2-byte unsigned integer value to the underlying stream in big-endian format.
-    /// </summary>
-    /// <param name="value">The unsigned short value to write.</param>
-    public void WriteUInt16BE(ushort value)
-    {
-        Write(value);
-    }
 
     /// <summary>
     /// Writes a 4-byte signed integer value to the underlying stream in big-endian format.
@@ -150,13 +142,13 @@ public sealed class PacketWriter : IDisposable
         UnderlyingStream.Write(_buffer, 0, 4);
     }
 
+
     /// <summary>
-    /// Writes a 4-byte unsigned integer value to the underlying stream in big-endian format.
+    ///     Writes a sequence of bytes to the underlying stream
     /// </summary>
-    /// <param name="value">The unsigned integer value to write.</param>
-    public void WriteUInt32BE(uint value)
+    public void Write(ReadOnlySpan<byte> buffer)
     {
-        Write(value);
+        UnderlyingStream.Write(buffer);
     }
 
     /// <summary>
@@ -184,46 +176,48 @@ public sealed class PacketWriter : IDisposable
 
     public void WriteIpAddress(IPAddress ipAddress)
     {
-        if  (ipAddress == null)
-            return;
+        //var ipBytes = ipAddress.GetAddressBytes();
+        // Array.Reverse(ipBytes);
+        // Write(ipBytes);
+        Span<byte> integer = stackalloc byte[4];
+        ipAddress.MapToIPv4().TryWriteBytes(integer, out var bytesWritten);
+        if (bytesWritten != 4)
+        {
+            throw new InvalidOperationException("IP Address could not be serialized to an integer");
+        }
 
-        byte[] ipBytes = ipAddress.GetAddressBytes();
-        //Array.Reverse(ipBytes);
-        UnderlyingStream.Write(ipBytes, 0, ipBytes.Length);
+        var ipBytes = BinaryPrimitives.ReadUInt32LittleEndian(integer);
+
+        Write(ipBytes);
     }
 
     /// <summary>
-    /// Writes a fixed-length ASCII-encoded string value to the underlying stream.
-    /// To fit (size), the string content is either truncated or padded with null characters.
+    ///     Writes a fixed-length ASCII-encoded string value to the underlying stream. To fit (size), the string content is either
+    ///     truncated or padded with null characters.
     /// </summary>
-    /// <param name="value">The string value to write.</param>
-    /// <param name="size">The fixed size to write.</param>
-    public void WriteFixedString(string value, int size)
+    public void WriteAsciiFixed(string value, int size)
     {
         if (value == null)
         {
+            Console.WriteLine("Network: Attempted to WriteAsciiFixed() with null value");
             value = string.Empty;
         }
 
-        int length = value.Length;
+        var length = value.Length;
 
         UnderlyingStream.SetLength(UnderlyingStream.Length + size);
 
         if (length >= size)
-            UnderlyingStream.Position += Encoding.ASCII.GetBytes(
-                value,
-                0,
-                size,
-                UnderlyingStream.GetBuffer(),
-                (int)UnderlyingStream.Position
-            );
+        {
+            UnderlyingStream.Position +=
+                Encoding.ASCII.GetBytes(value, 0, size, UnderlyingStream.GetBuffer(), (int)UnderlyingStream.Position);
+        }
         else
         {
             Encoding.ASCII.GetBytes(value, 0, length, UnderlyingStream.GetBuffer(), (int)UnderlyingStream.Position);
             UnderlyingStream.Position += size;
         }
     }
-
 
 
     /// <summary>

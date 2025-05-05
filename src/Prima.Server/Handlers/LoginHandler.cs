@@ -1,6 +1,6 @@
 using System.Net;
 using System.Security.Cryptography;
-using Microsoft.Extensions.Logging;
+using Orion.Foundations.Extensions;
 using Prima.Core.Server.Data.Config;
 using Prima.Core.Server.Data.Session;
 using Prima.Core.Server.Handlers.Base;
@@ -14,13 +14,15 @@ using Prima.Network.Types;
 namespace Prima.Server.Handlers;
 
 public class LoginHandler
-    : BasePacketListenerHandler, INetworkPacketListener<LoginRequest>, INetworkPacketListener<SelectServer>
+    : BasePacketListenerHandler, INetworkPacketListener<LoginRequest>, INetworkPacketListener<SelectServer>,
+        INetworkPacketListener<GameServerLogin>
 {
     private readonly IAccountManager _accountManager;
 
     private readonly PrimaServerConfig _primaServerConfig;
 
     private readonly List<GameServerEntry> _gameServerEntries = new();
+
 
     public LoginHandler(
         ILogger<LoginHandler> logger, INetworkService networkService, IServiceProvider serviceProvider,
@@ -42,7 +44,7 @@ public class LoginHandler
                 IP = IPAddress.Parse("127.0.0.1"),
                 LoadPercent = 0x0,
                 Name = _primaServerConfig.Shard.Name,
-                TimeZone = 0
+                TimeZone = 2
             }
         );
     }
@@ -51,10 +53,18 @@ public class LoginHandler
     {
         RegisterHandler<LoginRequest>(this);
         RegisterHandler<SelectServer>(this);
+        RegisterHandler<GameServerLogin>(this);
     }
 
     public async Task OnPacketReceived(NetworkSession session, LoginRequest packet)
     {
+        if (session.Seed == 0)
+        {
+            Logger.LogWarning("User {SessionId} tried to login without a valid seed", session.Id);
+            await session.SendPacketAsync(new LoginDenied(LoginDeniedReasonType.CommunicationProblem));
+            return;
+        }
+
         var login = await _accountManager.LoginGameAsync(packet.Username, packet.Password);
 
         if (login == null)
@@ -96,9 +106,10 @@ public class LoginHandler
 
         var sessionKey = GenerateSessionKey();
 
-
         var gameServer = _gameServerEntries[packet.ShardId];
 
+
+        /// 05/05/2025 --> Fixed connection bug after 4 days of testing, now i can die in peace! :D
         var connectToServer = new ConnectToGameServer()
         {
             GameServerIP = gameServer.IP,
@@ -106,21 +117,36 @@ public class LoginHandler
             SessionKey = sessionKey
         };
 
+        Logger.LogDebug("Session generated is: {Session}", BitConverter.GetBytes(sessionKey).HumanizedContent());
 
-        await NetworkService.SendPacket(session.Id, connectToServer);
-        // await session.SendPacketAsync(connectToServer);
 
-        //await session.Disconnect();
+        await session.SendPacketAsync(connectToServer);
     }
 
-    public static uint GenerateSessionKey()
+    public static int GenerateSessionKey()
     {
-        byte[] keyBytes = new byte[4];
-        using (var rng = RandomNumberGenerator.Create())
+        var randomNumber = RandomNumberGenerator.GetInt32(0, int.MaxValue);
+
+        if (Random.Shared.Next(2) == 0)
         {
-            rng.GetBytes(keyBytes);
+            randomNumber |= 1 << 31;
         }
 
-        return BitConverter.ToUInt32(keyBytes, 0);
+        return randomNumber;
+    }
+
+    public async Task OnPacketReceived(NetworkSession session, GameServerLogin packet)
+    {
+        var account = await _accountManager.LoginGameAsync(packet.AccountId, packet.Password);
+
+        if (account == null)
+        {
+            await session.SendPacketAsync(new LoginDenied(LoginDeniedReasonType.IncorrectPassword));
+            await session.Disconnect();
+
+            return;
+        }
+
+        await session.SendPacketAsync(new FeatureFlags(ClientFeatureType.ModernServer));
     }
 }

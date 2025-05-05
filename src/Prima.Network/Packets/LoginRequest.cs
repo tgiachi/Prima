@@ -35,8 +35,8 @@ public class LoginRequest() : BaseUoNetworkPacket(0x80, 62)
     /// <param name="writer">The packet writer to write data to.</param>
     public override void Write(PacketWriter writer)
     {
-        writer.WriteFixedString(Username, 30);
-        writer.WriteFixedString(Password, 30);
+        writer.WriteAsciiFixed(Username, 30);
+        writer.WriteAsciiFixed(Password, 30);
         writer.Write(NextLoginKey);
     }
 

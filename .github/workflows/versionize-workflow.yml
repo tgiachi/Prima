@@ -1,0 +1,71 @@
+name: Auto Versioning
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  versionize:
+    name: Auto Version with Versionize
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Install Versionize
+        run: dotnet tool install --global Versionize
+
+      - name: Configure Git
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+      - name: Run Versionize
+        id: versionize
+        continue-on-error: true
+        run: |
+          versionize --skip-dirty
+          EXIT_CODE=$?
+          if [ $EXIT_CODE -eq 0 ]; then
+            echo "new_version=true" >> $GITHUB_OUTPUT
+  
+            VERSION=$(grep -m 1 -oP '## \[\K[0-9]+\.[0-9]+\.[0-9]+' CHANGELOG.md || echo "0.0.1")
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "New version created: $VERSION"
+          else
+            echo "No changes detected that require version bump"
+            echo "new_version=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Push Changes
+        if: steps.versionize.outputs.new_version == 'true'
+        run: |
+          git push --follow-tags origin main
+
+  # Trigger other workflows if versionize created a new version
+  trigger-workflows:
+    name: Trigger Other Workflows
+    needs: versionize
+    if: needs.versionize.outputs.new_version == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Trigger workflows via repository_dispatch
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: version-updated
+          client-payload: '{"version": "${{ needs.versionize.outputs.version }}"}'

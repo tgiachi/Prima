@@ -12,7 +12,6 @@ namespace Prima.Network.Packets;
 /// </remarks>
 public class SelectServer() : BaseUoNetworkPacket(0xA0, 3)
 {
-
     /// <summary>
     /// Gets or sets the ID of the selected shard (game server).
     /// This should match the Index of a GameServerEntry.
@@ -34,6 +33,6 @@ public class SelectServer() : BaseUoNetworkPacket(0xA0, 3)
     /// <param name="writer">The packet writer to write data to.</param>
     public override void Write(PacketWriter writer)
     {
-        writer.WriteUInt16BE(ShardId);
+        writer.Write(ShardId);
     }
 }
