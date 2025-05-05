@@ -1,0 +1,103 @@
+name: Release Build
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      version: ${{ steps.get_version.outputs.version }}
+      release_id: ${{ steps.create_release.outputs.id }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get version from tag
+        id: get_version
+        run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Orion Server v${{ steps.get_version.outputs.version }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  build:
+    name: Build for ${{ matrix.os }}
+    needs: create-release
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ win-x64, linux-x64, osx-x64, osx-arm64, linux-arm64 ]
+        include:
+          - os: win-x64
+            output_name: win-x64
+            binary_name: Prima.Server.exe
+            asset_name: prima-server-windows-x64
+          - os: linux-x64
+            output_name: linux-x64
+            binary_name: Prima.Server
+            asset_name: prima-server-linux-x64
+          - os: osx-x64
+            output_name: osx-x64
+            binary_name: Prima.Server
+            asset_name: prima-server-macos-x64
+          - os: osx-arm64
+            output_name: osx-arm64
+            binary_name: Prima.Server
+            asset_name: prima-server-macos-arm64
+          - os: linux-arm64
+            output_name: linux-arm64
+            binary_name: Orion.Server
+            asset_name: prima-server-linux-arm64
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet publish src/Prima.Server/Prima.Server.csproj -c Release -r ${{ matrix.os }} --self-contained true -p:PublishSingleFile=true  -o ./dist/${{ matrix.output_name }}
+
+      - name: Prepare additional files
+        run: |
+          mkdir -p ./dist/${{ matrix.output_name }}/prima/scripts
+          mkdir -p ./dist/${{ matrix.output_name }}/prima/logs
+          cp -r scripts/* ./dist/${{ matrix.output_name }}/prima/scripts/ || true
+          cp README.md ./dist/${{ matrix.output_name }}/
+          cp LICENSE ./dist/${{ matrix.output_name }}/ || true
+
+      - name: Create ZIP archive
+        run: |
+          cd ./dist
+          zip -r ${{ matrix.asset_name }}.zip ${{ matrix.output_name }}/
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ./dist/${{ matrix.asset_name }}.zip
+          asset_name: ${{ matrix.asset_name }}.zip
+          asset_content_type: application/zip
