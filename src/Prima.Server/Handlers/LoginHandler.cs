@@ -105,6 +105,8 @@ public class LoginHandler
 
         var gameServer = _gameServerEntries[packet.ShardId];
 
+
+        /// 05/05/2025 --> Fixed connection bug after 4 days of testing, now i can die in peace! :D 
         var connectToServer = new ConnectToGameServer()
         {
             GameServerIP = gameServer.IP,
