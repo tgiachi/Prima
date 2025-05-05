@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -18,28 +18,28 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.4"/>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.4" />
 
         <PackageReference Include="LiteDB" Version="5.0.21" />
         <PackageReference Include="LiteDB.Async" Version="0.1.8" />
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.4"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.4" />
         <PackageReference Include="Serilog" Version="4.2.0" />
         <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.1" />
         <PackageReference Include="Spectre.Console" Version="0.50.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />
-        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="8.1.1"/>
-        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="8.1.1"/>
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.4"/>
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="8.1.1" />
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="8.1.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.4" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Prima.Core.Server\Prima.Core.Server.csproj"/>
-        <ProjectReference Include="..\Prima.Network\Prima.Network.csproj"/>
+        <ProjectReference Include="..\Prima.Core.Server\Prima.Core.Server.csproj" />
+        <ProjectReference Include="..\Prima.Network\Prima.Network.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <None Remove="Assets\header.txt"/>
-        <EmbeddedResource Include="Assets\header.txt"/>
+        <None Remove="Assets\header.txt" />
+        <EmbeddedResource Include="Assets\header.txt" />
 
         <EmbeddedResource Include="Assets\Templates\*.hbs" />
     </ItemGroup>
