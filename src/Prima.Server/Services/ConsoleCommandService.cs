@@ -15,7 +15,7 @@ public class ConsoleCommandService : IHostedService, IDisposable
     private Task _inputTask;
     private readonly Action<string> _commandHandler;
     private bool _isDisposed;
-    private readonly Action<ConsoleKeyInfo> _tabHandler;
+    private readonly Action<string> _tabHandler;
 
     private readonly ICommandSystemService _commandSystemService;
 
@@ -31,7 +31,12 @@ public class ConsoleCommandService : IHostedService, IDisposable
         _commandHandler = DefaultCommandHandler;
         _tabHandler = info =>
         {
-            _commandSystemService.AutoComplete(info.KeyChar.ToString())
+            if (string.IsNullOrWhiteSpace(info))
+            {
+                return;
+            }
+
+            _commandSystemService.AutoComplete(info)
                 .ToList()
                 .ForEach(s => { AnsiConsole.MarkupLine($"[green]{s}[/]"); });
         };
@@ -122,7 +127,7 @@ public class ConsoleCommandService : IHostedService, IDisposable
 
                 case ConsoleKey.Tab:
                     // Handle tab completion
-                    _tabHandler(keyInfo);
+                    _tabHandler(inputBuffer.ToString());
                     break;
 
                 case ConsoleKey.Backspace:
