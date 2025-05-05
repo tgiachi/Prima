@@ -49,16 +49,16 @@ jobs:
           if [[ "${{ github.event_name }}" == "repository_dispatch" ]]; then
             VERSION="${{ github.event.client_payload.version }}"
           else
-            VERSION=$(grep -oP '<Version>\K[^<]+' src/Orion.Server/Orion.Server.csproj || echo "0.0.1")
+            VERSION=$(grep -oP '<Version>\K[^<]+' src/Prima.Server/Prima.Server.csproj || echo "0.0.1")
           fi
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
           echo "Extracted version: $VERSION"
 
       - name: Build Docker image
         run: |
-          docker build -t tgiachi/orionirc-server:latest -t tgiachi/orionirc-server:${{ steps.project-version.outputs.VERSION }} .
+          docker build -t tgiachi/prima-server:latest -t tgiachi/prima-server:${{ steps.project-version.outputs.VERSION }} .
 
       - name: Push Docker image
         run: |
-          docker push tgiachi/orionirc-server:latest
-          docker push tgiachi/orionirc-server:${{ steps.project-version.outputs.VERSION }}
+          docker push tgiachi/prima-server:latest
+          docker push tgiachi/prima-server:${{ steps.project-version.outputs.VERSION }}
