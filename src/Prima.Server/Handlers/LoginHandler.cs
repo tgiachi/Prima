@@ -1,6 +1,6 @@
 using System.Net;
 using System.Security.Cryptography;
-using Microsoft.Extensions.Logging;
+using Orion.Foundations.Extensions;
 using Prima.Core.Server.Data.Config;
 using Prima.Core.Server.Data.Session;
 using Prima.Core.Server.Handlers.Base;
@@ -14,13 +14,15 @@ using Prima.Network.Types;
 namespace Prima.Server.Handlers;
 
 public class LoginHandler
-    : BasePacketListenerHandler, INetworkPacketListener<LoginRequest>, INetworkPacketListener<SelectServer>
+    : BasePacketListenerHandler, INetworkPacketListener<LoginRequest>, INetworkPacketListener<SelectServer>,
+        INetworkPacketListener<GameServerLogin>
 {
     private readonly IAccountManager _accountManager;
 
     private readonly PrimaServerConfig _primaServerConfig;
 
     private readonly List<GameServerEntry> _gameServerEntries = new();
+
 
     public LoginHandler(
         ILogger<LoginHandler> logger, INetworkService networkService, IServiceProvider serviceProvider,
@@ -51,6 +53,7 @@ public class LoginHandler
     {
         RegisterHandler<LoginRequest>(this);
         RegisterHandler<SelectServer>(this);
+        RegisterHandler<GameServerLogin>(this);
     }
 
     public async Task OnPacketReceived(NetworkSession session, LoginRequest packet)
@@ -106,13 +109,15 @@ public class LoginHandler
         var gameServer = _gameServerEntries[packet.ShardId];
 
 
-        /// 05/05/2025 --> Fixed connection bug after 4 days of testing, now i can die in peace! :D 
+        /// 05/05/2025 --> Fixed connection bug after 4 days of testing, now i can die in peace! :D
         var connectToServer = new ConnectToGameServer()
         {
             GameServerIP = gameServer.IP,
             GameServerPort = (ushort)_primaServerConfig.TcpServer.GamePort,
             SessionKey = sessionKey
         };
+
+        Logger.LogDebug("Session generated is: {Session}", BitConverter.GetBytes(sessionKey).HumanizedContent());
 
 
         await session.SendPacketAsync(connectToServer);
@@ -128,5 +133,20 @@ public class LoginHandler
         }
 
         return randomNumber;
+    }
+
+    public async Task OnPacketReceived(NetworkSession session, GameServerLogin packet)
+    {
+        var account = await _accountManager.LoginGameAsync(packet.AccountId, packet.Password);
+
+        if (account == null)
+        {
+            await session.SendPacketAsync(new LoginDenied(LoginDeniedReasonType.IncorrectPassword));
+            await session.Disconnect();
+
+            return;
+        }
+
+
     }
 }

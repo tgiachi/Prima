@@ -44,7 +44,13 @@ public abstract class BasePacketListenerHandler : INetworkPacketListener, IOrion
             var handlerInterfaceType = typeof(INetworkPacketListener<>).MakeGenericType(packetType);
             var methodInfo = handlerInterfaceType.GetMethod(nameof(OnPacketReceived), [typeof(NetworkSession), packetType]);
 
-            var session = SessionService.GetSession(sessionId);
+            var session = SessionService.GetSession(sessionId, false);
+
+            if (session == null)
+            {
+                Logger.LogWarning("Session {SessionId} not found for packet type {PacketType}", sessionId, packetType);
+                return Task.CompletedTask;
+            }
 
 
             if (methodInfo != null)

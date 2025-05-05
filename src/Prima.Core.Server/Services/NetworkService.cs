@@ -29,7 +29,6 @@ public class NetworkService : INetworkService
 
     private const string _gameContext = "game_server";
 
-
     private readonly ILogger _logger;
     private readonly PrimaServerConfig _serverConfig;
 
@@ -65,6 +64,7 @@ public class NetworkService : INetworkService
         _processQueueService.EnsureContext(_listenersContext);
 
         RegisterPackets();
+
         var chanObservable = new ChannelObservable<NetworkMessageData>(networkTransportManager.IncomingMessages);
 
         _channelObservableSubscription = chanObservable.Subscribe(data => HandleIncomingMessages(data));
@@ -95,23 +95,13 @@ public class NetworkService : INetworkService
         session.OnSendPacket -= SendPacketViaEventLoop;
         session.OnDisconnect -= DisconnectSession;
 
+
+        _networkSessionService.RemoveSession(sessionId);
+
         if (transportId == _loginContext)
         {
             _logger.LogInformation("Client disconnected from login server: {SessionId} => {Endpoint}", sessionId, endpoint);
 
-            if (session.IsSeed)
-            {
-                _inSeedSessions.Add(
-                    new NetworkSession()
-                    {
-                        Id = session.Id,
-                        Seed = session.Seed,
-                        IsSeed = session.IsSeed
-                    }
-                );
-            }
-
-            _networkSessionService.RemoveSession(sessionId);
 
             return;
         }
@@ -128,16 +118,16 @@ public class NetworkService : INetworkService
         if (transportId == _loginContext)
         {
             _logger.LogInformation("Client connected to login server: {SessionId} => {Endpoint}", sessionId, endpoint);
-
-            var session = _networkSessionService.AddSession(sessionId);
-
-            session.OnSendPacket += SendPacketViaEventLoop;
-            session.OnDisconnect += DisconnectSession;
         }
         else if (transportId == _gameContext)
         {
             _logger.LogInformation("Client connected to game server: {SessionId} => {Endpoint}", sessionId, endpoint);
         }
+
+        var session = _networkSessionService.AddSession(sessionId);
+
+        session.OnSendPacket += SendPacketViaEventLoop;
+        session.OnDisconnect += DisconnectSession;
     }
 
     private async Task DisconnectSession(string id)
@@ -189,12 +179,31 @@ public class NetworkService : INetworkService
         }
     }
 
+    private Span<byte> CheckIfSessionKeyPacket(byte[] data)
+    {
+        if (data.Length == 69)
+        {
+            // Drop the first 4 bytes
+
+            var packet = new byte[data.Length - 4];
+
+            Buffer.BlockCopy(data, 4, packet, 0, data.Length - 4);
+
+            return packet.AsSpan();
+        }
+
+        return data.AsSpan();
+    }
+
 
     private async Task HandleIncomingMessages(NetworkMessageData data)
     {
         try
         {
-            var packets = _packetManager.ReadPackets(data.Message);
+            var buffer = CheckIfSessionKeyPacket(data.Message);
+
+
+            var packets = _packetManager.ReadPackets(buffer.ToArray());
 
             if (packets.Count == 0)
             {
@@ -295,6 +304,7 @@ public class NetworkService : INetworkService
         _packetManager.RegisterPacket<SelectServer>();
         _packetManager.RegisterPacket<GameServerList>();
         _packetManager.RegisterPacket<LoginDenied>();
+        _packetManager.RegisterPacket<GameServerLogin>();
     }
 
     public void Dispose()
