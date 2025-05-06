@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prima.Core.Server", "src\Pr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prima.Tcp.Test", "src\Prima.Tcp.Test\Prima.Tcp.Test.csproj", "{4F27C946-61BE-4C93-B3A4-D565B55982B3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prima.UOData", "src\Prima.UOData\Prima.UOData.csproj", "{174F3943-CC41-419F-9599-BFD6DF5B756F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -85,6 +87,18 @@ Global
 		{4F27C946-61BE-4C93-B3A4-D565B55982B3}.Release|x64.Build.0 = Release|Any CPU
 		{4F27C946-61BE-4C93-B3A4-D565B55982B3}.Release|x86.ActiveCfg = Release|Any CPU
 		{4F27C946-61BE-4C93-B3A4-D565B55982B3}.Release|x86.Build.0 = Release|Any CPU
+		{174F3943-CC41-419F-9599-BFD6DF5B756F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{174F3943-CC41-419F-9599-BFD6DF5B756F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{174F3943-CC41-419F-9599-BFD6DF5B756F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{174F3943-CC41-419F-9599-BFD6DF5B756F}.Debug|x64.Build.0 = Debug|Any CPU
+		{174F3943-CC41-419F-9599-BFD6DF5B756F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{174F3943-CC41-419F-9599-BFD6DF5B756F}.Debug|x86.Build.0 = Debug|Any CPU
+		{174F3943-CC41-419F-9599-BFD6DF5B756F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{174F3943-CC41-419F-9599-BFD6DF5B756F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{174F3943-CC41-419F-9599-BFD6DF5B756F}.Release|x64.ActiveCfg = Release|Any CPU
+		{174F3943-CC41-419F-9599-BFD6DF5B756F}.Release|x64.Build.0 = Release|Any CPU
+		{174F3943-CC41-419F-9599-BFD6DF5B756F}.Release|x86.ActiveCfg = Release|Any CPU
+		{174F3943-CC41-419F-9599-BFD6DF5B756F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

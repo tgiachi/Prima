@@ -6,134 +6,42 @@ namespace Prima.Network.Types;
 [Flags]
 public enum ClientFeatureType : uint
 {
-    /// <summary>
-    /// No features enabled (default).
-    /// </summary>
     None = 0x00000000,
-
-    /// <summary>
-    /// T2A features (chat, regions).
-    /// </summary>
     T2A = 0x00000001,
-
-    /// <summary>
-    /// Renaissance features.
-    /// </summary>
-    Renaissance = 0x00000002,
-
-    /// <summary>
-    /// Third Dawn features.
-    /// </summary>
-    ThirdDawn = 0x00000004,
-
-    /// <summary>
-    /// LBR features (skills, map).
-    /// </summary>
+    UOR = 0x00000002, // In later clients, the T2A/UOR flags are negative feature flags to disable body replacement of Pre-AOS graphics.
+    UOTD = 0x00000004,
     LBR = 0x00000008,
-
-    /// <summary>
-    /// AOS features (skills, map, spells, fightbook).
-    /// </summary>
     AOS = 0x00000010,
-
-    /// <summary>
-    /// Enable 6th character slot.
-    /// </summary>
     SixthCharacterSlot = 0x00000020,
-
-    /// <summary>
-    /// Samurai Empire features.
-    /// </summary>
     SE = 0x00000040,
-
-    /// <summary>
-    /// Mondain's Legacy features (elven race, spells, skills).
-    /// </summary>
     ML = 0x00000080,
-
-    /// <summary>
-    /// 8th age splash screen.
-    /// </summary>
-    EighthAgeSplash = 0x00000100,
-
-    /// <summary>
-    /// 9th age splash screen.
-    /// </summary>
-    NinthAgeSplash = 0x00000200,
-
-    /// <summary>
-    /// 10th age features.
-    /// </summary>
+    EighthAge = 0x00000100,
+    NinthAge = 0x00000200, // Crystal/Shadow Custom House Tiles
     TenthAge = 0x00000400,
-
-    /// <summary>
-    /// Increased housing and bank storage.
-    /// </summary>
-    IncreasedStorage = 0x00000800,
-
-    /// <summary>
-    /// Enable 7th character slot.
-    /// </summary>
+    IncreasedStorage = 0x00000800, // Increased Housing/Bank Storage
     SeventhCharacterSlot = 0x00001000,
-
-    /// <summary>
-    /// Kingdom Reborn faces.
-    /// </summary>
-    KRFaces = 0x00002000,
-
-    /// <summary>
-    /// Trial account.
-    /// </summary>
+    RoleplayFaces = 0x00002000,
     TrialAccount = 0x00004000,
-
-    /// <summary>
-    /// Live account.
-    /// </summary>
     LiveAccount = 0x00008000,
-
-    /// <summary>
-    /// Stygian Abyss features (gargoyle race, spells, skills).
-    /// </summary>
     SA = 0x00010000,
-
-    /// <summary>
-    /// High Seas Adventure features.
-    /// </summary>
-    HSA = 0x00020000,
-
-    /// <summary>
-    /// Gothic housing tiles.
-    /// </summary>
-    GothicHousing = 0x00040000,
-
-    /// <summary>
-    /// Rustic housing tiles.
-    /// </summary>
-    RusticHousing = 0x00080000,
-
-    /// <summary>
-    /// Jungle housing tiles.
-    /// </summary>
-    JungleHousing = 0x00100000,
-
-    /// <summary>
-    /// Shadowguard housing tiles.
-    /// </summary>
-    ShadowguardHousing = 0x00200000,
-
-    /// <summary>
-    /// Time of Legends features.
-    /// </summary>
+    HS = 0x00020000,
+    Gothic = 0x00040000,
+    Rustic = 0x00080000,
+    Jungle = 0x00100000,
+    Shadowguard = 0x00200000,
     TOL = 0x00400000,
+    EJ = 0x00800000,
 
-    /// <summary>
-    /// Endless Journey account.
-    /// </summary>
-    EndlessJourney = 0x00800000,
-
-    /// <summary>
-    /// Common configurations for modern servers.
-    /// </summary>
-    ModernServer = T2A | Renaissance | ThirdDawn | LBR | AOS | SE | ML | SA | TOL |
-                   SixthCharacterSlot | SeventhCharacterSlot | IncreasedStorage
+    ExpansionNone = None,
+    ExpansionT2A = T2A,
+    ExpansionUOR = ExpansionT2A | UOR,
+    ExpansionUOTD = ExpansionUOR | UOTD,
+    ExpansionLBR = ExpansionUOTD | LBR,
+    ExpansionAOS = LBR | AOS | LiveAccount,
+    ExpansionSE = ExpansionAOS | SE,
+    ExpansionML = ExpansionSE | ML | NinthAge,
+    ExpansionSA = ExpansionML | SA | Gothic | Rustic,
+    ExpansionHS = ExpansionSA | HS,
+    ExpansionTOL = ExpansionHS | TOL | Jungle | Shadowguard,
+    ExpansionEJ = ExpansionTOL | EJ
 }

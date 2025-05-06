@@ -147,6 +147,6 @@ public class LoginHandler
             return;
         }
 
-        await session.SendPacketAsync(new FeatureFlags(ClientFeatureType.ModernServer));
+        await session.SendPacketAsync(new FeatureFlags(ClientFeatureType.ExpansionTOL));
     }
 }
