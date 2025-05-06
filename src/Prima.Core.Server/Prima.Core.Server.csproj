@@ -10,7 +10,7 @@
 
     <ItemGroup>
       <PackageReference Include="LiteDB" Version="5.0.21" />
-      <PackageReference Include="Orion.Core.Server" Version="0.23.0" />
+      <PackageReference Include="Orion.Core.Server" Version="0.24.0" />
     </ItemGroup>
 
     <ItemGroup>
