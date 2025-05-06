@@ -76,7 +76,11 @@ class Program
             .AddService<INetworkTransportManager, NetworkTransportManager>();
 
 
-        builder.Services.AddScriptModule<CommandsScriptModule>();
+        builder.Services
+            .AddScriptModule<EventScriptModule>()
+            .AddScriptModule<SchedulerModule>()
+            .AddScriptModule<VariableModule>()
+            .AddScriptModule<CommandsScriptModule>();
 
         builder.Services
             .AddService<ConnectionHandler>()
@@ -118,6 +122,7 @@ class Program
         builder.Services.AddHostedService<ConsoleCommandService>();
 
         var app = builder.Build();
+
 
         PrimaServerContext.ServiceProvider = app.Services;
 
