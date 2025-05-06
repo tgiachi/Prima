@@ -3,7 +3,6 @@ using Orion.Core.Server.Interfaces.Services.System;
 
 namespace Prima.Server.Modules.Scripts;
 
-
 [ScriptModule("events")]
 public class EventScriptModule
 {
@@ -18,7 +17,7 @@ public class EventScriptModule
     }
 
 
-    [ScriptFunction("Register a callback to be called when the script abyssirc is started")]
+    [ScriptFunction("Register a callback to be called when the script prima server   is started")]
     public void OnStarted(Action action)
     {
         _scriptEngineService.AddCallback("onStarted", _ => action());

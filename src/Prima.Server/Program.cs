@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Orion.Core.Server.Data.Config.Internal;
 using Orion.Core.Server.Extensions;
+using Orion.Core.Server.Interfaces.Services.System;
 using Orion.Core.Server.Modules.Container;
 using Orion.Foundations.Utils;
 using Orion.Network.Core.Interfaces.Services;
@@ -70,6 +71,7 @@ class Program
             .AddModule<PrimaServerModuleContainer>()
             .AddModule<AuthServicesModule>()
             .AddModule<DatabaseModule>()
+            .AddService<IVersionService, VersionService>()
             .AddService<IEventLoopService, EventLoopService>()
             .AddService<ICommandSystemService, CommandSystemService>()
             .AddSingleton(new EventLoopConfig())
