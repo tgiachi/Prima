@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Orion.Core.Server.Data.Config.Internal;
 using Orion.Core.Server.Extensions;
+using Orion.Core.Server.Interfaces.Services.System;
 using Orion.Core.Server.Modules.Container;
 using Orion.Foundations.Utils;
 using Orion.Network.Core.Interfaces.Services;
@@ -23,6 +24,8 @@ using Prima.Server.Modules.Container;
 using Prima.Server.Modules.Scripts;
 using Prima.Server.Routes;
 using Prima.Server.Services;
+using Prima.UOData.Interfaces.Services;
+using Prima.UOData.Services;
 using Serilog;
 
 namespace Prima.Server;
@@ -70,13 +73,23 @@ class Program
             .AddModule<PrimaServerModuleContainer>()
             .AddModule<AuthServicesModule>()
             .AddModule<DatabaseModule>()
+            .AddService<IVersionService, VersionService>()
             .AddService<IEventLoopService, EventLoopService>()
             .AddService<ICommandSystemService, CommandSystemService>()
             .AddSingleton(new EventLoopConfig())
             .AddService<INetworkTransportManager, NetworkTransportManager>();
 
 
-        builder.Services.AddScriptModule<CommandsScriptModule>();
+        // Services for uo
+
+        builder.Services.AddService<IMulFileReaderService, MulFileReaderService>();
+
+
+        builder.Services
+            .AddScriptModule<EventScriptModule>()
+            .AddScriptModule<SchedulerModule>()
+            .AddScriptModule<VariableModule>()
+            .AddScriptModule<CommandsScriptModule>();
 
         builder.Services
             .AddService<ConnectionHandler>()
@@ -118,6 +131,7 @@ class Program
         builder.Services.AddHostedService<ConsoleCommandService>();
 
         var app = builder.Build();
+
 
         PrimaServerContext.ServiceProvider = app.Services;
 

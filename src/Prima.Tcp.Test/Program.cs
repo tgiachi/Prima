@@ -15,7 +15,7 @@ class Program
     {
         var packetManager = new PacketManager(new NullLogger<PacketManager>());
 
-        packetManager.RegisterPacket<ClientVersion>();
+        packetManager.RegisterPacket<ClientVersionRequest>();
         packetManager.RegisterPacket<LoginRequest>();
         packetManager.RegisterPacket<ConnectToGameServer>();
         packetManager.RegisterPacket<SelectServer>();

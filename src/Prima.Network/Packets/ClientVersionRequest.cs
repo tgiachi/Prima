@@ -4,7 +4,7 @@ using Prima.Network.Serializers;
 
 namespace Prima.Network.Packets;
 
-public class ClientVersion : BaseUoNetworkPacket
+public class ClientVersionRequest : BaseUoNetworkPacket
 {
     public int Seed { get; set; }
 
@@ -19,8 +19,16 @@ public class ClientVersion : BaseUoNetworkPacket
     public int Prototype { get; set; }
 
 
-    public ClientVersion() : base(0xEF, 21)
+    public ClientVersionRequest() : base(0xEF, 21)
     {
+    }
+
+    public ClientVersionRequest(int majorVersion, int minorVersion, int revision, int prototype) : this()
+    {
+        MajorVersion = majorVersion;
+        MinorVersion = minorVersion;
+        Revision = revision;
+        Prototype = prototype;
     }
 
     public override void Read(PacketReader reader)

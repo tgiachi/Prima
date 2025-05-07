@@ -27,7 +27,7 @@ public class NetworkSession : INetworkSession
     public string AccountId { get; set; }
 
 
-    public ClientVersion ClientVersion { get; set; }
+    public ClientVersionRequest ClientVersionRequest { get; set; }
 
 
     public void Dispose()

@@ -298,7 +298,7 @@ public class NetworkService : INetworkService
 
     private void RegisterPackets()
     {
-        _packetManager.RegisterPacket<ClientVersion>();
+        _packetManager.RegisterPacket<ClientVersionRequest>();
         _packetManager.RegisterPacket<LoginRequest>();
         _packetManager.RegisterPacket<ConnectToGameServer>();
         _packetManager.RegisterPacket<SelectServer>();
