@@ -4,7 +4,7 @@ namespace Prima.Network.Types;
 /// Defines the client features that can be enabled or disabled on the server.
 /// </summary>
 [Flags]
-public enum ClientFeatureType : uint
+public enum FeatureFlags : uint
 {
     None = 0x00000000,
     T2A = 0x00000001,

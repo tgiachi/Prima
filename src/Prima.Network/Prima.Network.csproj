@@ -14,4 +14,8 @@
       <PackageReference Include="Orion.Network.Tcp" Version="0.24.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Data\" />
+    </ItemGroup>
+
 </Project>
