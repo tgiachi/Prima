@@ -6,7 +6,7 @@ using Prima.Network.Packets;
 
 namespace Prima.Server.Handlers;
 
-public class ConnectionHandler : BasePacketListenerHandler, INetworkPacketListener<ClientVersion>
+public class ConnectionHandler : BasePacketListenerHandler, INetworkPacketListener<ClientVersionRequest>
 {
     public ConnectionHandler(
         ILogger<ConnectionHandler> logger, INetworkService networkService, IServiceProvider serviceProvider
@@ -16,13 +16,13 @@ public class ConnectionHandler : BasePacketListenerHandler, INetworkPacketListen
 
     protected override void RegisterHandlers()
     {
-        RegisterHandler<ClientVersion>(this);
+        RegisterHandler<ClientVersionRequest>(this);
     }
 
-    public async Task OnPacketReceived(NetworkSession session, ClientVersion packet)
+    public async Task OnPacketReceived(NetworkSession session, ClientVersionRequest packet)
     {
         session.Seed = packet.Seed;
-        session.ClientVersion = packet;
+        session.ClientVersionRequest = packet;
 
         session.FirstPacketReceived = true;
     }

@@ -24,6 +24,8 @@ using Prima.Server.Modules.Container;
 using Prima.Server.Modules.Scripts;
 using Prima.Server.Routes;
 using Prima.Server.Services;
+using Prima.UOData.Interfaces.Services;
+using Prima.UOData.Services;
 using Serilog;
 
 namespace Prima.Server;
@@ -76,6 +78,11 @@ class Program
             .AddService<ICommandSystemService, CommandSystemService>()
             .AddSingleton(new EventLoopConfig())
             .AddService<INetworkTransportManager, NetworkTransportManager>();
+
+
+        // Services for uo
+
+        builder.Services.AddService<IMulFileReaderService, MulFileReaderService>();
 
 
         builder.Services
