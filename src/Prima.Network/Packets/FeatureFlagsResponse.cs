@@ -12,7 +12,7 @@ namespace Prima.Network.Packets;
 /// OpCode: 0xB9
 /// This packet is sent immediately after login to configure the client's feature set.
 /// </remarks>
-public class FeatureFlags() : BaseUoNetworkPacket(0xB9, 5)
+public class FeatureFlagsResponse() : BaseUoNetworkPacket(0xB9, 5)
 {
     /// <summary>
     /// Gets or sets the feature flags as a 32-bit unsigned integer.
@@ -45,13 +45,13 @@ public class FeatureFlags() : BaseUoNetworkPacket(0xB9, 5)
     /// 0x00400000: Enable TOL features
     /// 0x00800000: Enable Endless Journey account
     /// </remarks>
-    public ClientFeatureType Flags { get; set; }
+    public FeatureFlags Flags { get; set; }
 
     /// <summary>
     /// Creates a new instance of the FeatureFlags class with the specified flags.
     /// </summary>
     /// <param name="flags">The feature flags to set.</param>
-    public FeatureFlags(ClientFeatureType flags) : this()
+    public FeatureFlagsResponse(FeatureFlags flags) : this()
     {
         Flags = flags;
     }
@@ -62,7 +62,7 @@ public class FeatureFlags() : BaseUoNetworkPacket(0xB9, 5)
     /// <param name="reader">The packet reader to read data from.</param>
     public override void Read(PacketReader reader)
     {
-        Flags = (ClientFeatureType)reader.ReadUInt32();
+        Flags = (FeatureFlags)reader.ReadUInt32();
     }
 
     /// <summary>
