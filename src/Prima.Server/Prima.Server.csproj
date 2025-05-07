@@ -48,6 +48,8 @@
         <EmbeddedResource Include="Assets\header.txt"/>
 
         <EmbeddedResource Include="Assets\Templates\*.hbs" />
+        
+        <EmbeddedResource Include="Assets\Data\**\*" />
     </ItemGroup>
 
 </Project>
