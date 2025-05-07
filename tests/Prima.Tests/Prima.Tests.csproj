@@ -28,7 +28,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Prima.Core.Server\Prima.Core.Server.csproj" />
     <ProjectReference Include="..\..\src\Prima.Network\Prima.Network.csproj" />
+    <ProjectReference Include="..\..\src\Prima.Server\Prima.Server.csproj" />
+    <ProjectReference Include="..\..\src\Prima.UOData\Prima.UOData.csproj" />
   </ItemGroup>
 
 </Project>
