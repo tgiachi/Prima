@@ -1,12 +1,10 @@
-using System;
-using Prima.UOData.Data.Geometry;
+using Server;
 
-namespace
-    Server;
+namespace Prima.UOData.Data.Geometry;
 
 public class Point3DList
 {
-    private static readonly Point3D[] m_EmptyList = [];
+    private static readonly Point3D[] m_EmptyList = Array.Empty<Point3D>();
     private Point3D[] m_List;
 
     public Point3DList()

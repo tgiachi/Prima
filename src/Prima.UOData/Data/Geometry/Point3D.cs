@@ -13,12 +13,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
+using System;
 using System.Runtime.CompilerServices;
 using Orion.Foundations.Extensions;
-using Prima.Core.Server.Extensions;
+using Prima.UOData.Data.Geometry;
 using Prima.UOData.Interfaces.Geometry;
+using Prima.UOData.Utils;
 
-namespace Prima.UOData.Data.Geometry;
+namespace Server;
 
 public struct Point3D
     : IPoint3D, IComparable<Point3D>, IComparable<IPoint3D>, IEquatable<object>, IEquatable<Point3D>,
@@ -194,7 +196,7 @@ public struct Point3D
 
         var first = s.Slice(1, firstComma - 1).Trim();
 
-        if (!first.ToInt32(out var x))
+        if (!Utility.ToInt32(first, out var x))
         {
             throw new FormatException($"The input string '{s}' was not in a correct format.");
         }
@@ -209,7 +211,7 @@ public struct Point3D
 
         var second = s.Slice(firstComma + 1, secondComma).Trim();
 
-        if (!second.ToInt32(out var y))
+        if (!Utility.ToInt32(second, out var y))
         {
             throw new FormatException($"The input string '{s}' was not in a correct format.");
         }
@@ -217,7 +219,7 @@ public struct Point3D
         offset += secondComma + 1;
 
         var third = s.Slice(offset, s.Length - offset - 1).Trim();
-        if (!third.ToInt32(out var z))
+        if (!Utility.ToInt32(third, out var z))
         {
             throw new FormatException($"The input string '{s}' was not in a correct format.");
         }
@@ -243,7 +245,7 @@ public struct Point3D
         }
 
         var first = s.Slice(1, firstComma - 1).Trim();
-        if (!first.ToInt32(out var x))
+        if (!Utility.ToInt32(first, out var x))
         {
             result = default;
             return false;
@@ -259,7 +261,7 @@ public struct Point3D
         }
 
         var second = s.Slice(firstComma + 1, secondComma).Trim();
-        if (!second.ToInt32(out var y))
+        if (!Utility.ToInt32(second, out var y))
         {
             result = default;
             return false;
@@ -268,7 +270,7 @@ public struct Point3D
         offset += secondComma + 1;
 
         var third = s.Slice(offset, s.Length - offset - 1).Trim();
-        if (!third.ToInt32(out var z))
+        if (!Utility.ToInt32(third, out var z))
         {
             result = default;
             return false;

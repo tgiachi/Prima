@@ -1,9 +1,3 @@
-using Orion.Foundations.Extensions;
-using Prima.Core.Server.Extensions;
-using Prima.UOData.Interfaces.Geometry;
-
-namespace Prima.UOData.Data.Geometry;
-
 /*************************************************************************
  * ModernUO                                                              *
  * Copyright 2019-2023 - ModernUO Development Team                       *
@@ -18,8 +12,14 @@ namespace Prima.UOData.Data.Geometry;
  * You should have received a copy of the GNU General Public License     *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
-using System;
+
 using System.Runtime.CompilerServices;
+using Orion.Foundations.Extensions;
+using Prima.UOData.Interfaces.Geometry;
+using Prima.UOData.Utils;
+using Server;
+
+namespace Prima.UOData.Data.Geometry;
 
 public struct Point2D
     : IPoint2D, IComparable<Point2D>, IComparable<IPoint2D>, IEquatable<object>, IEquatable<Point2D>,
@@ -155,13 +155,13 @@ public struct Point2D
         }
 
         var first = s.Slice(1, comma - 1).Trim();
-        if (!first.ToInt32(out var x))
+        if (!Utility.ToInt32(first, out var x))
         {
             throw new FormatException($"The input string '{s}' was not in a correct format.");
         }
 
         var second = s.Slice(comma + 1, s.Length - comma - 2).Trim();
-        if (!second.ToInt32(out var y))
+        if (!Utility.ToInt32(second, out var y))
         {
             throw new FormatException($"The input string '{s}' was not in a correct format.");
         }
@@ -179,7 +179,6 @@ public struct Point2D
             return false;
         }
 
-
         var comma = s.IndexOfOrdinal(',');
         if (comma == -1)
         {
@@ -188,14 +187,14 @@ public struct Point2D
         }
 
         var first = s.Slice(1, comma - 1).Trim();
-        if (!first.ToInt32(out var x))
+        if (!Utility.ToInt32(first, out var x))
         {
             result = default;
             return false;
         }
 
         var second = s.Slice(comma + 1, s.Length - comma - 2).Trim();
-        if (!second.ToInt32(out var y))
+        if (!Utility.ToInt32(second, out var y))
         {
             result = default;
             return false;
