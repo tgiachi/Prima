@@ -1,45 +1,41 @@
 name: Auto Versioning
-
 on:
-  push:
+  pull_request:
     branches: [ main ]
-
+    types: [ closed ]
 jobs:
   versionize:
     name: Auto Version with Versionize
     runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
     permissions:
       contents: write
       pull-requests: write
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
-
       - name: Install Versionize
         run: dotnet tool install --global Versionize
-
       - name: Configure Git
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-
       - name: Run Versionize
         id: versionize
         continue-on-error: true
         run: |
-          versionize --skip-dirty
+          # Esegui versionize per generare il changelog e incrementare la versione
+          versionize
           EXIT_CODE=$?
           if [ $EXIT_CODE -eq 0 ]; then
             echo "new_version=true" >> $GITHUB_OUTPUT
-  
+
             VERSION=$(grep -m 1 -oP '## \[\K[0-9]+\.[0-9]+\.[0-9]+' CHANGELOG.md || echo "0.0.1")
             echo "version=$VERSION" >> $GITHUB_OUTPUT
             echo "New version created: $VERSION"
@@ -47,12 +43,10 @@ jobs:
             echo "No changes detected that require version bump"
             echo "new_version=false" >> $GITHUB_OUTPUT
           fi
-
-      - name: Push Changes
+      - name: Push Changes and Tags
         if: steps.versionize.outputs.new_version == 'true'
         run: |
           git push --follow-tags origin main
-
   # Trigger other workflows if versionize created a new version
   trigger-workflows:
     name: Trigger Other Workflows
@@ -62,7 +56,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Trigger workflows via repository_dispatch
         uses: peter-evans/repository-dispatch@v3
         with:
