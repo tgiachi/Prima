@@ -30,7 +30,7 @@ jobs:
         id: versionize
         continue-on-error: true
         run: |
-          # Esegui versionize per generare il changelog e incrementare la versione
+  
           versionize
           EXIT_CODE=$?
           if [ $EXIT_CODE -eq 0 ]; then

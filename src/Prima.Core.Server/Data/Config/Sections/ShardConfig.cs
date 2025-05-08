@@ -6,6 +6,8 @@ public class ShardConfig
 
     public string UoDirectory { get; set; } = "";
 
+    public string? ClientVersion { get; set; }
+
     public string Name { get; set; } = "Prima Shard";
 
     public string AdminEmail { get; set; } = "admin@primauo.com";

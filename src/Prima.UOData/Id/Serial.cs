@@ -16,7 +16,7 @@
 using System.Runtime.CompilerServices;
 using Prima.Core.Server.Extensions;
 
-namespace Prima.Core.Server.Data.Serialization;
+namespace Prima.UOData.Id;
 
 public readonly struct Serial
     : IComparable<Serial>, IComparable<uint>,
@@ -181,5 +181,11 @@ public readonly struct Serial
 
         result = default;
         return false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Serial RandomSerial()
+    {
+        return new Serial((uint)Random.Shared.Next(1, int.MaxValue));
     }
 }

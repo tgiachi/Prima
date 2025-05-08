@@ -2,9 +2,9 @@ using System.Runtime.CompilerServices;
 using Orion.Foundations.Buffers;
 using Orion.Foundations.Extensions;
 using Prima.Core.Server.Extensions;
-using Prima.UOData.Types;
+using Prima.Core.Server.Types.Uo;
 
-namespace Prima.UOData.Data;
+namespace Prima.Core.Server.Data.Uo;
 
 /*************************************************************************
  * ModernUO                                                              *
@@ -64,6 +64,7 @@ public class ClientVersion : IComparable<ClientVersion>, IComparer<ClientVersion
 
         SourceString = ToStringImpl().Intern();
     }
+
 
     public ClientVersion(string fmt)
     {

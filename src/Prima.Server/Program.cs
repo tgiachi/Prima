@@ -20,6 +20,7 @@ using Prima.Core.Server.Types;
 using Prima.Network.Modules;
 using Prima.Server.Handlers;
 using Prima.Server.Hosted;
+using Prima.Server.Interfaces.Services;
 using Prima.Server.Modules.Container;
 using Prima.Server.Modules.Scripts;
 using Prima.Server.Routes;
@@ -84,6 +85,11 @@ class Program
 
         builder.Services.AddService<IMulFileReaderService, MulFileReaderService>();
 
+
+        builder.Services
+            .AddService<IAssetService, AssetService>()
+            .AddService<IClientVersionService, ClientVersionService>()
+            ;
 
         builder.Services
             .AddScriptModule<EventScriptModule>()

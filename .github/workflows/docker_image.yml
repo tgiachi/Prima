@@ -1,4 +1,4 @@
-name: OrionIrc Build docker image
+name: Prima Build docker image
 
 on:
   push:
