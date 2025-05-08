@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Text;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -44,6 +45,8 @@ class Program
         JsonUtils.Converters.Add(new Point2DConverterFactory());
         JsonUtils.Converters.Add(new Point3DConverterFactory());
         JsonUtils.Converters.Add(new Rectangle3DConverterFactory());
+        JsonUtils.Converters.Add(new JsonStringEnumConverter());
+
 
         var appContext =
             builder.Services.InitApplication<PrimaServerOptions, PrimaServerConfig>("prima", Enum.GetNames<DirectoryType>());

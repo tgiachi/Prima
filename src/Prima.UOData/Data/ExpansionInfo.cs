@@ -62,7 +62,7 @@ public class ExpansionInfo
         var pathToExpansions =
             File.ReadAllText(path);
 
-        Table =  JsonSerializer.Deserialize<ExpansionInfo[]>(pathToExpansions);// .FromJson<ExpansionInfo[]>();
+        Table =  pathToExpansions.FromJson<ExpansionInfo[]>();
 
         var pathToExpansionFile = Path.Combine(directories[DirectoryType.Configs], ExpansionConfigurationPath);
 
