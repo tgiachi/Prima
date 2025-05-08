@@ -8,8 +8,6 @@ namespace Prima.Core.Server.Data;
 
 public static class PrimaServerContext
 {
-    public static ClientVersion ClientVersion { get; set; }
-
     public static IServiceProvider ServiceProvider { get; set; }
 
     public static IEventLoopService EventLoopService => ServiceProvider.GetRequiredService<IEventLoopService>();

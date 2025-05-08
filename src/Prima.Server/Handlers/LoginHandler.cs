@@ -3,12 +3,14 @@ using System.Security.Cryptography;
 using Orion.Foundations.Extensions;
 using Prima.Core.Server.Data.Config;
 using Prima.Core.Server.Data.Session;
+using Prima.Core.Server.Data.Uo;
 using Prima.Core.Server.Handlers.Base;
 using Prima.Core.Server.Interfaces.Listeners;
 using Prima.Core.Server.Interfaces.Services;
 using Prima.Network.Packets;
 using Prima.Network.Packets.Entries;
 using Prima.Network.Types;
+using Prima.UOData.Context;
 
 
 namespace Prima.Server.Handlers;
@@ -147,6 +149,6 @@ public class LoginHandler
             return;
         }
 
-        await session.SendPacketAsync(new FeatureFlagsResponse(FeatureFlags.ExpansionTOL));
+        await session.SendPacketAsync(new FeatureFlagsResponse(UOContext.ExpansionInfo.SupportedFeatures));
     }
 }

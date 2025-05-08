@@ -46,11 +46,8 @@
 
     <ItemGroup>
         <None Remove="Assets\header.txt" />
-        <EmbeddedResource Include="Assets\header.txt" />
-
-        <EmbeddedResource Include="Assets\Templates\*.hbs" />
-
-        <EmbeddedResource Include="Assets\Data\**\*" />
+      
+        <EmbeddedResource Include="Assets\**\*" />
     </ItemGroup>
 
 </Project>

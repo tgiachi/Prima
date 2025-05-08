@@ -7,5 +7,6 @@ public enum DirectoryType
     Database,
     WorldSaves,
     Templates,
+    Configs,
     Data
 }

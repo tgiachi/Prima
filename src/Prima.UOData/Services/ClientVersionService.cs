@@ -1,11 +1,17 @@
 using System.Buffers.Binary;
 using Microsoft.Extensions.Logging;
+using Orion.Core.Server.Data.Directories;
 using Orion.Core.Server.Events.Server;
 using Orion.Core.Server.Interfaces.Services.System;
 using Orion.Core.Server.Listeners.EventBus;
+using Orion.Foundations.Utils;
 using Prima.Core.Server.Data;
 using Prima.Core.Server.Data.Config;
 using Prima.Core.Server.Data.Uo;
+using Prima.Core.Server.Types;
+using Prima.Core.Server.Types.Uo;
+using Prima.UOData.Context;
+using Prima.UOData.Data;
 using Prima.UOData.Interfaces.Services;
 using Prima.UOData.Mul;
 
@@ -15,20 +21,53 @@ public class ClientVersionService : IClientVersionService, IEventBusListener<Ser
 {
     private readonly ILogger _logger;
 
+    private readonly string _expansionConfigurationPath = "expansion.json";
+    private readonly string _expansionsPath = "expansions.json";
+
     private readonly IEventBusService _eventBusService;
     private readonly PrimaServerConfig _primaServerConfig;
+    private readonly DirectoriesConfig _directoriesConfig;
 
     public ClientVersionService(
-        ILogger<ClientVersionService> logger, IEventBusService eventBusService, PrimaServerConfig primaServerConfig
+        ILogger<ClientVersionService> logger, IEventBusService eventBusService, PrimaServerConfig primaServerConfig,
+        DirectoriesConfig directoriesConfig
     )
     {
         _logger = logger;
         _eventBusService = eventBusService;
         _primaServerConfig = primaServerConfig;
+        _directoriesConfig = directoriesConfig;
+        _expansionsPath = Path.Combine(_directoriesConfig[DirectoryType.Data], _expansionsPath);
+        _expansionConfigurationPath = Path.Combine(_directoriesConfig[DirectoryType.Configs], _expansionConfigurationPath);
+
         _eventBusService.Subscribe(this);
     }
 
     public async Task HandleAsync(ServerStartedEvent @event, CancellationToken cancellationToken)
+    {
+        await GetClientVersionAsync();
+        await GetExpansionAsync();
+    }
+
+    private async Task GetExpansionAsync()
+    {
+        ExpansionInfo.Table = JsonUtils.DeserializeFromFile<ExpansionInfo[]>(_expansionsPath);
+        var expansion = JsonUtils.DeserializeFromFile<ExpansionInfo>(_expansionConfigurationPath);
+
+        if (expansion == null)
+        {
+            UOContext.Expansion = Expansion.None;
+        }
+
+
+        var currentExpansionIndex = expansion.Id;
+        ExpansionInfo.Table[currentExpansionIndex] = expansion;
+        UOContext.Expansion = (Expansion)currentExpansionIndex;
+        UOContext.ExpansionInfo = expansion;
+
+    }
+
+    private async Task GetClientVersionAsync()
     {
         ClientVersion clientVersion = null;
         _logger.LogInformation("Determining client version...");
@@ -82,6 +121,6 @@ public class ClientVersionService : IClientVersionService, IEventBusListener<Ser
             throw new InvalidOperationException("Client version not found");
         }
 
-        PrimaServerContext.ClientVersion = clientVersion;
+        UOContext.ClientVersion = clientVersion;
     }
 }

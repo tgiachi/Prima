@@ -1,4 +1,4 @@
-namespace Prima.UOData.Types;
+namespace Prima.Core.Server.Types.Uo;
 
 public enum Expansion
 {
