@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using Prima.Core.Server.Types.Uo;
 using Prima.UOData.Types;
 
 namespace Prima.UOData.Extensions;

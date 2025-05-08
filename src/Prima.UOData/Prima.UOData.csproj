@@ -8,12 +8,14 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\Prima.Core.Server\Prima.Core.Server.csproj"/>
-    </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="System.Drawing.Common" Version="9.0.4" />
+    </ItemGroup>
+
+
+    <ItemGroup>
+      <ProjectReference Include="..\Prima.Core.Server\Prima.Core.Server.csproj" />
     </ItemGroup>
 
 </Project>
