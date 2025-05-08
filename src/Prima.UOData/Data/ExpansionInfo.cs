@@ -14,8 +14,6 @@ namespace Prima.UOData.Data;
 
 public class ExpansionInfo
 {
-    public const string ExpansionConfigurationPath = "expansion.json";
-
     public static bool ForceOldAnimations { get; private set; }
 
 
@@ -50,37 +48,35 @@ public class ExpansionInfo
     }
 
 
-    public static bool LoadConfiguration(DirectoriesConfig directories, out Expansion expansion)
-    {
-        var path = Path.Combine(directories[DirectoryType.Data], "expansions.json");
-
-        if (!File.Exists(path))
-        {
-            throw new FileNotFoundException($"Expansion file '{path}' could not be found.");
-        }
-
-        var pathToExpansions =
-            File.ReadAllText(path);
-
-        Table =  pathToExpansions.FromJson<ExpansionInfo[]>();
-
-        var pathToExpansionFile = Path.Combine(directories[DirectoryType.Configs], ExpansionConfigurationPath);
-
-
-
-        ExpansionInfo expansionConfig = File.ReadAllText(pathToExpansionFile).FromJson<ExpansionInfo>();
-        if (expansionConfig == null)
-        {
-            expansion = Expansion.None;
-            return false;
-        }
-
-        int currentExpansionIndex = expansionConfig.Id;
-        Table[currentExpansionIndex] = expansionConfig;
-        expansion = (Expansion)currentExpansionIndex;
-        return true;
-    }
-
+    // public static bool LoadConfiguration(DirectoriesConfig directories, out Expansion expansion)
+    // {
+    //     var path = Path.Combine(directories[DirectoryType.Data], "expansions.json");
+    //
+    //     if (!File.Exists(path))
+    //     {
+    //         throw new FileNotFoundException($"Expansion file '{path}' could not be found.");
+    //     }
+    //
+    //     var pathToExpansions =
+    //         File.ReadAllText(path);
+    //
+    //     Table = pathToExpansions.FromJson<ExpansionInfo[]>();
+    //
+    //     var pathToExpansionFile = Path.Combine(directories[DirectoryType.Configs], ExpansionConfigurationPath);
+    //
+    //
+    //     ExpansionInfo expansionConfig = File.ReadAllText(pathToExpansionFile).FromJson<ExpansionInfo>();
+    //     if (expansionConfig == null)
+    //     {
+    //         expansion = Expansion.None;
+    //         return false;
+    //     }
+    //
+    //     int currentExpansionIndex = expansionConfig.Id;
+    //     Table[currentExpansionIndex] = expansionConfig;
+    //     expansion = (Expansion)currentExpansionIndex;
+    //     return true;
+    // }
 
 
     public ExpansionInfo(
@@ -130,7 +126,7 @@ public class ExpansionInfo
 
     public static ExpansionInfo CoreExpansion => GetInfo(UOContext.Expansion);
 
-    public static ExpansionInfo[] Table { get; private set; }
+    public static ExpansionInfo[] Table { get; set; }
 
     public int Id { get; }
     public string Name { get; set; }
@@ -142,10 +138,12 @@ public class ExpansionInfo
 
     [JsonConverter(typeof(FlagsConverter<CharacterListFlags>))]
     public CharacterListFlags CharacterListFlags { get; set; }
+
     public ClientVersion RequiredClient { get; set; }
 
     [JsonConverter(typeof(FlagsConverter<HousingFlags>))]
     public HousingFlags HousingFlags { get; set; }
+
     public int MobileStatusVersion { get; set; }
 
     [JsonConverter(typeof(FlagsConverter<MapSelectionFlags>))]
@@ -167,4 +165,3 @@ public class ExpansionInfo
 
     public override string ToString() => Name;
 }
-

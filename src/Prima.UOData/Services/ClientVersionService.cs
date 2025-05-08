@@ -4,9 +4,12 @@ using Orion.Core.Server.Data.Directories;
 using Orion.Core.Server.Events.Server;
 using Orion.Core.Server.Interfaces.Services.System;
 using Orion.Core.Server.Listeners.EventBus;
+using Orion.Foundations.Utils;
 using Prima.Core.Server.Data;
 using Prima.Core.Server.Data.Config;
 using Prima.Core.Server.Data.Uo;
+using Prima.Core.Server.Types;
+using Prima.Core.Server.Types.Uo;
 using Prima.UOData.Context;
 using Prima.UOData.Data;
 using Prima.UOData.Interfaces.Services;
@@ -17,6 +20,9 @@ namespace Prima.UOData.Services;
 public class ClientVersionService : IClientVersionService, IEventBusListener<ServerStartedEvent>
 {
     private readonly ILogger _logger;
+
+    private readonly string _expansionConfigurationPath = "expansion.json";
+    private readonly string _expansionsPath = "expansions.json";
 
     private readonly IEventBusService _eventBusService;
     private readonly PrimaServerConfig _primaServerConfig;
@@ -31,6 +37,9 @@ public class ClientVersionService : IClientVersionService, IEventBusListener<Ser
         _eventBusService = eventBusService;
         _primaServerConfig = primaServerConfig;
         _directoriesConfig = directoriesConfig;
+        _expansionsPath = Path.Combine(_directoriesConfig[DirectoryType.Data], _expansionsPath);
+        _expansionConfigurationPath = Path.Combine(_directoriesConfig[DirectoryType.Configs], _expansionConfigurationPath);
+
         _eventBusService.Subscribe(this);
     }
 
@@ -42,16 +51,20 @@ public class ClientVersionService : IClientVersionService, IEventBusListener<Ser
 
     private async Task GetExpansionAsync()
     {
-        if (ExpansionInfo.LoadConfiguration(_directoriesConfig, out var expansionInfo))
+        ExpansionInfo.Table = JsonUtils.DeserializeFromFile<ExpansionInfo[]>(_expansionsPath);
+        var expansion = JsonUtils.DeserializeFromFile<ExpansionInfo>(_expansionConfigurationPath);
+
+        if (expansion == null)
         {
-            UOContext.Expansion = expansionInfo;
-            _logger.LogInformation("Expansion set to {@expansion}", expansionInfo);
+            UOContext.Expansion = Expansion.None;
         }
-        else
-        {
-            _logger.LogError("Failed to load expansion configuration");
-            throw new InvalidOperationException("Failed to load expansion configuration");
-        }
+
+
+        var currentExpansionIndex = expansion.Id;
+        ExpansionInfo.Table[currentExpansionIndex] = expansion;
+        UOContext.Expansion = (Expansion)currentExpansionIndex;
+
+
     }
 
     private async Task GetClientVersionAsync()
