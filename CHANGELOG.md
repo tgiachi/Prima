@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="0.6.0"></a>
+## [0.6.0](https://www.github.com/tgiachi/Prima/releases/tag/v0.6.0) (2025-05-08)
+
+### Features
+
+* **ClientVersion.cs:** remove outdated ClientVersion class and its dependencies ([03372d5](https://www.github.com/tgiachi/Prima/commit/03372d5105fa0b8874820cf63dc0f393cfea3ad2))
+* **docs:** add docfx.json configuration file for building documentation with metadata and build settings ([84837bd](https://www.github.com/tgiachi/Prima/commit/84837bd2d655994fd3b5e660a00a88337f80d623))
+* **Prima.Network.csproj:** update Orion packages to version 0.25.0 for compatibility and new features ([9bef184](https://www.github.com/tgiachi/Prima/commit/9bef1846f2c1b9505d82032edb295e15da010b47))
+* **ShardConfig.cs:** add ClientVersion property to ShardConfig for storing client version information ([6ac07b9](https://www.github.com/tgiachi/Prima/commit/6ac07b97978e50efae6c80392d7f5def62e3ce57))
+
 <a name="0.5.0"></a>
 ## [0.5.0](https://www.github.com/tgiachi/Prima/releases/tag/v0.5.0) (2025-05-07)
 

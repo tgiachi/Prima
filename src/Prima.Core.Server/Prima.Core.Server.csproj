@@ -5,16 +5,16 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <Version>0.5.0</Version>
+        <Version>0.6.0</Version>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="LiteDB" Version="5.0.21"/>
-        <PackageReference Include="Orion.Core.Server" Version="0.25.0"/>
+        <PackageReference Include="LiteDB" Version="5.0.21" />
+        <PackageReference Include="Orion.Core.Server" Version="0.25.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Prima.Network\Prima.Network.csproj"/>
+        <ProjectReference Include="..\Prima.Network\Prima.Network.csproj" />
         
     </ItemGroup>
 
