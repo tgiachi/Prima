@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/dotnet/runtime:9.0-alpine AS base
 WORKDIR /app
 
 # Install curl for healthcheck
-RUN apk add --no-cache curl
+RUN apk add --no-cache curl git
 
 # Build image
 FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build
