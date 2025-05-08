@@ -1,4 +1,5 @@
 using Orion.Core.Server.Interfaces.Sessions;
+using Prima.Core.Server.Data.Uo;
 using Prima.Network.Interfaces.Packets;
 using Prima.Network.Packets;
 
@@ -27,7 +28,7 @@ public class NetworkSession : INetworkSession
     public string AccountId { get; set; }
 
 
-    public ClientVersionRequest ClientVersionRequest { get; set; }
+    public ClientVersion ClientVersion { get; set; }
 
 
     public void Dispose()
