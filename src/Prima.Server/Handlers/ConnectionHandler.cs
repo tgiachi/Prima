@@ -1,4 +1,6 @@
+using Prima.Core.Server.Data;
 using Prima.Core.Server.Data.Session;
+using Prima.Core.Server.Data.Uo;
 using Prima.Core.Server.Handlers.Base;
 using Prima.Core.Server.Interfaces.Listeners;
 using Prima.Core.Server.Interfaces.Services;
@@ -22,7 +24,24 @@ public class ConnectionHandler : BasePacketListenerHandler, INetworkPacketListen
     public async Task OnPacketReceived(NetworkSession session, ClientVersionRequest packet)
     {
         session.Seed = packet.Seed;
-        session.ClientVersionRequest = packet;
+        session.ClientVersion = new ClientVersion(
+            packet.MajorVersion,
+            packet.MinorVersion,
+            packet.Revision,
+            packet.Prototype
+        );
+
+        if (PrimaServerContext.ClientVersion != session.ClientVersion)
+        {
+            Logger.LogWarning(
+                "Client version mismatch. Expected: {@expected}, Received: {@received}",
+                PrimaServerContext.ClientVersion,
+                session.ClientVersion
+            );
+            await session.Disconnect();
+            return;
+        }
+
 
         session.FirstPacketReceived = true;
     }

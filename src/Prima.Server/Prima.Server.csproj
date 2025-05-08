@@ -41,6 +41,7 @@
         <ProjectReference Include="..\Prima.Core.Server\Prima.Core.Server.csproj"/>
         <ProjectReference Include="..\Prima.Network\Prima.Network.csproj"/>
         <ProjectReference Include="..\Prima.UOData\Prima.UOData.csproj" />
+
     </ItemGroup>
 
     <ItemGroup>
@@ -48,7 +49,7 @@
         <EmbeddedResource Include="Assets\header.txt" />
 
         <EmbeddedResource Include="Assets\Templates\*.hbs" />
-        
+
         <EmbeddedResource Include="Assets\Data\**\*" />
     </ItemGroup>
 
