@@ -5,6 +5,7 @@ using Prima.Core.Server.Handlers.Base;
 using Prima.Core.Server.Interfaces.Listeners;
 using Prima.Core.Server.Interfaces.Services;
 using Prima.Network.Packets;
+using Prima.UOData.Context;
 
 namespace Prima.Server.Handlers;
 
@@ -31,11 +32,11 @@ public class ConnectionHandler : BasePacketListenerHandler, INetworkPacketListen
             packet.Prototype
         );
 
-        if (PrimaServerContext.ClientVersion != session.ClientVersion)
+        if (UOContext.ClientVersion != session.ClientVersion)
         {
             Logger.LogWarning(
                 "Client version mismatch. Expected: {@expected}, Received: {@received}",
-                PrimaServerContext.ClientVersion,
+                UOContext.ClientVersion,
                 session.ClientVersion
             );
             await session.Disconnect();

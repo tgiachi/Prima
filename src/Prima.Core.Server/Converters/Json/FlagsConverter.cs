@@ -6,6 +6,8 @@ namespace Prima.Core.Server.Converters.Json;
 
 public class FlagsConverter<T> : JsonConverter<T> where T : struct, Enum
 {
+
+
     public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         var flags = 0ul;

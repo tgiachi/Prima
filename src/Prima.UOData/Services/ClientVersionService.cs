@@ -1,11 +1,14 @@
 using System.Buffers.Binary;
 using Microsoft.Extensions.Logging;
+using Orion.Core.Server.Data.Directories;
 using Orion.Core.Server.Events.Server;
 using Orion.Core.Server.Interfaces.Services.System;
 using Orion.Core.Server.Listeners.EventBus;
 using Prima.Core.Server.Data;
 using Prima.Core.Server.Data.Config;
 using Prima.Core.Server.Data.Uo;
+using Prima.UOData.Context;
+using Prima.UOData.Data;
 using Prima.UOData.Interfaces.Services;
 using Prima.UOData.Mul;
 
@@ -17,18 +20,41 @@ public class ClientVersionService : IClientVersionService, IEventBusListener<Ser
 
     private readonly IEventBusService _eventBusService;
     private readonly PrimaServerConfig _primaServerConfig;
+    private readonly DirectoriesConfig _directoriesConfig;
 
     public ClientVersionService(
-        ILogger<ClientVersionService> logger, IEventBusService eventBusService, PrimaServerConfig primaServerConfig
+        ILogger<ClientVersionService> logger, IEventBusService eventBusService, PrimaServerConfig primaServerConfig,
+        DirectoriesConfig directoriesConfig
     )
     {
         _logger = logger;
         _eventBusService = eventBusService;
         _primaServerConfig = primaServerConfig;
+        _directoriesConfig = directoriesConfig;
         _eventBusService.Subscribe(this);
     }
 
     public async Task HandleAsync(ServerStartedEvent @event, CancellationToken cancellationToken)
+    {
+        await GetClientVersionAsync();
+        await GetExpansionAsync();
+    }
+
+    private async Task GetExpansionAsync()
+    {
+        if (ExpansionInfo.LoadConfiguration(_directoriesConfig, out var expansionInfo))
+        {
+            UOContext.Expansion = expansionInfo;
+            _logger.LogInformation("Expansion set to {@expansion}", expansionInfo);
+        }
+        else
+        {
+            _logger.LogError("Failed to load expansion configuration");
+            throw new InvalidOperationException("Failed to load expansion configuration");
+        }
+    }
+
+    private async Task GetClientVersionAsync()
     {
         ClientVersion clientVersion = null;
         _logger.LogInformation("Determining client version...");
@@ -82,6 +108,6 @@ public class ClientVersionService : IClientVersionService, IEventBusListener<Ser
             throw new InvalidOperationException("Client version not found");
         }
 
-        PrimaServerContext.ClientVersion = clientVersion;
+        UOContext.ClientVersion = clientVersion;
     }
 }

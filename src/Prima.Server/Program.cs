@@ -25,6 +25,7 @@ using Prima.Server.Modules.Container;
 using Prima.Server.Modules.Scripts;
 using Prima.Server.Routes;
 using Prima.Server.Services;
+using Prima.UOData.Converters;
 using Prima.UOData.Interfaces.Services;
 using Prima.UOData.Services;
 using Serilog;
@@ -36,6 +37,13 @@ class Program
     static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+
+        JsonUtils.Converters.Add(new ClientVersionConverterFactory());
+        JsonUtils.Converters.Add(new GuidConverterFactory());
+        JsonUtils.Converters.Add(new IPEndPointConverterFactory());
+        JsonUtils.Converters.Add(new Point2DConverterFactory());
+        JsonUtils.Converters.Add(new Point3DConverterFactory());
+        JsonUtils.Converters.Add(new Rectangle3DConverterFactory());
 
         var appContext =
             builder.Services.InitApplication<PrimaServerOptions, PrimaServerConfig>("prima", Enum.GetNames<DirectoryType>());

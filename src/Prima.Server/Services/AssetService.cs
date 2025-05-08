@@ -7,7 +7,7 @@ using Prima.Server.Interfaces.Services;
 
 namespace Prima.Server.Services;
 
-public class AssetService : IAssetService, IEventBusListener<ServerStartedEvent>
+public class AssetService : IAssetService
 {
     private readonly ILogger _logger;
 
@@ -20,10 +20,12 @@ public class AssetService : IAssetService, IEventBusListener<ServerStartedEvent>
         _logger = logger;
         _eventBusService = eventBusService;
         _directoriesConfig = directoriesConfig;
-        _eventBusService.Subscribe(this);
+
+
+        CopyFilesAsync();
     }
 
-    public async Task HandleAsync(ServerStartedEvent @event, CancellationToken cancellationToken)
+    private async Task CopyFilesAsync()
     {
         var assets = ResourceUtils.GetEmbeddedResourceNames(typeof(AssetService).Assembly, "Assets");
         var files = assets.Select(s => new
@@ -42,7 +44,7 @@ public class AssetService : IAssetService, IEventBusListener<ServerStartedEvent>
 
                 var content = ResourceUtils.GetEmbeddedResourceContent(assetFile.Asset, typeof(AssetService).Assembly);
 
-                await File.WriteAllTextAsync(fileName, content, cancellationToken);
+                await File.WriteAllTextAsync(fileName, content);
             }
         }
     }
