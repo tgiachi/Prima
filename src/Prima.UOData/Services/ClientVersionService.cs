@@ -63,7 +63,7 @@ public class ClientVersionService : IClientVersionService, IEventBusListener<Ser
         var currentExpansionIndex = expansion.Id;
         ExpansionInfo.Table[currentExpansionIndex] = expansion;
         UOContext.Expansion = (Expansion)currentExpansionIndex;
-
+        UOContext.ExpansionInfo = expansion;
 
     }
 

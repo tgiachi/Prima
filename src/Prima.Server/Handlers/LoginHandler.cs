@@ -10,6 +10,7 @@ using Prima.Core.Server.Interfaces.Services;
 using Prima.Network.Packets;
 using Prima.Network.Packets.Entries;
 using Prima.Network.Types;
+using Prima.UOData.Context;
 
 
 namespace Prima.Server.Handlers;
@@ -148,7 +149,6 @@ public class LoginHandler
             return;
         }
 
-
-        await session.SendPacketAsync(new FeatureFlagsResponse(FeatureFlags.ExpansionTOL));
+        await session.SendPacketAsync(new FeatureFlagsResponse(UOContext.ExpansionInfo.SupportedFeatures));
     }
 }
