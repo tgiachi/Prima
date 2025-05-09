@@ -15,11 +15,11 @@ public class SerialGeneratorService : ISerialGeneratorService
 
     public Serial GenerateSerial<TEntity>()
     {
-        throw new NotImplementedException();
+        return Serial.Zero;
     }
 
     public void GenerateSerial<TEntity>(TEntity entity)
     {
-        throw new NotImplementedException();
+
     }
 }
