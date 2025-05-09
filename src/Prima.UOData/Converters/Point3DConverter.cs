@@ -15,6 +15,7 @@
 
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Prima.UOData.Data.Geometry;
 using Server;
 
 namespace Prima.UOData.Converters;

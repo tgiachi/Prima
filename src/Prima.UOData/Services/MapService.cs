@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Logging;
+using Prima.UOData.Context;
 using Prima.UOData.Data.Map;
 using Prima.UOData.Interfaces.Services;
+using Prima.UOData.Types;
 
 namespace Prima.UOData.Services;
 
@@ -54,6 +56,31 @@ public class MapService : IMapService
     public MapService(ILogger<MapService> logger)
     {
         _logger = logger;
+    }
+
+    public CityInfo[] GetAvailableStartingCities()
+    {
+        var availableMaps = UOContext.ExpansionInfo.MapSelectionFlags;
+        var trammelAvailable = availableMaps.Includes(MapSelectionFlags.Trammel);
+        var terMerAvailable = availableMaps.Includes(MapSelectionFlags.TerMur);
+
+        if (trammelAvailable)
+        {
+            if (terMerAvailable)
+            {
+                return [..NewHavenStartingCities, ..TrammelStartingCities, ..StartingCitiesSA];
+            }
+
+            return [..NewHavenStartingCities, ..TrammelStartingCities];
+        }
+
+        if (availableMaps.Includes(MapSelectionFlags.Felucca))
+        {
+            return FeluccaStartingCities;
+        }
+
+        _logger.LogError("No starting cities are available.");
+        throw new Exception("No starting cities are available.");
     }
 
     public Task StartAsync(CancellationToken cancellationToken = new CancellationToken())

@@ -13,14 +13,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-using System;
 using System.Runtime.CompilerServices;
 using Orion.Foundations.Extensions;
-using Prima.UOData.Data.Geometry;
 using Prima.UOData.Interfaces.Geometry;
 using Prima.UOData.Utils;
 
-namespace Server;
+namespace Prima.UOData.Data.Geometry;
 
 public struct Point3D
     : IPoint3D, IComparable<Point3D>, IComparable<IPoint3D>, IEquatable<object>, IEquatable<Point3D>,

@@ -1,10 +1,12 @@
+using Prima.Network.Serializers;
+using Prima.UOData.Data.Geometry;
 using Server;
 
 namespace Prima.UOData.Data.Map;
 
 public sealed class CityInfo
 {
-    private Point3D m_Location;
+    private Point3D _location;
 
     public CityInfo(string city, string building, int description, int x, int y, int z, int m)
     {
@@ -43,27 +45,47 @@ public sealed class CityInfo
 
     public int X
     {
-        get => m_Location.X;
-        set => m_Location.X = value;
+        get => _location.X;
+        set => _location.X = value;
     }
 
     public int Y
     {
-        get => m_Location.Y;
-        set => m_Location.Y = value;
+        get => _location.Y;
+        set => _location.Y = value;
     }
 
     public int Z
     {
-        get => m_Location.Z;
-        set => m_Location.Z = value;
+        get => _location.Z;
+        set => _location.Z = value;
     }
 
     public Point3D Location
     {
-        get => m_Location;
-        set => m_Location = value;
+        get => _location;
+        set => _location = value;
     }
 
     public int Map { get; set; }
+
+    public int Length => 89;
+
+
+    public byte[] ToArray(int index)
+    {
+        using var packetWriter = new PacketWriter();
+
+        packetWriter.Write((byte)index);
+        packetWriter.WriteAsciiFixed(City, 32);
+        packetWriter.WriteAsciiFixed(Building, 32);
+        packetWriter.Write(_location.X);
+        packetWriter.Write(_location.Y);
+        packetWriter.Write(_location.Z);
+        packetWriter.Write((byte)Map);
+        packetWriter.Write(Description);
+        packetWriter.Write((byte)0); // 0x00
+
+        return packetWriter.ToArray();
+    }
 }
