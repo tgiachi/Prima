@@ -169,7 +169,9 @@ public class LoginHandler
         charactersAndCities.Cities.AddRange(_mapService.GetAvailableStartingCities());
         charactersAndCities.FillCharacters();
 
-        await session.SendPacketAsync(new FeatureFlagsResponse(UOContext.ExpansionInfo.SupportedFeatures));
+
         await session.SendPacketAsync(charactersAndCities);
+
+        await session.SendPacketAsync(new FeatureFlagsResponse(UOContext.ExpansionInfo.SupportedFeatures));
     }
 }
