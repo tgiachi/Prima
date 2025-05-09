@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="0.9.0"></a>
+## [0.9.0](https://www.github.com/tgiachi/Prima/releases/tag/v0.9.0) (2025-05-09)
+
+### Features
+
+* **CharacterCreation.cs:** add new properties for character creation including skills, profession, and attributes ([c7c0afb](https://www.github.com/tgiachi/Prima/commit/c7c0afbd8c0877603a19d61d731d6515a61ed583))
+* **skills.json:** add a new skills.json file with detailed information about various skills including SkillID, Name, Title, scaling factors for Strength, Dexterity, and Intelligence, StatTotal, Gain factors, ProfessionSkillName, PrimaryStat, and SecondaryStat for each skill. ([7b67b52](https://www.github.com/tgiachi/Prima/commit/7b67b52341fe222894d4aec464fd3d9ee938239e))
+* **UOData:** add support for processing profession configuration files to build ([5fbfe04](https://www.github.com/tgiachi/Prima/commit/5fbfe041a6624aa02906297e9143d2885e8730a8))
+
 <a name="0.8.0"></a>
 ## [0.8.0](https://www.github.com/tgiachi/Prima/releases/tag/v0.8.0) (2025-05-09)
 
