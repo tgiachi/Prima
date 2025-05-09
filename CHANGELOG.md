@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="0.8.0"></a>
+## [0.8.0](https://www.github.com/tgiachi/Prima/releases/tag/v0.8.0) (2025-05-09)
+
+### Features
+
+* **Prima.Network.csproj:** update package references to remove unnecessary whitespace ([9a859a0](https://www.github.com/tgiachi/Prima/commit/9a859a028945db7b8052524beafa14d9ea5820fd))
+* **UOData:** add support for character list packet with starting locations and characters ([3e86c23](https://www.github.com/tgiachi/Prima/commit/3e86c23caa71151838459464b8f5a2dfb7899002))
+
+<a name="0.7.0"></a>
+## [0.7.0](https://www.github.com/tgiachi/Prima/releases/tag/v0.7.0) (2025-05-08)
+
+### Features
+
+* **csproj:** update Orion.Core.Server, Orion.Network.Core, and Orion.Network.Tcp ([9ea7555](https://www.github.com/tgiachi/Prima/commit/9ea7555712d0084780860ff2465912983dea7778))
+* **LoginHandler:** update FeatureFlagsResponse to use ExpansionInfo from UOContext for supported features ([fbb956b](https://www.github.com/tgiachi/Prima/commit/fbb956bcda47403e792b807dd59299ff56afeb06))
+* **UOData:** add support for loading expansion configuration and setting expansion info ([9c37554](https://www.github.com/tgiachi/Prima/commit/9c37554bc232fa4e95677c73fbd1e686b3744bd1))
+
 <a name="0.6.1"></a>
 ## [0.6.1](https://www.github.com/tgiachi/Prima/releases/tag/v0.6.1) (2025-05-08)
 
