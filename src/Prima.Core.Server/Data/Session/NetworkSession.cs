@@ -11,9 +11,12 @@ public class NetworkSession : INetworkSession
 
     public delegate Task DisconnectDelegate(string id);
 
-    public event SendPacketDelegate OnSendPacket;
+    public DateTime LastPing { get; set; }
 
+    public event SendPacketDelegate OnSendPacket;
     public event DisconnectDelegate OnDisconnect;
+
+    public bool UseNetworkCompression { get; set; }
 
     public bool IsSeed { get; set; }
 
@@ -23,7 +26,7 @@ public class NetworkSession : INetworkSession
 
     public bool FirstPacketReceived { get; set; }
 
-    public int AuthId { get; set; }
+    public uint AuthId { get; set; }
 
     public string AccountId { get; set; }
 
@@ -41,6 +44,11 @@ public class NetworkSession : INetworkSession
         Id = string.Empty;
         Seed = 0;
         AuthId = 0;
+        AccountId = string.Empty;
+        ClientVersion = null;
+
+        FirstPacketReceived = false;
+        LastPing = DateTime.MinValue;
     }
 
     public async Task Disconnect()

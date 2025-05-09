@@ -9,6 +9,13 @@ public class CharacterEntry
     public string Password { get; set; }
 
 
+    public CharacterEntry(string name = "", string password = "")
+    {
+        Name = name;
+        Password = password;
+    }
+
+
 
     public byte[] ToArray()
     {
@@ -17,9 +24,11 @@ public class CharacterEntry
         pr.WriteAsciiFixed(Name, 30);
         pr.WriteAsciiFixed(Password, 30);
 
-        return pr.ToArray();
+        var arr= pr.ToArray();
+
+        return arr;
     }
 
-    public int Lenght => 60;
+    public static int Lenght => 60;
 
 }

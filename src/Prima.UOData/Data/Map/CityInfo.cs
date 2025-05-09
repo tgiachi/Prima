@@ -69,7 +69,7 @@ public sealed class CityInfo
 
     public int Map { get; set; }
 
-    public int Length => 89;
+    public static int Length => 89;
 
 
     public byte[] ToArray(int index)
@@ -82,9 +82,9 @@ public sealed class CityInfo
         packetWriter.Write(_location.X);
         packetWriter.Write(_location.Y);
         packetWriter.Write(_location.Z);
-        packetWriter.Write((byte)Map);
+        packetWriter.Write(Map);
         packetWriter.Write(Description);
-        packetWriter.Write((byte)0); // 0x00
+        packetWriter.Write(0); // 0x00
 
         return packetWriter.ToArray();
     }
