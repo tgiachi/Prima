@@ -101,6 +101,7 @@ class Program
 
         builder.Services
             .AddService<IAssetService, AssetService>()
+            .AddService<INetworkService, NetworkService>()
             .AddService<IClientConfigurationService, ClientConfigurationService>()
             ;
 
@@ -113,6 +114,7 @@ class Program
         builder.Services
             .AddService<ConnectionHandler>()
             .AddService<PingPongHandler>()
+            .AddService<CharacterCreationHandler>()
             .AddService<LoginHandler>();
 
         builder.Services.AddHostedService<PrimaHostedService>();
