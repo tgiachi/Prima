@@ -1,7 +1,6 @@
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.NetworkInformation;
-using Microsoft.Extensions.Logging;
 using Orion.Core.Server.Data.Directories;
 using Orion.Core.Server.Interfaces.Services.System;
 using Orion.Foundations.Extensions;
@@ -21,9 +20,9 @@ using Prima.Network.Compression;
 using Prima.Network.Interfaces.Packets;
 using Prima.Network.Interfaces.Services;
 using Prima.Network.Packets;
+using Prima.UOData.Packets;
 
-
-namespace Prima.Core.Server.Services;
+namespace Prima.Server.Services;
 
 public class NetworkService : INetworkService
 {
@@ -425,6 +424,7 @@ public class NetworkService : INetworkService
         _packetManager.RegisterPacket<LoginDenied>();
         _packetManager.RegisterPacket<GameServerLogin>();
         _packetManager.RegisterPacket<PingRequest>();
+        _packetManager.RegisterPacket<CharacterCreation>();
     }
 
     public void Dispose()

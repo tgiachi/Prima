@@ -31,6 +31,12 @@ public static partial class Utility
         sb.Append(value);
     }
 
+
+    public static bool ToBoolean(string value) =>
+        bool.TryParse(value, out var b)
+            ? b
+            : value.InsensitiveEquals("enabled") || value.InsensitiveEquals("on");
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string Intern(this string str) => str?.Length > 0 ? string.Intern(str) : str;
 
