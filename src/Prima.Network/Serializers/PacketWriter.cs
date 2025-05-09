@@ -398,6 +398,8 @@ public sealed class PacketWriter : IDisposable
         }
     }
 
+
+
     /// <summary>
     /// Offsets the current position from an origin.
     /// </summary>

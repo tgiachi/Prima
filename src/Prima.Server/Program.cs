@@ -94,7 +94,9 @@ class Program
 
         // Services for uo
 
-        builder.Services.AddService<IMulFileReaderService, MulFileReaderService>();
+        builder.Services
+            .AddService<IMulFileReaderService, MulFileReaderService>()
+            .AddService<IMapService, MapService>();
 
 
         builder.Services
@@ -110,6 +112,7 @@ class Program
 
         builder.Services
             .AddService<ConnectionHandler>()
+            .AddService<PingPongHandler>()
             .AddService<LoginHandler>();
 
         builder.Services.AddHostedService<PrimaHostedService>();

@@ -6,6 +6,9 @@ namespace Prima.UOData.Context;
 
 public static class UOContext
 {
+
+    public static int SlotLimit { get; set; } = 5;
+
     public static ClientVersion ClientVersion { get; set; }
 
     public static Expansion Expansion { get; set; }

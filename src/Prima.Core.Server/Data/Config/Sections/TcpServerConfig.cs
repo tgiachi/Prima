@@ -9,9 +9,9 @@ public class TcpServerConfig : IOrionSectionConfig
     public int GamePort { get; set; } = 2592;
 
     public bool EnableWebServer { get; set; } = true;
-
     public int WebServerPort { get; set; } = 23000;
 
+    public bool LogPackets { get; set; } = true;
 
     public void Load()
     {

@@ -11,6 +11,8 @@ using Prima.Network.Packets;
 using Prima.Network.Packets.Entries;
 using Prima.Network.Types;
 using Prima.UOData.Context;
+using Prima.UOData.Interfaces.Services;
+using Prima.UOData.Packets;
 
 
 namespace Prima.Server.Handlers;
@@ -21,19 +23,24 @@ public class LoginHandler
 {
     private readonly IAccountManager _accountManager;
 
+    private readonly INetworkService _networkService;
     private readonly PrimaServerConfig _primaServerConfig;
 
     private readonly List<GameServerEntry> _gameServerEntries = new();
 
+    private readonly IMapService _mapService;
+
 
     public LoginHandler(
         ILogger<LoginHandler> logger, INetworkService networkService, IServiceProvider serviceProvider,
-        IAccountManager accountManager, PrimaServerConfig primaServerConfig
+        IAccountManager accountManager, PrimaServerConfig primaServerConfig, IMapService mapService
     ) :
         base(logger, networkService, serviceProvider)
     {
+        _networkService = networkService;
         _accountManager = accountManager;
         _primaServerConfig = primaServerConfig;
+        _mapService = mapService;
 
         CreateGameServerList();
     }
@@ -108,6 +115,8 @@ public class LoginHandler
 
         var sessionKey = GenerateSessionKey();
 
+        session.AuthId = sessionKey;
+
         var gameServer = _gameServerEntries[packet.ShardId];
 
 
@@ -116,7 +125,7 @@ public class LoginHandler
         {
             GameServerIP = gameServer.IP,
             GameServerPort = (ushort)_primaServerConfig.TcpServer.GamePort,
-            SessionKey = sessionKey
+            SessionKey = (int)sessionKey
         };
 
         Logger.LogDebug("Session generated is: {Session}", BitConverter.GetBytes(sessionKey).HumanizedContent());
@@ -125,7 +134,7 @@ public class LoginHandler
         await session.SendPacketAsync(connectToServer);
     }
 
-    public static int GenerateSessionKey()
+    public static uint GenerateSessionKey()
     {
         var randomNumber = RandomNumberGenerator.GetInt32(0, int.MaxValue);
 
@@ -134,7 +143,7 @@ public class LoginHandler
             randomNumber |= 1 << 31;
         }
 
-        return randomNumber;
+        return (uint)randomNumber;
     }
 
     public async Task OnPacketReceived(NetworkSession session, GameServerLogin packet)
@@ -149,6 +158,18 @@ public class LoginHandler
             return;
         }
 
+        session.UseNetworkCompression = true;
+
+        _networkService.MoveLoginSessionToGameSession(session.Id, packet.SessionKey);
+
+        // TODO: Check characeters on database
+
+        var charactersAndCities = new CharactersStartingLocations(session.ClientVersion.ProtocolChanges);
+
+        charactersAndCities.Cities.AddRange(_mapService.GetAvailableStartingCities());
+        charactersAndCities.FillCharacters();
+
         await session.SendPacketAsync(new FeatureFlagsResponse(UOContext.ExpansionInfo.SupportedFeatures));
+        await session.SendPacketAsync(charactersAndCities);
     }
 }

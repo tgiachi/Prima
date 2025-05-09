@@ -1,6 +1,8 @@
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.NetworkInformation;
 using Microsoft.Extensions.Logging;
+using Orion.Core.Server.Data.Directories;
 using Orion.Core.Server.Interfaces.Services.System;
 using Orion.Foundations.Extensions;
 using Orion.Foundations.Observable;
@@ -11,9 +13,11 @@ using Orion.Network.Core.Interfaces.Services;
 using Orion.Network.Tcp.Servers;
 using Prima.Core.Server.Data.Config;
 using Prima.Core.Server.Data.Session;
+using Prima.Core.Server.Extensions;
 using Prima.Core.Server.Interfaces.Listeners;
 using Prima.Core.Server.Interfaces.Services;
 using Prima.Core.Server.Types;
+using Prima.Network.Compression;
 using Prima.Network.Interfaces.Packets;
 using Prima.Network.Interfaces.Services;
 using Prima.Network.Packets;
@@ -23,7 +27,10 @@ namespace Prima.Core.Server.Services;
 
 public class NetworkService : INetworkService
 {
+    public bool LogPackets { get; set; }
+
     private const string _listenersContext = "network_server_listeners";
+
 
     private const string _loginContext = "login_server";
 
@@ -32,6 +39,8 @@ public class NetworkService : INetworkService
     private readonly ILogger _logger;
     private readonly PrimaServerConfig _serverConfig;
 
+
+    private readonly DirectoriesConfig _directoriesConfig;
     private readonly INetworkTransportManager _networkTransportManager;
     private readonly IPacketManager _packetManager;
     private readonly IEventLoopService _eventLoopService;
@@ -44,23 +53,28 @@ public class NetworkService : INetworkService
     private readonly IDisposable _channelObservableSubscription;
     private readonly Dictionary<byte, List<INetworkPacketListener>> _listeners = new();
 
-    private List<NetworkSession> _inSeedSessions = new();
+    private readonly BlockingCollection<NetworkSession> _inSeedSessions = new();
 
 
     public NetworkService(
         ILogger<NetworkService> logger, PrimaServerConfig serverConfig, INetworkTransportManager networkTransportManager,
         IPacketManager packetManager, IProcessQueueService processQueueService,
-        INetworkSessionService<NetworkSession> networkSessionService, IEventLoopService eventLoopService
+        INetworkSessionService<NetworkSession> networkSessionService, IEventLoopService eventLoopService,
+        DirectoriesConfig directoriesConfig
     )
     {
         _logger = logger;
 
         _serverConfig = serverConfig;
+
+        LogPackets = _serverConfig.TcpServer.LogPackets;
+
         _networkTransportManager = networkTransportManager;
         _packetManager = packetManager;
         _processQueueService = processQueueService;
         _networkSessionService = networkSessionService;
         _eventLoopService = eventLoopService;
+        _directoriesConfig = directoriesConfig;
         _processQueueService.EnsureContext(_listenersContext);
 
         RegisterPackets();
@@ -77,14 +91,27 @@ public class NetworkService : INetworkService
         {
             var transport = _networkTransportManager.GetTransport(transportId);
 
-            _logger.LogDebug("<- {Session} {Transport} {Data}", id, transport.Id, data.HumanizedContent(20));
+
+            _logger.LogDebug(
+                "<- {Session} ({Size} bytes) {Transport} {Data}",
+                id.ToShortSessionId(),
+                data.Length,
+                transport.Id,
+                data.HumanizedContent(20)
+            );
         };
 
         _networkTransportManager.RawPacketOut += (id, transportId, data) =>
         {
             var transport = _networkTransportManager.GetTransport(transportId);
 
-            _logger.LogDebug("-> {Session} {Transport} {Data}", id, transport.Id, data.HumanizedContent(20));
+            _logger.LogDebug(
+                "-> {Session} ({Size} bytes) {Transport} {Data}",
+                id.ToShortSessionId(),
+                data.Length,
+                transport.Id,
+                data.HumanizedContent(20)
+            );
         };
     }
 
@@ -96,12 +123,15 @@ public class NetworkService : INetworkService
         session.OnDisconnect -= DisconnectSession;
 
 
-        _networkSessionService.RemoveSession(sessionId);
-
         if (transportId == _loginContext)
         {
             _logger.LogInformation("Client disconnected from login server: {SessionId} => {Endpoint}", sessionId, endpoint);
 
+            if (session.AuthId > 0)
+            {
+                _logger.LogTrace("Moving session {SessionId} to game server", sessionId);
+                _inSeedSessions.Add(session);
+            }
 
             return;
         }
@@ -111,6 +141,8 @@ public class NetworkService : INetworkService
             _logger.LogInformation("Client disconnected from game server: {SessionId} => {Endpoint}", sessionId, endpoint);
             return;
         }
+
+        _networkSessionService.RemoveSession(sessionId);
     }
 
     private void NetworkTransportManagerOnClientConnected(string transportId, string sessionId, string endpoint)
@@ -144,6 +176,27 @@ public class NetworkService : INetworkService
         return SendPacketInternal(sessionId, (IUoNetworkPacket)packet);
     }
 
+    public void MoveLoginSessionToGameSession(string sessionId, int authId)
+    {
+        var inSeedSession = _inSeedSessions.FirstOrDefault(s => s.AuthId == (uint)authId);
+
+        if (inSeedSession == null)
+        {
+            throw new Exception($"Session {sessionId} does not exist");
+        }
+
+        var newSession = _networkSessionService.GetSession(sessionId);
+
+        newSession.AuthId = inSeedSession.AuthId;
+        newSession.AccountId = inSeedSession.AccountId;
+        newSession.ClientVersion = inSeedSession.ClientVersion;
+        newSession.Seed = inSeedSession.Seed;
+        newSession.FirstPacketReceived = inSeedSession.FirstPacketReceived;
+        newSession.IsSeed = inSeedSession.IsSeed;
+
+        _inSeedSessions.TryTake(out inSeedSession);
+    }
+
     public Task SendPacketViaEventLoop<TPacket>(string sessionId, TPacket packet) where TPacket : IUoNetworkPacket
     {
         return SendPacketViaEventLoop(sessionId, (IUoNetworkPacket)packet);
@@ -163,9 +216,26 @@ public class NetworkService : INetworkService
     {
         try
         {
-            var data = _packetManager.WritePacket(packet);
+            var session = _networkSessionService.GetSession(sessionId);
+
+            var packetContent = _packetManager.WritePacket(packet);
+
+            Span<byte> data = stackalloc byte[packetContent.Length];
+
+            LogPacket(packet, sessionId.ToShortSessionId(), data, false, session.UseNetworkCompression);
+
+            if (session.UseNetworkCompression)
+            {
+                NetworkCompression.Compress(packetContent, data);
+            }
+            else
+            {
+                data = packetContent;
+            }
+
+
             await _networkTransportManager.EnqueueMessageAsync(
-                new NetworkMessageData(sessionId, data, ServerNetworkType.None)
+                new NetworkMessageData(sessionId, data.ToArray(), ServerNetworkType.None)
             );
         }
         catch (Exception e)
@@ -220,6 +290,8 @@ public class NetworkService : INetworkService
             foreach (var packet in packets)
             {
                 _logger.LogDebug("Received packet: {Packet}", packet);
+                LogPacket(packet, data.SessionId.ToShortSessionId(), data.Message, true, false);
+
 
                 if (_listeners.TryGetValue(packet.OpCode, out var packetListeners))
                 {
@@ -295,6 +367,53 @@ public class NetworkService : INetworkService
         packetListeners.Add(listener);
     }
 
+    public void LogPacket(
+        IUoNetworkPacket? packet, string sessionId, ReadOnlySpan<byte> buffer, bool isIncoming, bool isCompressed
+    )
+    {
+        if (!LogPackets)
+        {
+            return;
+        }
+
+        var packetsDirectoryPath = Path.Combine(_directoriesConfig[DirectoryType.Logs], "Packets", "packets.log");
+
+        if (!File.Exists(packetsDirectoryPath))
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(packetsDirectoryPath));
+        }
+
+        var packetType = "";
+
+        if (packet != null)
+        {
+            packetType = $"0x{packet.OpCode:X2} - {packet.GetType().Name}";
+        }
+        else
+        {
+            byte opCode = 0x00;
+            if (buffer.Length == 69)
+            {
+                // Drop the first 4 bytes
+                opCode = buffer[4];
+            }
+            else if (buffer.Length > 0)
+            {
+                opCode = buffer[0];
+            }
+
+            packetType = $" -x{opCode:X2} - Unknown";
+        }
+
+        var direction = isIncoming ? " <- " : " -> ";
+        using var sw = new StreamWriter(packetsDirectoryPath, true);
+        sw.WriteLine(
+            $"{DateTime.Now:HH:mm:ss.ffff}: {sessionId} {packetType}  {(direction)} (isCompress: {isCompressed}) 0x{buffer[0]:X2} (Length: {buffer.Length})"
+        );
+        sw.FormatBuffer(buffer);
+
+        sw.WriteLine();
+    }
 
     private void RegisterPackets()
     {
@@ -305,6 +424,7 @@ public class NetworkService : INetworkService
         _packetManager.RegisterPacket<GameServerList>();
         _packetManager.RegisterPacket<LoginDenied>();
         _packetManager.RegisterPacket<GameServerLogin>();
+        _packetManager.RegisterPacket<PingRequest>();
     }
 
     public void Dispose()
