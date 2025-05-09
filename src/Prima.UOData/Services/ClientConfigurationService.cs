@@ -50,7 +50,7 @@ public class ClientConfigurationService : IClientConfigurationService, IEventBus
     {
         await GetClientVersionAsync();
         await GetExpansionAsync();
-
+        await LoadSkillInfoAsync();
         await BuildProfessionsAsync();
     }
 
@@ -128,6 +128,12 @@ public class ClientConfigurationService : IClientConfigurationService, IEventBus
         UOContext.ClientVersion = clientVersion;
     }
 
+
+    private async Task LoadSkillInfoAsync()
+    {
+        SkillInfo.Table = (await File.ReadAllTextAsync(Path.Combine(_directoriesConfig[DirectoryType.Data], "skills.json")))
+            .FromJson<SkillInfo[]>();
+    }
 
     private async Task BuildProfessionsAsync()
     {
