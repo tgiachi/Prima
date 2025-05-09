@@ -44,6 +44,13 @@ public class AssetService : IAssetService
 
                 var content = ResourceUtils.GetEmbeddedResourceContent(assetFile.Asset, typeof(AssetService).Assembly);
 
+                var directory = Path.GetDirectoryName(fileName);
+
+                if (!string.IsNullOrEmpty(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+
                 await File.WriteAllTextAsync(fileName, content);
             }
         }

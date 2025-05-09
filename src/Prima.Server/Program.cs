@@ -101,7 +101,7 @@ class Program
 
         builder.Services
             .AddService<IAssetService, AssetService>()
-            .AddService<IClientVersionService, ClientVersionService>()
+            .AddService<IClientConfigurationService, ClientConfigurationService>()
             ;
 
         builder.Services
