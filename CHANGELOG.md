@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="0.8.0"></a>
+## [0.8.0](https://www.github.com/tgiachi/Prima/releases/tag/v0.8.0) (2025-05-09)
+
+### Features
+
+* **Prima.Network.csproj:** update package references to remove unnecessary whitespace ([9a859a0](https://www.github.com/tgiachi/Prima/commit/9a859a028945db7b8052524beafa14d9ea5820fd))
+* **UOData:** add support for character list packet with starting locations and characters ([3e86c23](https://www.github.com/tgiachi/Prima/commit/3e86c23caa71151838459464b8f5a2dfb7899002))
+
 <a name="0.7.0"></a>
 ## [0.7.0](https://www.github.com/tgiachi/Prima/releases/tag/v0.7.0) (2025-05-08)
 
