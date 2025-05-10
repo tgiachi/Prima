@@ -1,5 +1,6 @@
+using Orion.Foundations.Spans;
 using Prima.Network.Packets.Base;
-using Prima.Network.Serializers;
+
 using Prima.UOData.Data;
 using Prima.UOData.Types;
 
@@ -45,13 +46,13 @@ public class CharacterCreation : BaseUoNetworkPacket
     {
     }
 
-    public override void Read(PacketReader reader)
+    public override void Read(SpanReader reader)
     {
         reader.ReadInt32(); // (0xedededed)
         reader.ReadInt32(); // (0xffffffff)
         reader.ReadByte();  //(0xffffffff)
 
-        Name = reader.ReadFixedString(30);
+        Name = reader.ReadAscii(30);
 
         reader.ReadByte();
         reader.ReadByte();
@@ -63,7 +64,7 @@ public class CharacterCreation : BaseUoNetworkPacket
         LoginCount = reader.ReadInt32();
         Profession = ProfessionInfo.Professions[reader.ReadByte()];
 
-        reader.ReadBytes(15);
+        reader.Read(new byte[15]);
 
         Sex = (SexType)reader.ReadByte();
 

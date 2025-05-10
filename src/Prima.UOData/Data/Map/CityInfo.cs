@@ -1,4 +1,5 @@
-using Prima.Network.Serializers;
+using Orion.Foundations.Spans;
+
 using Prima.UOData.Data.Geometry;
 using Server;
 
@@ -74,11 +75,11 @@ public sealed class CityInfo
 
     public byte[] ToArray(int index)
     {
-        using var packetWriter = new PacketWriter();
+        using var packetWriter = new SpanWriter(stackalloc byte[Length], true);
 
         packetWriter.Write((byte)index);
-        packetWriter.WriteAsciiFixed(City, 32);
-        packetWriter.WriteAsciiFixed(Building, 32);
+        packetWriter.WriteAscii(City, 32);
+        packetWriter.WriteAscii(Building, 32);
         packetWriter.Write(_location.X);
         packetWriter.Write(_location.Y);
         packetWriter.Write(_location.Z);
@@ -86,6 +87,6 @@ public sealed class CityInfo
         packetWriter.Write(Description);
         packetWriter.Write(0); // 0x00
 
-        return packetWriter.ToArray();
+        return packetWriter.Span.ToArray();
     }
 }
