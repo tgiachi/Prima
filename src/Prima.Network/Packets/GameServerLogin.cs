@@ -1,5 +1,6 @@
+using Orion.Foundations.Spans;
 using Prima.Network.Packets.Base;
-using Prima.Network.Serializers;
+
 
 namespace Prima.Network.Packets;
 
@@ -15,10 +16,10 @@ public class GameServerLogin : BaseUoNetworkPacket
     {
     }
 
-    public override void Read(PacketReader reader)
+    public override void Read(SpanReader reader)
     {
         SessionKey = reader.ReadInt32();
-        AccountId = reader.ReadFixedString(30);
-        Password = reader.ReadFixedString(30);
+        AccountId = reader.ReadAscii(30);
+        Password = reader.ReadAscii(30);
     }
 }

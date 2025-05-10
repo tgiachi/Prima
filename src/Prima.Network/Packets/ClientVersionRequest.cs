@@ -1,6 +1,6 @@
 using System.Net;
+using Orion.Foundations.Spans;
 using Prima.Network.Packets.Base;
-using Prima.Network.Serializers;
 
 namespace Prima.Network.Packets;
 
@@ -31,7 +31,7 @@ public class ClientVersionRequest : BaseUoNetworkPacket
         Prototype = prototype;
     }
 
-    public override void Read(PacketReader reader)
+    public override void Read(SpanReader reader)
     {
         Seed = reader.ReadInt32();
         ClientIP = new IPAddress(Seed);

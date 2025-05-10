@@ -1,7 +1,7 @@
 using System.Net;
+using Orion.Foundations.Spans;
 using Prima.Network.Packets.Base;
 using Prima.Network.Packets.Entries;
-using Prima.Network.Serializers;
 
 namespace Prima.Network.Packets;
 
@@ -55,7 +55,7 @@ public class GameServerList() : BaseUoNetworkPacket(0xA8, -1)
     ///   BYTE[4] Server IP address (reversed for network order)
     /// </summary>
     /// <param name="writer">The packet writer to write the data to.</param>
-    public override void Write(PacketWriter writer)
+    public override void Write(SpanWriter writer)
     {
         var servers = GetServers();
 
@@ -72,7 +72,7 @@ public class GameServerList() : BaseUoNetworkPacket(0xA8, -1)
 
     private byte[] GetServers()
     {
-        using var stream = new PacketWriter();
+        using var stream = new SpanWriter(stackalloc byte[Servers.Count * 40 + 6], true);
         for (var i = 0; i < Servers.Count; i++)
         {
             var server = Servers[i];
@@ -81,7 +81,7 @@ public class GameServerList() : BaseUoNetworkPacket(0xA8, -1)
             stream.Write((ushort)i);
 
             // Write server name (fixed 32 bytes)
-            stream.WriteAsciiFixed(server.Name, 32);
+            stream.WriteAscii(server.Name, 32);
 
             // Write load percentage
             stream.Write(server.LoadPercent);
@@ -91,19 +91,19 @@ public class GameServerList() : BaseUoNetworkPacket(0xA8, -1)
 
             // Write IP address in reverse order (as specified in the protocol)
             // For example, 192.168.0.1 is sent as 0100A8C0
-            //var ipBytes = server.IP.GetAddressBytes();
-            //Array.Reverse(ipBytes);
-            stream.WriteIpAddress(server.IP);
+            var ipBytes = server.IP.GetAddressBytes();
+            Array.Reverse(ipBytes);
+            stream.Write(ipBytes);
         }
 
-        return stream.ToArray();
+        return stream.Span.ToArray();
     }
 
     /// <summary>
     /// Reads packet data from the provided packet reader.
     /// </summary>
     /// <param name="reader">The packet reader to read the data from.</param>
-    public override void Read(PacketReader reader)
+    public override void Read(SpanReader reader)
     {
         reader.ReadByte();
         reader.ReadByte();
@@ -119,15 +119,16 @@ public class GameServerList() : BaseUoNetworkPacket(0xA8, -1)
         {
             var entry = new GameServerEntry
             {
-                Index = reader.ReadUInt16BE(),
-                Name = reader.ReadFixedString(32),
+                Index = reader.ReadUInt16(),
+                Name = reader.ReadAscii(32),
                 LoadPercent = reader.ReadByte(),
                 TimeZone = reader.ReadByte()
             };
 
             // IP address bytes are reversed in the packet
             // For example, 0100A8C0 needs to be converted to 192.168.0.1
-            byte[] ipBytes = reader.ReadBytes(4);
+            byte[] ipBytes = new byte[4];
+            reader.Read(ipBytes);
             Array.Reverse(ipBytes);
             entry.IP = new IPAddress(ipBytes);
 
