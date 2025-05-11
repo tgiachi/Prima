@@ -52,7 +52,7 @@ public class ConnectToGameServer() : BaseUoNetworkPacket(0x8c, 11)
     public override Span<byte> Write()
     {
         using var writer = new SpanWriter(stackalloc byte[4], true);
-        writer.Write(GameServerIP.ToRawAddress());
+        writer.WriteLE(GameServerIP.ToRawAddress());
         writer.Write((short)GameServerPort);
         writer.Write(SessionKey);
 

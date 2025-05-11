@@ -39,7 +39,7 @@ public class CharactersStartingLocations : BaseUoNetworkPacket
         }
     }
 
-    public Span<byte> Write()
+    public override Span<byte> Write()
     {
         using var packetWriter = new SpanWriter(stackalloc byte[0], true);
         var client70130 = ProtocolChanges.HasFlag(ProtocolChanges.NewCharacterList);

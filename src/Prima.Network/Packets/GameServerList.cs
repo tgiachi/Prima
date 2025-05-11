@@ -58,20 +58,31 @@ public class GameServerList() : BaseUoNetworkPacket(0xA8, -1)
     /// <param name="writer">The packet writer to write the data to.</param>
     public override Span<byte> Write()
     {
-        using var writer = new SpanWriter(stackalloc byte[1], true);
-        var servers = GetServers();
 
-        writer.Write((ushort)(servers.Length + 6));
 
-        // Write the system info flag
-        writer.Write(SystemInfoFlag);
 
-        // Write the number of servers
-        writer.Write((ushort)Servers.Count);
+        var info = Servers.ToArray();
+        var length = 6 + 40 * info.Length;
+        var writer = new SpanWriter(stackalloc byte[length]);
+        writer.Write((ushort)length);
+        writer.Write((byte)0x5D);
+        writer.Write((ushort)info.Length);
 
-        writer.Write(servers);
+        for (var i = 0; i < info.Length; ++i)
+        {
+            var si = info[i];
 
-        return writer.ToSpan().Span;
+            writer.Write((ushort)i);
+            writer.WriteAscii(si.Name, 32);
+            writer.Write((byte)si.LoadPercent);
+            writer.Write((sbyte)si.TimeZone);
+            // UO only supports IPv4
+            writer.Write(si.IP.ToRawAddress());
+        }
+
+        return writer.Span.ToArray();
+
+
     }
 
     private byte[] GetServers()
@@ -92,8 +103,16 @@ public class GameServerList() : BaseUoNetworkPacket(0xA8, -1)
 
             // Write timezone
             stream.Write(server.TimeZone);
+            var ipBytes = server.IP.GetAddressBytes();
+            // Reverse the IP address bytes for network order
+            Array.Reverse(ipBytes);
+            // Write the reversed IP address
 
-            stream.Write(server.IP.ToRawAddress());
+            var ipInt = BitConverter.ToUInt32(ipBytes, 0);
+            var rawAddress = server.IP.ToRawAddress();
+
+
+            stream.Write(ipInt);
         }
 
         return stream.Span.ToArray();

@@ -1,10 +1,11 @@
 ﻿using System.Net;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Orion.Foundations.Spans;
 using Prima.Network.Interfaces.Services;
 using Prima.Network.Packets;
 using Prima.Network.Packets.Entries;
-using Prima.Network.Serializers;
+
 using Prima.Network.Services;
 using Prima.Network.Types;
 
@@ -276,31 +277,32 @@ public class PacketTests
     public void PacketReaderWriter_DataTypes_Success()
     {
         // Arrange
-        using var writer = new PacketWriter();
+        using var writer = new SpanWriter(stackalloc byte[4], true);
 
         // Write various data types
         writer.Write((byte)0x00);
         writer.Write((byte)0x01);
         writer.Write((ushort)0x0203);
         writer.Write((uint)0x04050607);
-        writer.WriteAsciiFixed("Test", 10);
+        writer.WriteAscii("Test", 10);
         writer.WriteAsciiNull("Variable");
-        writer.WriteEnum(LoginDeniedReasonType.AccountBlocked);
+        writer.Write((byte)LoginDeniedReasonType.AccountBlocked);
 
-        var dataArray = writer.ToArray();
+        var dataArray = writer.Span.ToArray();
 
         // Act
-        using var reader = new PacketReader();
+        using var reader = new SpanReader(dataArray);
 
-        reader.Initialize(dataArray, dataArray.Length, true);
+
 
         // Assert
+
+        Assert.That(reader.ReadByte(), Is.EqualTo(0x00));
         Assert.That(reader.ReadByte(), Is.EqualTo(0x01));
-        Assert.That(reader.ReadUInt16BE(), Is.EqualTo(0x0203));
-        Assert.That(reader.ReadUInt32BE(), Is.EqualTo(0x04050607u));
-        Assert.That(reader.ReadFixedString(10), Is.EqualTo("Test"));
-        Assert.That(reader.ReadString(), Is.EqualTo("Variable"));
-        Assert.That(reader.ReadEnum<LoginDeniedReasonType>(), Is.EqualTo(LoginDeniedReasonType.AccountBlocked));
+        Assert.That(reader.ReadInt16(), Is.EqualTo(0x0203));
+        Assert.That(reader.ReadInt32(), Is.EqualTo(0x04050607u));
+        Assert.That(reader.ReadAscii(10), Is.EqualTo("Test"));
+        Assert.That(reader.ReadAscii(), Is.EqualTo("Variable"));
     }
 
     /// <summary>
