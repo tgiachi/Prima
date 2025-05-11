@@ -47,9 +47,9 @@ public abstract class BaseUoNetworkPacket : IUoNetworkPacket
     /// </summary>
     /// <param name="writer">The packet writer to write packet data to.</param>
     /// <exception cref="NotImplementedException">Thrown if this method is not overridden in derived classes.</exception>
-    public virtual void Write(SpanWriter writer)
+    public virtual Span<byte> Write()
     {
-
+        throw new NotImplementedException("Write method not implemented for this packet type.");
     }
 
     /// <summary>

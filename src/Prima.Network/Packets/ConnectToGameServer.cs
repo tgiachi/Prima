@@ -36,7 +36,7 @@ public class ConnectToGameServer() : BaseUoNetworkPacket(0x8c, 11)
     /// <param name="reader">The packet reader to read data from.</param>
     public override void Read(SpanReader reader)
     {
-        byte[] ipBytes =  new byte[4];
+        byte[] ipBytes = new byte[4];
         reader.Read(ipBytes);
 
         GameServerIP = new IPAddress(ipBytes);
@@ -48,11 +48,14 @@ public class ConnectToGameServer() : BaseUoNetworkPacket(0x8c, 11)
     /// Writes the packet data to the provided packet writer.
     /// </summary>
     /// <param name="writer">The packet writer to write data to.</param>
-    public override void Write(SpanWriter writer)
+    public Span<byte> Write()
     {
+        using var writer = new SpanWriter(stackalloc byte[4]);
         byte[] ipBytes = GameServerIP.GetAddressBytes();
         writer.Write(ipBytes);
         writer.Write((short)GameServerPort);
         writer.Write(SessionKey);
+
+        return writer.ToSpan().Span;
     }
 }

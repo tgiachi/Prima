@@ -1,5 +1,6 @@
 using System.Net;
 using Orion.Foundations.Spans;
+using Prima.Network.Extensions;
 using Prima.Network.Packets.Base;
 using Prima.Network.Packets.Entries;
 
@@ -55,8 +56,9 @@ public class GameServerList() : BaseUoNetworkPacket(0xA8, -1)
     ///   BYTE[4] Server IP address (reversed for network order)
     /// </summary>
     /// <param name="writer">The packet writer to write the data to.</param>
-    public override void Write(SpanWriter writer)
+    public override Span<byte> Write()
     {
+        using var writer = new SpanWriter(stackalloc byte[Servers.Count * 40 + 6], true);
         var servers = GetServers();
 
         writer.Write((ushort)(servers.Length + 6));
@@ -68,6 +70,8 @@ public class GameServerList() : BaseUoNetworkPacket(0xA8, -1)
         writer.Write((ushort)Servers.Count);
 
         writer.Write(servers);
+
+        return writer.ToSpan().Span;
     }
 
     private byte[] GetServers()
@@ -89,11 +93,7 @@ public class GameServerList() : BaseUoNetworkPacket(0xA8, -1)
             // Write timezone
             stream.Write(server.TimeZone);
 
-            // Write IP address in reverse order (as specified in the protocol)
-            // For example, 192.168.0.1 is sent as 0100A8C0
-            var ipBytes = server.IP.GetAddressBytes();
-            Array.Reverse(ipBytes);
-            stream.Write(ipBytes);
+            stream.Write(server.IP.ToRawAddress());
         }
 
         return stream.Span.ToArray();

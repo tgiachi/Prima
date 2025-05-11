@@ -32,8 +32,11 @@ public class SelectServer() : BaseUoNetworkPacket(0xA0, 3)
     /// Writes the packet data to the provided packet writer.
     /// </summary>
     /// <param name="writer">The packet writer to write data to.</param>
-    public override void Write(SpanWriter writer)
+    public Span<byte> Write()
     {
+        using var writer = new SpanWriter(stackalloc byte[3]);
         writer.Write(ShardId);
+
+        return writer.ToSpan().Span;
     }
 }

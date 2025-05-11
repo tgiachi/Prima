@@ -39,8 +39,9 @@ public class CharactersStartingLocations : BaseUoNetworkPacket
         }
     }
 
-    public override void Write(SpanWriter packetWriter)
+    public Span<byte> Write()
     {
+        using var packetWriter = new SpanWriter(stackalloc byte[0], true);
         var client70130 = ProtocolChanges.HasFlag(ProtocolChanges.NewCharacterList);
         var textLength = client70130 ? 32 : 31;
 
@@ -124,5 +125,7 @@ public class CharactersStartingLocations : BaseUoNetworkPacket
 
         // 169 4 208
         packetWriter.Write(writer.Span.ToArray());
+
+        return packetWriter.ToSpan().Span;
     }
 }

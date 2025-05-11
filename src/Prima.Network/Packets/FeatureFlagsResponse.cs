@@ -70,9 +70,12 @@ public class FeatureFlagsResponse() : BaseUoNetworkPacket(0xB9, 5)
     /// Writes the packet data to the provided packet writer.
     /// </summary>
     /// <param name="writer">The packet writer to write data to.</param>
-    public override void Write(SpanWriter writer)
+    public Span<byte> Write()
     {
+        using var writer = new SpanWriter(stackalloc byte[5]);
         writer.Write((uint)Flags);
+
+        return writer.ToSpan().Span;
     }
 
     /// <summary>

@@ -31,5 +31,5 @@ public interface IUoNetworkPacket
     /// Writes the packet data to the provided packet writer.
     /// </summary>
     /// <param name="writer">The packet writer to write packet data to.</param>
-    void Write(SpanWriter writer);
+    Span<byte> Write();
 }

@@ -73,15 +73,15 @@ public class PacketManager : IPacketManager
     /// <returns>A byte array containing the serialized packet data.</returns>
     public byte[] WritePacket<T>(T packet) where T : IUoNetworkPacket
     {
-        using var packetWriter = new SpanWriter(stackalloc byte[1024], true);
+        using var packetWriter = new SpanWriter(1, true);
 
         // Write OpCode
         packetWriter.Write(packet.OpCode);
 
         // Create a separate writer for the packet data
         //using var dataWriter = new PacketWriter();
-        packet.Write(packetWriter);
-        var packetData = packetWriter.Span;
+
+        var packetData = packet.Write();
 
         // Write the packet data
         packetWriter.Write(packetData);
