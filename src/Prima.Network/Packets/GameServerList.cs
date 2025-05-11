@@ -58,7 +58,7 @@ public class GameServerList() : BaseUoNetworkPacket(0xA8, -1)
     /// <param name="writer">The packet writer to write the data to.</param>
     public override Span<byte> Write()
     {
-        using var writer = new SpanWriter(stackalloc byte[Servers.Count * 40 + 6], true);
+        using var writer = new SpanWriter(stackalloc byte[1], true);
         var servers = GetServers();
 
         writer.Write((ushort)(servers.Length + 6));

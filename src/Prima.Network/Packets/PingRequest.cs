@@ -21,7 +21,7 @@ public class PingRequest : BaseUoNetworkPacket
         base.Read(reader);
     }
 
-    public Span<byte> Write()
+    public override Span<byte> Write()
     {
         using var writer = new SpanWriter(stackalloc byte[2]);
         writer.Write((byte)Sequence);

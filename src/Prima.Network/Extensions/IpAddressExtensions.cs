@@ -26,7 +26,9 @@ public static class IpAddressExtensions
             throw new InvalidOperationException("IP Address could not be serialized to an integer");
         }
 
-        return BinaryPrimitives.ReadUInt32LittleEndian(integer);
+        var ip = BinaryPrimitives.ReadUInt32LittleEndian(integer);
+
+        return ip;
     }
 
 }

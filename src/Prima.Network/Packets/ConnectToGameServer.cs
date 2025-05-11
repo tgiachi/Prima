@@ -1,5 +1,6 @@
 using System.Net;
 using Orion.Foundations.Spans;
+using Prima.Network.Extensions;
 using Prima.Network.Packets.Base;
 
 namespace Prima.Network.Packets;
@@ -48,11 +49,10 @@ public class ConnectToGameServer() : BaseUoNetworkPacket(0x8c, 11)
     /// Writes the packet data to the provided packet writer.
     /// </summary>
     /// <param name="writer">The packet writer to write data to.</param>
-    public Span<byte> Write()
+    public override Span<byte> Write()
     {
-        using var writer = new SpanWriter(stackalloc byte[4]);
-        byte[] ipBytes = GameServerIP.GetAddressBytes();
-        writer.Write(ipBytes);
+        using var writer = new SpanWriter(stackalloc byte[4], true);
+        writer.Write(GameServerIP.ToRawAddress());
         writer.Write((short)GameServerPort);
         writer.Write(SessionKey);
 
