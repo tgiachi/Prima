@@ -41,7 +41,6 @@ public class CharacterCreation : BaseUoNetworkPacket
 
     public short StartingLocation { get; set; }
 
-
     public Race Race { get; set; }
 
     public short ShirtColor { get; set; }

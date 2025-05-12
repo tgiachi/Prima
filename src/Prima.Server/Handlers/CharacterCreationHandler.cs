@@ -6,6 +6,7 @@ using Prima.Core.Server.Interfaces.Services;
 using Prima.Network.Packets;
 using Prima.Server.Modules.Scripts;
 using Prima.UOData.Data.EventData;
+using Prima.UOData.Interfaces.Services;
 using Prima.UOData.Packets;
 
 namespace Prima.Server.Handlers;
@@ -14,12 +15,15 @@ public class CharacterCreationHandler : BasePacketListenerHandler, INetworkPacke
 {
     private readonly IScriptEngineService _scriptEngineService;
 
+    private readonly IMapService _mapService;
+
     public CharacterCreationHandler(
         ILogger<CharacterCreationHandler> logger, INetworkService networkService, IServiceProvider serviceProvider,
-        IScriptEngineService scriptEngineService
+        IScriptEngineService scriptEngineService, IMapService mapService
     ) : base(logger, networkService, serviceProvider)
     {
         _scriptEngineService = scriptEngineService;
+        _mapService = mapService;
     }
 
     protected override void RegisterHandlers()
@@ -45,7 +49,7 @@ public class CharacterCreationHandler : BasePacketListenerHandler, INetworkPacke
             packet.Int,
             packet.Str,
             packet.Dex,
-            null,
+            _mapService.GetAvailableStartingCities()[packet.StartingLocation],
             packet.Skills,
             packet.ShirtColor,
             packet.PantsColor,
