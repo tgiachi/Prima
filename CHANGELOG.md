@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="0.10.0"></a>
+## [0.10.0](https://www.github.com/tgiachi/Prima/releases/tag/v0.10.0) (2025-05-12)
+
+### Features
+
+* **Prima.Core.Server.csproj:** update Orion.Core.Server package version to 0.28.0 ([e011796](https://www.github.com/tgiachi/Prima/commit/e0117967602c0af5c9ee65df4df31e21bd04b301))
+* **Prima.Network:** add IpAddressExtensions class to handle IP address conversions ([13ab025](https://www.github.com/tgiachi/Prima/commit/13ab0259e1b7a1f9ec939088ee1604bb58c06ae0))
+* **Program.cs:** add ISerialGeneratorService to service collection for generating serials ([7603ef2](https://www.github.com/tgiachi/Prima/commit/7603ef2a346fc8e1b4717efa1ec5efbd17b7b524))
+* **SerialProgressionEntity.cs:** create a new entity class SerialProgressionEntity ([4f64012](https://www.github.com/tgiachi/Prima/commit/4f64012a875a85781ba9db6284e9e1846bba1dad))
+* **UserLoginContext.cs:** add UserLoginContext record for user login information ([c800225](https://www.github.com/tgiachi/Prima/commit/c8002257da09f2c7be42a3c5cca03ec88a6f3791))
+
 <a name="0.9.0"></a>
 ## [0.9.0](https://www.github.com/tgiachi/Prima/releases/tag/v0.9.0) (2025-05-09)
 
