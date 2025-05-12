@@ -34,7 +34,13 @@ public class TimerScriptModule
             throw new ArgumentNullException(nameof(callback), "Callback cannot be null");
         }
 
-        return _timerService.RegisterTimer(name, intervalInSeconds, callback, delayInSeconds, isRepeat);
+        return _timerService.RegisterTimer(
+            name,
+            TimeSpan.FromSeconds(intervalInSeconds).TotalMilliseconds,
+            callback,
+            TimeSpan.FromSeconds(delayInSeconds).TotalMilliseconds,
+            isRepeat
+        );
     }
 
     [ScriptFunction("Register a timer that repeats")]

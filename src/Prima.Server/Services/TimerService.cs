@@ -87,7 +87,7 @@ public class TimerService : ITimerService
         timer.Callback = callback;
         timer.Repeat = repeat;
         timer.RemainingTimeInMs = intervalInMs;
-        timer.RemainingTimeInMs = delayInMs;
+        timer.DelayInMs = delayInMs;
 
 
         _timers.Add(timer);
