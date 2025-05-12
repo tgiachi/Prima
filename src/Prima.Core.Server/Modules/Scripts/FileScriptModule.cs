@@ -34,6 +34,28 @@ public class FileScriptModule
         }
 
         _scriptEngineService.ExecuteScriptFile(filePath);
+    }
 
+    [ScriptFunction("Include all script files in a directory")]
+    public void IncludeScripts(string directory)
+    {
+        if (string.IsNullOrEmpty(directory))
+        {
+            throw new ArgumentNullException(nameof(directory), "Directory name cannot be null or empty");
+        }
+
+        var directoryPath = Path.Combine(_directoriesConfig.Root, directory);
+
+        if (!Directory.Exists(directoryPath))
+        {
+            throw new DirectoryNotFoundException($"Directory '{directory}' not found in the scripts directory.");
+        }
+
+        var scriptFiles = Directory.GetFiles(directoryPath, "*.js");
+
+        foreach (var scriptFile in scriptFiles)
+        {
+            _scriptEngineService.ExecuteScriptFile(scriptFile);
+        }
     }
 }
