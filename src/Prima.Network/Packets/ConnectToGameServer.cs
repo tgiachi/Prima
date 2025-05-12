@@ -38,7 +38,10 @@ public class ConnectToGameServer() : BaseUoNetworkPacket(0x8c, 11)
     public override void Read(SpanReader reader)
     {
         byte[] ipBytes = new byte[4];
-        reader.Read(ipBytes);
+        ipBytes[0] = reader.ReadByte();
+        ipBytes[1] = reader.ReadByte();
+        ipBytes[2] = reader.ReadByte();
+        ipBytes[3] = reader.ReadByte();
 
         GameServerIP = new IPAddress(ipBytes);
         GameServerPort = reader.ReadUInt16();
