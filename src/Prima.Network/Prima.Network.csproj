@@ -9,9 +9,9 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.4" />
-        <PackageReference Include="Orion.Core.Server" Version="0.28.0" />
-        <PackageReference Include="Orion.Network.Core" Version="0.28.0" />
-        <PackageReference Include="Orion.Network.Tcp" Version="0.28.0" />
+        <PackageReference Include="Orion.Core.Server" Version="0.28.2" />
+        <PackageReference Include="Orion.Network.Core" Version="0.28.2" />
+        <PackageReference Include="Orion.Network.Tcp" Version="0.28.2" />
     </ItemGroup>
 
 

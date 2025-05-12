@@ -122,7 +122,7 @@ public class NetworkService : INetworkService
         session.OnDisconnect -= DisconnectSession;
 
 
-        if (transportId == _loginContext)
+        if (transportId.StartsWith(_loginContext))
         {
             _logger.LogInformation("Client disconnected from login server: {SessionId} => {Endpoint}", sessionId, endpoint);
 
@@ -135,7 +135,7 @@ public class NetworkService : INetworkService
             return;
         }
 
-        if (transportId == _gameContext)
+        if (transportId.StartsWith(_gameContext))
         {
             _logger.LogInformation("Client disconnected from game server: {SessionId} => {Endpoint}", sessionId, endpoint);
             return;
@@ -146,11 +146,11 @@ public class NetworkService : INetworkService
 
     private void NetworkTransportManagerOnClientConnected(string transportId, string sessionId, string endpoint)
     {
-        if (transportId == _loginContext)
+        if (transportId.StartsWith(_loginContext))
         {
             _logger.LogInformation("Client connected to login server: {SessionId} => {Endpoint}", sessionId, endpoint);
         }
-        else if (transportId == _gameContext)
+        else if (transportId.StartsWith(_gameContext))
         {
             _logger.LogInformation("Client connected to game server: {SessionId} => {Endpoint}", sessionId, endpoint);
         }
@@ -323,24 +323,49 @@ public class NetworkService : INetworkService
 
     public async Task StartAsync(CancellationToken cancellationToken = default)
     {
-        // Adding login server
-        _networkTransportManager.AddTransport(
-            new NonSecureTcpServer(
-                _loginContext,
-                ServerNetworkType.Servers,
-                IPAddress.Any,
-                _serverConfig.TcpServer.LoginPort
-            )
-        );
+        var loginServers =
+            GetListeningAddresses(IPEndPoint.Parse(IPAddress.Any.ToString() + _serverConfig.TcpServer.LoginPort)).ToList();
 
+        foreach (var loginServer in loginServers)
+        {
+            try
+            {
+                _logger.LogInformation("Login server listening on {Address}", loginServer);
+                // Adding login server
+                _networkTransportManager.AddTransport(
+                    new NonSecureTcpServer(
+                        _loginContext + "_" + loginServer.Address,
+                        ServerNetworkType.Servers,
+                        loginServer.Address,
+                        _serverConfig.TcpServer.LoginPort
+                    )
+                );
 
-        // Adding game server
-        _networkTransportManager.AddTransport(
-            new NonSecureTcpServer(_gameContext, ServerNetworkType.Clients, IPAddress.Any, _serverConfig.TcpServer.GamePort)
-        );
+                _logger.LogInformation(
+                    "Game server listening on {Address}",
+                    new IPEndPoint(loginServer.Address, _serverConfig.TcpServer.GamePort)
+                );
 
-        _logger.LogInformation("Login server started on port {Port}", _serverConfig.TcpServer.LoginPort);
-        _logger.LogInformation("Game server started on port {Port}", _serverConfig.TcpServer.GamePort);
+                _networkTransportManager.AddTransport(
+                    new NonSecureTcpServer(
+                        _gameContext + "_" + loginServer.Address,
+                        ServerNetworkType.Clients,
+                        loginServer.Address,
+                        _serverConfig.TcpServer.GamePort
+                    )
+                );
+            }
+
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Error while starting login server on {Address}:{Port}",
+                    loginServer.Address,
+                    _serverConfig.TcpServer.LoginPort
+                );
+            }
+        }
 
         await _networkTransportManager.StartAsync(cancellationToken);
     }

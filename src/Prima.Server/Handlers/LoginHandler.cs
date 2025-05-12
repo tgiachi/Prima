@@ -1,15 +1,18 @@
 using System.Net;
 using System.Security.Cryptography;
+using Orion.Core.Server.Interfaces.Services.System;
 using Orion.Foundations.Extensions;
 using Prima.Core.Server.Data.Config;
 using Prima.Core.Server.Data.Session;
 using Prima.Core.Server.Data.Uo;
+using Prima.Core.Server.Entities;
 using Prima.Core.Server.Handlers.Base;
 using Prima.Core.Server.Interfaces.Listeners;
 using Prima.Core.Server.Interfaces.Services;
 using Prima.Network.Packets;
 using Prima.Network.Packets.Entries;
 using Prima.Network.Types;
+using Prima.Server.Modules.Scripts;
 using Prima.UOData.Context;
 using Prima.UOData.Interfaces.Services;
 using Prima.UOData.Packets;
@@ -26,6 +29,8 @@ public class LoginHandler
     private readonly INetworkService _networkService;
     private readonly PrimaServerConfig _primaServerConfig;
 
+    private readonly IScriptEngineService _scriptEngineService;
+    private readonly IProcessQueueService _processQueueService;
     private readonly List<GameServerEntry> _gameServerEntries = new();
 
     private readonly IMapService _mapService;
@@ -33,7 +38,8 @@ public class LoginHandler
 
     public LoginHandler(
         ILogger<LoginHandler> logger, INetworkService networkService, IServiceProvider serviceProvider,
-        IAccountManager accountManager, PrimaServerConfig primaServerConfig, IMapService mapService
+        IAccountManager accountManager, PrimaServerConfig primaServerConfig, IMapService mapService,
+        IScriptEngineService scriptEngineService, IProcessQueueService processQueueService
     ) :
         base(logger, networkService, serviceProvider)
     {
@@ -41,6 +47,8 @@ public class LoginHandler
         _accountManager = accountManager;
         _primaServerConfig = primaServerConfig;
         _mapService = mapService;
+        _scriptEngineService = scriptEngineService;
+        _processQueueService = processQueueService;
 
         CreateGameServerList();
     }
@@ -95,6 +103,8 @@ public class LoginHandler
         }
 
         Logger.LogInformation("Login successful for user {Username}", login.Username);
+        TriggerLogin(login);
+
 
         var gameServerList = new GameServerList();
         gameServerList.Servers.AddRange(_gameServerEntries);
@@ -104,6 +114,14 @@ public class LoginHandler
 
 
         await session.SendPacketAsync(gameServerList);
+    }
+
+    private void TriggerLogin(AccountEntity account)
+    {
+        _processQueueService.Enqueue(
+            "events",
+            () => { _scriptEngineService.ExecuteCallback(nameof(EventScriptModule.OnUserLogin), account); }
+        );
     }
 
     public async Task OnPacketReceived(NetworkSession session, SelectServer packet)

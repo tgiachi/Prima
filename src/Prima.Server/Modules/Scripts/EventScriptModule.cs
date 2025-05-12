@@ -1,5 +1,6 @@
 using Orion.Core.Server.Attributes.Scripts;
 using Orion.Core.Server.Interfaces.Services.System;
+using Prima.Core.Server.Contexts;
 
 namespace Prima.Server.Modules.Scripts;
 
@@ -27,5 +28,26 @@ public class EventScriptModule
     public void HookEvent(string eventName, Action<object?> eventHandler)
     {
         _eventDispatcherService.SubscribeToEvent(eventName, eventHandler.Invoke);
+    }
+
+    [ScriptFunction("Register a callback when the user logs in")]
+    public void OnUserLogin(Action<UserLoginContext> action)
+    {
+        _scriptEngineService.AddCallback(
+            nameof(OnUserLogin),
+            context =>
+            {
+                if (context == null)
+                {
+                    throw new ArgumentNullException(nameof(context), "Context cannot be null");
+                    return;
+                }
+
+                if (context[0] is UserLoginContext userLoginContext)
+                {
+                    action(userLoginContext);
+                }
+            }
+        );
     }
 }
