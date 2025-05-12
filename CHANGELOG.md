@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="0.10.1"></a>
+## [0.10.1](https://www.github.com/tgiachi/Prima/releases/tag/v0.10.1) (2025-05-12)
+
+### Bug Fixes
+
+* **ConnectToGameServer.cs:** change how IP address bytes are read to correctly assign values ([c25337f](https://www.github.com/tgiachi/Prima/commit/c25337f65c92dff8c20adf474671303a00919f10))
+
 <a name="0.10.0"></a>
 ## [0.10.0](https://www.github.com/tgiachi/Prima/releases/tag/v0.10.0) (2025-05-12)
 
