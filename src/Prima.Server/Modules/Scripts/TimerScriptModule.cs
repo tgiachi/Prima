@@ -15,7 +15,9 @@ public class TimerScriptModule
 
 
     [ScriptFunction("Register a timer")]
-    public string Register(string name, int intervalInSeconds, Action callback, bool isRepeat = false)
+    public string Register(
+        string name, int intervalInSeconds, Action callback, int delayInSeconds = 0, bool isRepeat = false
+    )
     {
         if (string.IsNullOrEmpty(name))
         {
@@ -32,19 +34,20 @@ public class TimerScriptModule
             throw new ArgumentNullException(nameof(callback), "Callback cannot be null");
         }
 
-        return _timerService.RegisterTimer(name, intervalInSeconds, callback, isRepeat);
+        return _timerService.RegisterTimer(name, intervalInSeconds, callback, delayInSeconds, isRepeat);
     }
 
     [ScriptFunction("Register a timer that repeats")]
-    public string Repeated(string name, int intervalInSeconds, Action callback)
+    public string Repeated(string name, int intervalInSeconds, Action callback, int delayInSeconds = 0)
     {
-        return Register(name, intervalInSeconds, callback, true);
+        return Register(name, intervalInSeconds, callback, delayInSeconds, true);
     }
 
+
     [ScriptFunction("Register a timer that runs once")]
-    public string OneShot(string name, int intervalInSeconds, Action callback)
+    public string OneShot(string name, int intervalInSeconds, Action callback, int delayInSeconds = 0)
     {
-        return Register(name, intervalInSeconds, callback, false);
+        return Register(name, intervalInSeconds, callback, delayInSeconds, false);
     }
 
     [ScriptFunction("Unregister a timer")]

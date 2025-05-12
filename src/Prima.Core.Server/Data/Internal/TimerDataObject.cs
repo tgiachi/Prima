@@ -15,6 +15,8 @@ public class TimerDataObject : IDisposable
 
     public double RemainingTimeInMs = 0;
 
+    public double DelayInMs { get; set; }
+
 
     public void DecrementRemainingTime(double deltaTime)
     {
@@ -22,6 +24,15 @@ public class TimerDataObject : IDisposable
         {
             try
             {
+                if (DelayInMs > 0)
+                {
+                    DelayInMs -= deltaTime;
+                    if (DelayInMs > 0)
+                    {
+                        return;
+                    }
+                }
+
                 RemainingTimeInMs -= deltaTime;
             }
             finally
@@ -60,6 +71,7 @@ public class TimerDataObject : IDisposable
         IntervalInMs = 0;
         RemainingTimeInMs = 0;
         Repeat = false;
+        DelayInMs = 0;
 
         GC.SuppressFinalize(this);
     }

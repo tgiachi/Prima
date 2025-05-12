@@ -66,7 +66,7 @@ public class TimerService : ITimerService
         return Task.CompletedTask;
     }
 
-    public string RegisterTimer(string name, int intervalInSeconds, Action callback, bool repeat = false)
+    public string RegisterTimer(string name, double intervalInMs, Action callback,  double delayInMs = 0, bool repeat = false)
     {
         var existingTimer = _timers.FirstOrDefault(t => t.Name == name);
 
@@ -83,11 +83,11 @@ public class TimerService : ITimerService
 
         timer.Name = name;
         timer.Id = timerId;
-        timer.IntervalInMs = TimeSpan.FromMilliseconds(intervalInSeconds).TotalMilliseconds;
+        timer.IntervalInMs = intervalInMs;
         timer.Callback = callback;
         timer.Repeat = repeat;
-        timer.RemainingTimeInMs = TimeSpan.FromMilliseconds(intervalInSeconds).TotalMilliseconds;
-        timer.RemainingTimeInMs = TimeSpan.FromMilliseconds(intervalInSeconds).TotalMilliseconds;
+        timer.RemainingTimeInMs = intervalInMs;
+        timer.RemainingTimeInMs = delayInMs;
 
 
         _timers.Add(timer);
@@ -95,13 +95,13 @@ public class TimerService : ITimerService
         _timerSemaphore.Release();
 
         _logger.LogDebug(
-            "Registering timer: {TimerId}, Interval: {IntervalInSeconds} seconds, Repeat: {Repeat}",
+            "Registering timer: {TimerId}, Interval: {IntervalInSeconds} ms, Repeat: {Repeat}",
             timerId,
-            intervalInSeconds,
+            intervalInMs,
             repeat
         );
 
-        return timerId.ToString();
+        return timerId;
     }
 
     public void UnregisterTimer(string timerId)

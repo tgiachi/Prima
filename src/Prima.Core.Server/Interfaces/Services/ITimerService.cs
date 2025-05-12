@@ -4,7 +4,7 @@ namespace Prima.Core.Server.Interfaces.Services;
 
 public interface ITimerService : IOrionService, IOrionStartService, IDisposable
 {
-    string RegisterTimer(string name, int intervalInSeconds, Action callback, bool repeat = false);
+    string RegisterTimer(string name, double intervalInMs, Action callback, double delayInMs = 0, bool repeat = false);
 
     void UnregisterTimer(string timerId);
 

@@ -64,7 +64,7 @@ public class CharacterCreation : BaseUoNetworkPacket
         LoginCount = reader.ReadInt32();
         Profession = ProfessionInfo.Professions[reader.ReadByte()];
 
-        reader.Read(new byte[15]);
+        reader.ReadBytes(15);
 
         Sex = (SexType)reader.ReadByte();
 
