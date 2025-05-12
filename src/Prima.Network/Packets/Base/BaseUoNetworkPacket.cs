@@ -1,5 +1,5 @@
+using Orion.Foundations.Spans;
 using Prima.Network.Interfaces.Packets;
-using Prima.Network.Serializers;
 
 namespace Prima.Network.Packets.Base;
 
@@ -36,7 +36,7 @@ public abstract class BaseUoNetworkPacket : IUoNetworkPacket
     /// </summary>
     /// <param name="reader">The packet reader containing the packet data.</param>
     /// <exception cref="NotImplementedException">Thrown if this method is not overridden in derived classes.</exception>
-    public virtual void Read(PacketReader reader)
+    public virtual void Read(SpanReader reader)
     {
 
     }
@@ -47,9 +47,9 @@ public abstract class BaseUoNetworkPacket : IUoNetworkPacket
     /// </summary>
     /// <param name="writer">The packet writer to write packet data to.</param>
     /// <exception cref="NotImplementedException">Thrown if this method is not overridden in derived classes.</exception>
-    public virtual void Write(PacketWriter writer)
+    public virtual Span<byte> Write()
     {
-
+        throw new NotImplementedException("Write method not implemented for this packet type.");
     }
 
     /// <summary>

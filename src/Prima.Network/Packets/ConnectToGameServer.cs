@@ -1,6 +1,7 @@
 using System.Net;
+using Orion.Foundations.Spans;
+using Prima.Network.Extensions;
 using Prima.Network.Packets.Base;
-using Prima.Network.Serializers;
 
 namespace Prima.Network.Packets;
 
@@ -34,9 +35,11 @@ public class ConnectToGameServer() : BaseUoNetworkPacket(0x8c, 11)
     /// Reads the packet data from the provided packet reader.
     /// </summary>
     /// <param name="reader">The packet reader to read data from.</param>
-    public override void Read(PacketReader reader)
+    public override void Read(SpanReader reader)
     {
-        byte[] ipBytes = reader.ReadBytes(4);
+        byte[] ipBytes = new byte[4];
+        reader.Read(ipBytes);
+
         GameServerIP = new IPAddress(ipBytes);
         GameServerPort = reader.ReadUInt16();
         SessionKey = reader.ReadInt32();
@@ -46,11 +49,13 @@ public class ConnectToGameServer() : BaseUoNetworkPacket(0x8c, 11)
     /// Writes the packet data to the provided packet writer.
     /// </summary>
     /// <param name="writer">The packet writer to write data to.</param>
-    public override void Write(PacketWriter writer)
+    public override Span<byte> Write()
     {
-        byte[] ipBytes = GameServerIP.GetAddressBytes();
-        writer.Write(ipBytes);
+        using var writer = new SpanWriter(stackalloc byte[4], true);
+        writer.WriteLE(GameServerIP.ToRawAddress());
         writer.Write((short)GameServerPort);
         writer.Write(SessionKey);
+
+        return writer.ToSpan().Span;
     }
 }

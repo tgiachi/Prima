@@ -1,5 +1,6 @@
+using Orion.Foundations.Spans;
 using Prima.Network.Packets.Base;
-using Prima.Network.Serializers;
+
 
 namespace Prima.Network.Packets;
 
@@ -14,15 +15,18 @@ public class PingRequest : BaseUoNetworkPacket
     }
 
 
-    public override void Read(PacketReader reader)
+    public override void Read(SpanReader reader)
     {
         Sequence = reader.ReadByte();
         base.Read(reader);
     }
 
-    public override void Write(PacketWriter writer)
+    public override Span<byte> Write()
     {
-        writer.WriteByte((byte)Sequence);
-        base.Write(writer);
+        using var writer = new SpanWriter(stackalloc byte[2]);
+        writer.Write((byte)Sequence);
+
+        return writer.ToSpan().Span;
+
     }
 }

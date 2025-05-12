@@ -1,9 +1,10 @@
 using Microsoft.Extensions.Logging;
 using Orion.Foundations.Pool;
+using Orion.Foundations.Spans;
 using Prima.Network.Interfaces.Packets;
 using Prima.Network.Interfaces.Services;
 using Prima.Network.Internal;
-using Prima.Network.Serializers;
+
 
 namespace Prima.Network.Services;
 
@@ -24,15 +25,15 @@ public class PacketManager : IPacketManager
     private readonly Dictionary<byte, Func<IUoNetworkPacket>> _packets = new();
 
 
-    /// <summary>
-    ///  Object pool for reusing PacketReader instances.
-    /// </summary>
-    private readonly ObjectPool<PacketReader> _readerPool = new();
-
-    /// <summary>
-    /// Object pool for reusing PacketWriter instances.
-    /// </summary>
-    private readonly ObjectPool<PacketWriter> _writerPool = new();
+    // /// <summary>
+    // ///  Object pool for reusing PacketReader instances.
+    // /// </summary>
+    // private readonly ObjectPool<SpanReader> _readerPool = new();
+    //
+    // /// <summary>
+    // /// Object pool for reusing PacketWriter instances.
+    // /// </summary>
+    // private readonly ObjectPool<PacketWriter> _writerPool = new();
 
     /// <summary>
     /// Initializes a new instance of the PacketManager class.
@@ -72,20 +73,24 @@ public class PacketManager : IPacketManager
     /// <returns>A byte array containing the serialized packet data.</returns>
     public byte[] WritePacket<T>(T packet) where T : IUoNetworkPacket
     {
-        using var packetWriter = new PacketWriter();
+        using var packetWriter = new SpanWriter(1, true);
 
         // Write OpCode
         packetWriter.Write(packet.OpCode);
 
         // Create a separate writer for the packet data
-        using var dataWriter = new PacketWriter();
-        packet.Write(dataWriter);
-        var packetData = dataWriter.ToArray();
+        //using var dataWriter = new PacketWriter();
+
+        var packetData = packet.Write();
 
         // Write the packet data
         packetWriter.Write(packetData);
 
-        return packetWriter.ToArray();
+        var array = packetWriter.ToSpan();
+
+
+        // Return the serialized packet data
+        return array.Span.ToArray();
     }
 
     /// <summary>
@@ -201,16 +206,18 @@ public class PacketManager : IPacketManager
     {
         try
         {
-            var packetReader = _readerPool.Get();
+            var packetReader = new SpanReader(packetData);
 
-            packetReader.Initialize(packetData, packetLength, true);
+
+            // packetReader.Initialize(packetData, packetLength, true);
 
             // Read the packet content
+            packetReader.ReadByte();
             packet.Read(packetReader);
             _logger.LogDebug("Successfully parsed packet: {PacketType}", packet.GetType().Name);
 
             // Return the packet to the pool
-            _readerPool.Return(packetReader);
+            //_readerPool.Return(packetReader);
 
             return true;
         }

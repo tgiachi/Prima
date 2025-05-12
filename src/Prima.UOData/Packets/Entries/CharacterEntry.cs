@@ -1,4 +1,4 @@
-using Prima.Network.Serializers;
+using Orion.Foundations.Spans;
 
 namespace Prima.UOData.Packets.Entries;
 
@@ -16,19 +16,15 @@ public class CharacterEntry
     }
 
 
-
     public byte[] ToArray()
     {
-        using var pr = new PacketWriter();
+        using var pr = new SpanWriter(stackalloc byte[60], true);
 
-        pr.WriteAsciiFixed(Name, 30);
-        pr.WriteAsciiFixed(Password, 30);
+        pr.WriteAscii(Name, 30);
+        pr.WriteAscii(Password, 30);
 
-        var arr= pr.ToArray();
-
-        return arr;
+        return pr.Span.ToArray();
     }
 
     public static int Lenght => 60;
-
 }

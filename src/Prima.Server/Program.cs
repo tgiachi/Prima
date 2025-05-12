@@ -102,6 +102,7 @@ class Program
         builder.Services
             .AddService<IAssetService, AssetService>()
             .AddService<INetworkService, NetworkService>()
+            .AddService<ISerialGeneratorService, SerialGeneratorService>()
             .AddService<IClientConfigurationService, ClientConfigurationService>()
             ;
 

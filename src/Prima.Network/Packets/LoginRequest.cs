@@ -1,5 +1,6 @@
+using Orion.Foundations.Spans;
 using Prima.Network.Packets.Base;
-using Prima.Network.Serializers;
+
 
 namespace Prima.Network.Packets;
 
@@ -33,21 +34,23 @@ public class LoginRequest() : BaseUoNetworkPacket(0x80, 62)
     /// Writes the packet data to the provided packet writer.
     /// </summary>
     /// <param name="writer">The packet writer to write data to.</param>
-    public override void Write(PacketWriter writer)
+    public Span<byte> Write()
     {
-        writer.WriteAsciiFixed(Username, 30);
-        writer.WriteAsciiFixed(Password, 30);
+        using var writer = new SpanWriter(stackalloc byte[62]);
+        writer.WriteAscii(Username, 30);
+        writer.WriteAscii(Password, 30);
         writer.Write(NextLoginKey);
+        return writer.ToSpan().Span;
     }
 
     /// <summary>
     /// Reads the packet data from the provided packet reader.
     /// </summary>
     /// <param name="reader">The packet reader to read data from.</param>
-    public override void Read(PacketReader reader)
+    public override void Read(SpanReader reader)
     {
-        Username = reader.ReadFixedString(30);
-        Password = reader.ReadFixedString(30);
+        Username = reader.ReadAscii(30);
+        Password = reader.ReadAscii(30);
         NextLoginKey = reader.ReadByte();
     }
 

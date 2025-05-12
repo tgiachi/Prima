@@ -1,7 +1,7 @@
 using Orion.Foundations.Spans;
 using Prima.Core.Server.Types.Uo;
 using Prima.Network.Packets.Base;
-using Prima.Network.Serializers;
+
 using Prima.UOData.Context;
 using Prima.UOData.Data;
 using Prima.UOData.Data.Map;
@@ -39,8 +39,9 @@ public class CharactersStartingLocations : BaseUoNetworkPacket
         }
     }
 
-    public override void Write(PacketWriter packetWriter)
+    public override Span<byte> Write()
     {
+        using var packetWriter = new SpanWriter(stackalloc byte[0], true);
         var client70130 = ProtocolChanges.HasFlag(ProtocolChanges.NewCharacterList);
         var textLength = client70130 ? 32 : 31;
 
@@ -121,7 +122,10 @@ public class CharactersStartingLocations : BaseUoNetworkPacket
         {
             writer.Write((short)-1);
         }
-// 169 4 208
-        packetWriter.Write(writer.Span);
+
+        // 169 4 208
+        packetWriter.Write(writer.Span.ToArray());
+
+        return packetWriter.ToSpan().Span;
     }
 }

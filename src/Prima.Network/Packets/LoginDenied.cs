@@ -1,5 +1,6 @@
+using Orion.Foundations.Spans;
 using Prima.Network.Packets.Base;
-using Prima.Network.Serializers;
+
 using Prima.Network.Types;
 
 namespace Prima.Network.Packets;
@@ -30,17 +31,19 @@ public class LoginDenied() : BaseUoNetworkPacket(0x82, 1)
     /// Writes the packet data to the provided packet writer.
     /// </summary>
     /// <param name="writer">The packet writer to write data to.</param>
-    public override void Write(PacketWriter writer)
+    public override Span<byte> Write()
     {
-        writer.WriteEnum(Reason);
+        using var writer = new SpanWriter(stackalloc byte[1]);
+        writer.Write((byte)Reason);
+        return writer.ToSpan().Span;
     }
 
     /// <summary>
     /// Reads the packet data from the provided packet reader.
     /// </summary>
     /// <param name="reader">The packet reader to read data from.</param>
-    public override void Read(PacketReader reader)
+    public override void Read(SpanReader reader)
     {
-        Reason = reader.ReadEnum<LoginDeniedReasonType>();
+        Reason = (LoginDeniedReasonType)reader.ReadByte();
     }
 }

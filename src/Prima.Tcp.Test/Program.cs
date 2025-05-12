@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 using Microsoft.Extensions.Logging.Abstractions;
 using Prima.Network.Packets;
 using Prima.Network.Packets.Entries;
-using Prima.Network.Serializers;
+
 using Prima.Network.Services;
 using SuperSimpleTcp;
 

@@ -1,4 +1,5 @@
-using Prima.Network.Serializers;
+using Orion.Foundations.Spans;
+
 
 namespace Prima.Network.Interfaces.Packets;
 
@@ -24,11 +25,11 @@ public interface IUoNetworkPacket
     /// Reads the packet data from the provided packet reader.
     /// </summary>
     /// <param name="reader">The packet reader containing the packet data.</param>
-    void Read(PacketReader reader);
+    void Read(SpanReader reader);
 
     /// <summary>
     /// Writes the packet data to the provided packet writer.
     /// </summary>
     /// <param name="writer">The packet writer to write packet data to.</param>
-    void Write(PacketWriter writer);
+    Span<byte> Write();
 }
