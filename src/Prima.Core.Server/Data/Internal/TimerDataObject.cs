@@ -2,7 +2,7 @@ namespace Prima.Core.Server.Data.Internal;
 
 public class TimerDataObject : IDisposable
 {
-    private object _lock = new object();
+    private readonly object _lock = new object();
     public string Name { get; set; }
 
     public string Id { get; set; }
@@ -60,5 +60,7 @@ public class TimerDataObject : IDisposable
         IntervalInMs = 0;
         RemainingTimeInMs = 0;
         Repeat = false;
+
+        GC.SuppressFinalize(this);
     }
 }
