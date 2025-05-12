@@ -147,7 +147,12 @@ public class GameServerList() : BaseUoNetworkPacket(0xA8, -1)
             // IP address bytes are reversed in the packet
             // For example, 0100A8C0 needs to be converted to 192.168.0.1
             byte[] ipBytes = new byte[4];
-            reader.Read(ipBytes);
+            ipBytes[0] = reader.ReadByte();
+            ipBytes[1] = reader.ReadByte();
+            ipBytes[2] = reader.ReadByte();
+            ipBytes[3] = reader.ReadByte();
+
+          //  reader.Read(ipBytes);
             Array.Reverse(ipBytes);
             entry.IP = new IPAddress(ipBytes);
 

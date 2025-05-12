@@ -12,7 +12,7 @@ namespace Prima.Network.Packets;
 /// <remarks>
 /// OpCode: 0x82
 /// </remarks>
-public class LoginDenied() : BaseUoNetworkPacket(0x82, 1)
+public class LoginDenied() : BaseUoNetworkPacket(0x82, 2)
 {
     /// <summary>
     /// Gets or sets the reason why the login was denied.
@@ -33,9 +33,8 @@ public class LoginDenied() : BaseUoNetworkPacket(0x82, 1)
     /// <param name="writer">The packet writer to write data to.</param>
     public override Span<byte> Write()
     {
-        using var writer = new SpanWriter(stackalloc byte[1]);
-        writer.Write((byte)Reason);
-        return writer.ToSpan().Span;
+
+        return new Span<byte>([(byte)Reason]);
     }
 
     /// <summary>
