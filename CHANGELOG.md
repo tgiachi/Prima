@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="0.11.0"></a>
+## [0.11.0](https://www.github.com/tgiachi/Prima/releases/tag/v0.11.0) (2025-05-12)
+
+### Features
+
+* **CharacterCreationHandler.cs:** add IMapService dependency to CharacterCreationHandler to handle starting location mapping ([b04ef3c](https://www.github.com/tgiachi/Prima/commit/b04ef3c021fdf06c768b977101960cec07a11ce6))
+* **CharacterCreationHandler.cs:** add support for character creation event handling and ([cc757d5](https://www.github.com/tgiachi/Prima/commit/cc757d5c083e56b58d87fa4fa19732b330db7787))
+* **ClientConfigurationService.cs:** add RaceDefinitions.Configure() method call to initialize race definitions in the ClientConfigurationService class ([53bc001](https://www.github.com/tgiachi/Prima/commit/53bc0015e20368b62250efeb329a38bfe69f6abc))
+* **FileScriptModule.cs:** add IncludeScripts method to FileScriptModule for executing all script files in a specified directory ([9f5dcb0](https://www.github.com/tgiachi/Prima/commit/9f5dcb0bd73c83eff330cd67683990b9c86d6db8))
+* **Prima.Core.Server.csproj:** update Orion.Core.Server package version to 0.28.3 ([a07312e](https://www.github.com/tgiachi/Prima/commit/a07312eb3298d879d1579a8015f05c2c56531526))
+* **TimerService.cs:** implement TimerService to manage timers with registration, unregistration, and callback execution ([ed63566](https://www.github.com/tgiachi/Prima/commit/ed635667dcf81f9e39bdfbeae342e170636f71e7))
+* **UOData:** add support for delay in timer registration to allow for delayed timer execution ([6614d4b](https://www.github.com/tgiachi/Prima/commit/6614d4be0f7ee1452d0a7ae0da7b8e82a8cbe32d))
+
 <a name="0.10.1"></a>
 ## [0.10.1](https://www.github.com/tgiachi/Prima/releases/tag/v0.10.1) (2025-05-12)
 
