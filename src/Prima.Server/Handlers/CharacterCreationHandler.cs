@@ -47,13 +47,12 @@ public class CharacterCreationHandler : BasePacketListenerHandler, INetworkPacke
             packet.Dex,
             null,
             packet.Skills,
-            (int)packet.ShirtColor,
-            (int)packet.PantsColor,
-            (int)packet
-                .HairStyle,
-            (int)packet.HairColor,
-            (int)packet.FacialHair,
-            (int)packet.FacialHairColor,
+            packet.ShirtColor,
+            packet.PantsColor,
+            packet.HairStyle,
+            packet.HairColor,
+            packet.FacialHair,
+            packet.FacialHairColor,
             packet.Profession,
             packet.Race
         );
