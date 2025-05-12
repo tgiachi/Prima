@@ -35,6 +35,18 @@ public class TimerScriptModule
         return _timerService.RegisterTimer(name, intervalInSeconds, callback, isRepeat);
     }
 
+    [ScriptFunction("Register a timer that repeats")]
+    public string Repeated(string name, int intervalInSeconds, Action callback)
+    {
+        return Register(name, intervalInSeconds, callback, true);
+    }
+
+    [ScriptFunction("Register a timer that runs once")]
+    public string OneShot(string name, int intervalInSeconds, Action callback)
+    {
+        return Register(name, intervalInSeconds, callback, false);
+    }
+
     [ScriptFunction("Unregister a timer")]
     public void Unregister(string timerId)
     {
