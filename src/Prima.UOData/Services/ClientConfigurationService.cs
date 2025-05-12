@@ -52,6 +52,8 @@ public class ClientConfigurationService : IClientConfigurationService, IEventBus
         await GetExpansionAsync();
         await LoadSkillInfoAsync();
         await BuildProfessionsAsync();
+
+        RaceDefinitions.Configure();
     }
 
     private async Task GetExpansionAsync()
