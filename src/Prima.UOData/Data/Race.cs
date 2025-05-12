@@ -29,7 +29,6 @@ public abstract class Race : ISpanParsable<Race>
     public static Race[] Races { get; } = new Race[0x100];
 
     public static Race DefaultRace => Races[0];
-
     public static Race Human => Races[0];
     public static Race Elf => Races[1];
     public static Race Gargoyle => Races[2];

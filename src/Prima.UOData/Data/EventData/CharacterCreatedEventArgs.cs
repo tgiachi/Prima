@@ -5,10 +5,22 @@ namespace Prima.UOData.Data.EventData;
 
 public class CharacterCreatedEventArgs(
     // NetState state, IAccount a,
-    string name, bool female,
-    int hue, byte[] stats, CityInfo city, (SkillName, byte)[] skills,
-    int shirtHue, int pantsHue, int hairId, int hairHue,
-    int beardId, int beardHue, int profession, Race race
+    string name,
+    bool female,
+    int hue,
+    int inte,
+    int str,
+    int dex,
+    CityInfo city,
+    Dictionary<SkillName, int> skills,
+    int shirtHue,
+    int pantsHue,
+    int hairId,
+    int hairHue,
+    int beardId,
+    int beardHue,
+    ProfessionInfo profession,
+    Race race
 )
 {
     // public NetState State { get; } = state;
@@ -23,11 +35,13 @@ public class CharacterCreatedEventArgs(
 
     public int Hue { get; } = hue;
 
-    public byte[] Stats { get; } = stats;
+    public int Inte { get; } = inte;
+    public int Str { get; } = str;
+    public int Dex { get; } = dex;
 
     public CityInfo City { get; } = city;
 
-    public (SkillName, byte)[] Skills { get; } = skills;
+    public Dictionary<SkillName, int> Skills { get; } = skills;
 
     public int ShirtHue { get; } = shirtHue;
 
@@ -41,7 +55,7 @@ public class CharacterCreatedEventArgs(
 
     public int BeardHue { get; } = beardHue;
 
-    public int Profession { get; set; } = profession;
+    public ProfessionInfo Profession { get; set; } = profession;
 
     public Race Race { get; } = race;
 }
