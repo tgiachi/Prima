@@ -1,6 +1,7 @@
 using Orion.Core.Server.Attributes.Scripts;
 using Orion.Core.Server.Interfaces.Services.System;
 using Prima.Core.Server.Contexts;
+using Prima.UOData.Data.EventData;
 
 namespace Prima.Server.Modules.Scripts;
 
@@ -46,6 +47,27 @@ public class EventScriptModule
                 if (context[0] is UserLoginContext userLoginContext)
                 {
                     action(userLoginContext);
+                }
+            }
+        );
+    }
+
+    [ScriptFunction("Register a callback when  user creates a character")]
+    public void OnCharacterCreated(Action<CharacterCreatedEventArgs> action)
+    {
+        _scriptEngineService.AddCallback(
+            nameof(OnCharacterCreated),
+            context =>
+            {
+                if (context == null)
+                {
+                    throw new ArgumentNullException(nameof(context), "Context cannot be null");
+                    return;
+                }
+
+                if (context[0] is CharacterCreatedEventArgs characterCreatedEventArgs)
+                {
+                    action(characterCreatedEventArgs);
                 }
             }
         );

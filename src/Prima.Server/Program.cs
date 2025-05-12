@@ -17,6 +17,7 @@ using Prima.Core.Server.Data.Config.Internal.EventLoop;
 using Prima.Core.Server.Data.Options;
 using Prima.Core.Server.Interfaces.Services;
 using Prima.Core.Server.Modules.Container;
+using Prima.Core.Server.Modules.Scripts;
 using Prima.Core.Server.Types;
 using Prima.Network.Modules;
 using Prima.Server.Handlers;
@@ -103,6 +104,7 @@ class Program
             .AddService<IAssetService, AssetService>()
             .AddService<INetworkService, NetworkService>()
             .AddService<ISerialGeneratorService, SerialGeneratorService>()
+            .AddService<ITimerService, TimerService>()
             .AddService<IClientConfigurationService, ClientConfigurationService>()
             ;
 
@@ -110,6 +112,8 @@ class Program
             .AddScriptModule<EventScriptModule>()
             .AddScriptModule<SchedulerModule>()
             .AddScriptModule<VariableModule>()
+            .AddScriptModule<FileScriptModule>()
+            .AddScriptModule<TimerScriptModule>()
             .AddScriptModule<CommandsScriptModule>();
 
         builder.Services

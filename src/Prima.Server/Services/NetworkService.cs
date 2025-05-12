@@ -324,7 +324,7 @@ public class NetworkService : INetworkService
     public async Task StartAsync(CancellationToken cancellationToken = default)
     {
         var loginServers =
-            GetListeningAddresses(IPEndPoint.Parse(IPAddress.Any.ToString() + _serverConfig.TcpServer.LoginPort)).ToList();
+            GetListeningAddresses(IPEndPoint.Parse("0.0.0.0:" + _serverConfig.TcpServer.LoginPort)).ToList();
 
         foreach (var loginServer in loginServers)
         {
@@ -380,7 +380,11 @@ public class NetworkService : INetworkService
     public void RegisterPacketListener<TPacket>(INetworkPacketListener listener) where TPacket : IUoNetworkPacket, new()
     {
         var packet = new TPacket();
-        _logger.LogInformation("Registering packet listener for {PacketType}", "0x" + packet.OpCode.ToString("X2"));
+        _logger.LogInformation(
+            "Registering packet listener for {PacketType} (PacketType: {Type})",
+            "0x" + packet.OpCode.ToString("X2"),
+            packet.GetType().Name
+        );
 
         if (!_listeners.TryGetValue(packet.OpCode, out var packetListeners))
         {

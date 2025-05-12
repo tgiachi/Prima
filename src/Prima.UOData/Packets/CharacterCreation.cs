@@ -1,6 +1,6 @@
 using Orion.Foundations.Spans;
 using Prima.Network.Packets.Base;
-
+using Prima.UOData.Context;
 using Prima.UOData.Data;
 using Prima.UOData.Types;
 
@@ -27,6 +27,10 @@ public class CharacterCreation : BaseUoNetworkPacket
 
     public int Int { get; set; }
 
+    public bool IsFemale { get; set; }
+
+    public int Hue { get; set; }
+
     public short HairStyle { get; set; }
 
     public short HairColor { get; set; }
@@ -37,6 +41,7 @@ public class CharacterCreation : BaseUoNetworkPacket
 
     public short StartingLocation { get; set; }
 
+    public Race Race { get; set; }
 
     public short ShirtColor { get; set; }
 
@@ -64,9 +69,15 @@ public class CharacterCreation : BaseUoNetworkPacket
         LoginCount = reader.ReadInt32();
         Profession = ProfessionInfo.Professions[reader.ReadByte()];
 
-        reader.Read(new byte[15]);
+        reader.ReadBytes(15);
 
-        Sex = (SexType)reader.ReadByte();
+        var genderRace = reader.ReadByte();
+        Sex = (SexType)genderRace;
+
+        IsFemale = genderRace % 2 != 0;
+
+        var raceID = UOContext.StygianAbyss ? (byte)(genderRace < 4 ? 0 : genderRace / 2 - 1) : (byte)(genderRace / 2);
+        Race = Race.Races[raceID] ?? Race.DefaultRace;
 
         Str = reader.ReadByte();
         Dex = reader.ReadByte();
@@ -79,6 +90,9 @@ public class CharacterCreation : BaseUoNetworkPacket
 
             Skills.Add(skillName, skillValue);
         }
+
+
+        Hue = reader.ReadUInt16();
 
         HairStyle = reader.ReadInt16();
         HairColor = reader.ReadInt16();

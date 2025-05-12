@@ -19,8 +19,6 @@ public static partial class Utility
 {
     private static Dictionary<IPAddress, IPAddress> _ipAddressTable;
 
-    private static readonly Stack<ConsoleColor> m_ConsoleColors = new();
-
     public static void Separate(StringBuilder sb, string value, string separator)
     {
         if (sb.Length > 0)
@@ -280,5 +278,10 @@ public static partial class Utility
         {
             (top.m_Z, bottom.m_Z) = (bottom.m_Z, top.m_Z);
         }
+    }
+
+    public static T RandomList<T>(params T[] array)
+    {
+        return array.ToList().RandomElement();
     }
 }
