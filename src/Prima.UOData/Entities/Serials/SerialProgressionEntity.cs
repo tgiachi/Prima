@@ -1,6 +1,6 @@
 using Prima.Core.Server.Entities.Base;
 
-namespace Prima.UOData.Entities;
+namespace Prima.UOData.Entities.Serials;
 
 public class SerialProgressionEntity : BaseDbEntity
 {

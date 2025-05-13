@@ -28,6 +28,7 @@ using Prima.Server.Modules.Scripts;
 using Prima.Server.Routes;
 using Prima.Server.Services;
 using Prima.UOData.Converters;
+using Prima.UOData.Interfaces.Persistence;
 using Prima.UOData.Interfaces.Services;
 using Prima.UOData.Services;
 using Serilog;
@@ -89,6 +90,7 @@ class Program
             .AddService<IVersionService, VersionService>()
             .AddService<IEventLoopService, EventLoopService>()
             .AddService<ICommandSystemService, CommandSystemService>()
+            .AddService<IPersistenceManager, PersistenceManager>()
             .AddSingleton(new EventLoopConfig())
             .AddService<INetworkTransportManager, NetworkTransportManager>();
 
