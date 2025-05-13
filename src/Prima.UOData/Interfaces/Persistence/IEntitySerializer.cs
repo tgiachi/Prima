@@ -4,14 +4,18 @@ public interface IEntitySerializer
 {
     Type EntityType { get; }
 
+    byte Header { get; }
+
+    string FileName { get; }
+
     byte[] Serialize(object entity);
 
     object Deserialize(byte[] data);
 }
 
-public interface IEntitySerializer<TEntity> : IEntitySerializer
+public interface IEntitySerializer<in TEntity> : IEntitySerializer
 {
     byte[] Serialize(TEntity entity);
 
-    TEntity Deserialize(byte[] data);
+
 }
