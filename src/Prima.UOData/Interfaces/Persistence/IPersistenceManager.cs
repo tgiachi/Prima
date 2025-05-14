@@ -11,5 +11,7 @@ public interface IPersistenceManager : IOrionService
    // Task<List<TEntity>> DeserializeAsync<TEntity>(byte[] data) where TEntity : ISerializableEntity;
 
     void RegisterEntitySerializer<TEntity>(IEntitySerializer<TEntity> serializer) where TEntity : ISerializableEntity;
-    Task SaveToFileAsync(List<SerializationEntryData> entries, string fileName);
+    Task SaveToFileAsync<TEntity>(List<TEntity> entries, string fileName) where TEntity : ISerializableEntity;
+
+    Task<List<TEntity>> DeserializeAsync<TEntity>(string fileName) where TEntity : ISerializableEntity;
 }

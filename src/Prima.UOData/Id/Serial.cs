@@ -29,7 +29,9 @@ public readonly struct Serial
     public static readonly Serial MinusOne = new(0xFFFFFFFF);
     public static readonly Serial Zero = new(0);
 
-    private Serial(uint serial) => Value = serial;
+    public Serial(uint serial) => Value = serial;
+
+
 
     public uint Value { get; }
 
