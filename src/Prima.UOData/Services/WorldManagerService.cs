@@ -1,9 +1,11 @@
+using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Orion.Core.Server.Data.Directories;
 using Orion.Core.Server.Interfaces.Services.System;
 using Prima.Core.Server.Data.Config;
 using Prima.Core.Server.Types;
 using Prima.UOData.Entities;
+using Prima.UOData.Events.World;
 using Prima.UOData.Id;
 using Prima.UOData.Interfaces.Entities;
 using Prima.UOData.Interfaces.Persistence;
@@ -17,6 +19,7 @@ public class WorldManagerService : IWorldManagerService
     private readonly ILogger _logger;
     private readonly IPersistenceManager _persistenceManager;
 
+    private readonly IEventBusService _eventBusService;
     private readonly DirectoriesConfig _directoriesConfig;
 
     private readonly SemaphoreSlim _entitiesSemaphore = new(1, 1);
@@ -34,13 +37,14 @@ public class WorldManagerService : IWorldManagerService
 
     public WorldManagerService(
         ILogger<WorldManagerService> logger, IPersistenceManager persistenceManager, DirectoriesConfig directoriesConfig,
-        PrimaServerConfig primaServerConfig, ISchedulerSystemService schedulerSystemService
+        PrimaServerConfig primaServerConfig, ISchedulerSystemService schedulerSystemService, IEventBusService eventBusService
     )
     {
         _persistenceManager = persistenceManager;
         _directoriesConfig = directoriesConfig;
         _primaServerConfig = primaServerConfig;
         _schedulerSystemService = schedulerSystemService;
+        _eventBusService = eventBusService;
         _logger = logger;
 
         _persistenceManager.RegisterEntitySerializer(new BinaryItemSerializer());
@@ -62,6 +66,13 @@ public class WorldManagerService : IWorldManagerService
 
     public async Task SaveWorldAsync()
     {
+        await _eventBusService.PublishAsync(new WorldSavingEvent());
+
+        // Wait for the event to be processed
+        await Task.Delay(1000);
+        await _entitiesSemaphore.WaitAsync();
+
+        var startTime = Stopwatch.GetTimestamp();
         _logger.LogInformation("Autosaving world data...");
 
         var items = _items.Values.ToList();
@@ -78,6 +89,13 @@ public class WorldManagerService : IWorldManagerService
 
         await _persistenceManager.SaveToFileAsync(mobiles, mobilesFileName);
 
+        _logger.LogInformation("World saved in {Elapsed}", Stopwatch.GetElapsedTime(startTime));
+
+        _entitiesSemaphore.Release();
+
+        await _eventBusService.PublishAsync(
+            new WorldSavedEvent(Stopwatch.GetElapsedTime(startTime), items.Count + mobiles.Count)
+        );
     }
 
     public Task StopAsync(CancellationToken cancellationToken = default)
@@ -120,7 +138,6 @@ public class WorldManagerService : IWorldManagerService
 
             if (typeof(TEntity) == typeof(ItemEntity))
             {
-
                 return (TEntity)(object)new ItemEntity(Serial.ItemOffsetSerial + _lastItemSerial++);
             }
 

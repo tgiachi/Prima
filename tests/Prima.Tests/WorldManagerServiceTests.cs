@@ -22,15 +22,17 @@ public class WorldManagerServiceTests
     {
         var tmpDirectory = Path.GetTempPath();
 
+        var eventBus = new EventBusService(new NullLogger<EventBusService>(), new EventBusConfig());
         _worldManagerService = new WorldManagerService(
             new NullLogger<WorldManagerService>(),
             new PersistenceManager(new NullLogger<PersistenceManager>()),
             new DirectoriesConfig(tmpDirectory, Enum.GetNames<DirectoryType>()),
             new PrimaServerConfig(),
             new SchedulerSystemService(
-                new EventBusService(new NullLogger<EventBusService>(), new EventBusConfig()),
+                eventBus,
                 new NullLogger<SchedulerSystemService>()
-            )
+            ),
+            eventBus
         );
     }
 
