@@ -16,6 +16,7 @@
 using System.Runtime.CompilerServices;
 using Prima.Core.Server.Extensions;
 
+
 namespace Prima.UOData.Id;
 
 public readonly struct Serial
@@ -23,13 +24,16 @@ public readonly struct Serial
         IEquatable<Serial>, ISpanFormattable, ISpanParsable<Serial>
 {
     public const uint ItemOffset = 0x40000000;
+    public static readonly Serial ItemOffsetSerial = new(ItemOffset);
+
     public const uint MaxItemSerial = 0x7EEEEEEE;
     public const uint MaxMobileSerial = ItemOffset - 1;
 
     public static readonly Serial MinusOne = new(0xFFFFFFFF);
     public static readonly Serial Zero = new(0);
 
-    private Serial(uint serial) => Value = serial;
+    public Serial(uint serial) => Value = serial;
+
 
     public uint Value { get; }
 

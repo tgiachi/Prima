@@ -17,4 +17,6 @@ public class ShardConfig
     public int TimeZone { get; set; } = 0;
 
     public string Language { get; set; } = "en";
+
+    public AutosaveConfig Autosave { get; set; } = new();
 }

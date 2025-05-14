@@ -18,7 +18,9 @@ using Orion.Foundations.Extensions;
 using Prima.UOData.Interfaces.Geometry;
 using Prima.UOData.Utils;
 
+
 namespace Prima.UOData.Data.Geometry;
+
 
 public struct Point3D
     : IPoint3D, IComparable<Point3D>, IComparable<IPoint3D>, IEquatable<object>, IEquatable<Point3D>,
@@ -31,6 +33,7 @@ public struct Point3D
     public static readonly Point3D Zero = new(0, 0, 0);
 
 
+
     public int X
     {
         get => m_X;
@@ -38,11 +41,13 @@ public struct Point3D
     }
 
 
+
     public int Y
     {
         get => m_Y;
         set => m_Y = value;
     }
+
 
 
     public int Z
