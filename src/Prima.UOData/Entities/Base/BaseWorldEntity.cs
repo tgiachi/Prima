@@ -3,9 +3,10 @@ using Prima.UOData.Id;
 using Prima.UOData.Interfaces.Entities;
 using Prima.UOData.Interfaces.Persistence.Entities;
 
+
 namespace Prima.UOData.Entities.Base;
 
-public abstract class BaseWorldEntity : IHaveSerial, IEntity, ISerializableEntity
+public class BaseWorldEntity : IHaveSerial, IEntity, ISerializableEntity
 {
     public Serial Id { get; set; }
 

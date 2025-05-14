@@ -1,3 +1,4 @@
+using MessagePack;
 using Prima.Core.Server.Attributes;
 using Prima.UOData.Data.Geometry;
 using Prima.UOData.Entities.Base;
@@ -9,11 +10,12 @@ namespace Prima.UOData.Entities;
 public class MobileEntity : BaseWorldEntity
 {
     public string Name { get; set; }
+
     public bool IsPlayer { get; set; }
+
     public int Hue { get; set; }
+
     public Point3D Position { get; set; }
 
     public Direction Direction { get; set; }
-
-
 }

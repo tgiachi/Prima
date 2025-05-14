@@ -16,6 +16,7 @@
 using System.Runtime.CompilerServices;
 using Prima.Core.Server.Extensions;
 
+
 namespace Prima.UOData.Id;
 
 public readonly struct Serial
@@ -30,7 +31,6 @@ public readonly struct Serial
     public static readonly Serial Zero = new(0);
 
     public Serial(uint serial) => Value = serial;
-
 
 
     public uint Value { get; }

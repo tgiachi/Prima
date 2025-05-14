@@ -5,6 +5,7 @@ using Prima.UOData.Entities;
 using Prima.UOData.Id;
 using Prima.UOData.Interfaces.Persistence;
 using Prima.UOData.Serializers.Binary;
+
 using Prima.UOData.Types;
 
 namespace Prima.Tests;
@@ -15,7 +16,7 @@ public class BinarySerializerTests
     private string _fileName;
     private IPersistenceManager _persistenceManager;
 
-    private const int MaxSize = 1_000_000;
+    private const int MaxSize = 1_000;
 
     [OneTimeSetUp]
     public void Setup()
