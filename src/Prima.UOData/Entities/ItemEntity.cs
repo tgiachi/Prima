@@ -10,14 +10,11 @@ namespace Prima.UOData.Entities;
 public class ItemEntity : BaseWorldEntity
 {
     public string Name { get; set; }
-
     public int Hue { get; set; }
 
     public Point3D Position { get; set; }
 
     public int Amount { get; set; }
-
-    public int ItemId { get; set; }
 
     public ItemEntity()
     {

@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Orion.Core.Server.Data.Directories;
+using Orion.Core.Server.Events.Server;
 using Orion.Core.Server.Interfaces.Services.System;
 using Prima.Core.Server.Data.Config;
 using Prima.Core.Server.Types;
@@ -62,6 +63,112 @@ public class WorldManagerService : IWorldManagerService
             SaveWorldAsync,
             TimeSpan.FromMinutes(_primaServerConfig.Shard.Autosave.IntervalInMinutes)
         );
+
+        _eventBusService.Subscribe<ServerStoppingEvent>(OnServerStopping);
+
+        await LoadLastWorldAsync();
+    }
+
+    private async Task OnServerStopping(ServerStoppingEvent arg)
+    {
+        await SaveWorldAsync();
+    }
+
+
+    public async Task LoadLastWorldAsync()
+    {
+        _items.Clear();
+        _mobiles.Clear();
+
+        var start = Stopwatch.GetTimestamp();
+        await _entitiesSemaphore.WaitAsync();
+
+        var allSavesDirectory = _directoriesConfig[DirectoryType.WorldSaves];
+        var lastSaveDirectory = Directory.GetDirectories(allSavesDirectory)
+            .OrderByDescending(d => d)
+            .FirstOrDefault();
+
+        if (lastSaveDirectory is null)
+        {
+            _logger.LogWarning("No world save found.");
+            _entitiesSemaphore.Release();
+            return;
+        }
+
+        var itemsFileName = Path.Combine(lastSaveDirectory, "items.bin");
+        var mobilesFileName = Path.Combine(lastSaveDirectory, "mobiles.bin");
+
+        if (File.Exists(itemsFileName))
+        {
+            var items = await _persistenceManager.DeserializeAsync<ItemEntity>(itemsFileName);
+            foreach (var item in items)
+            {
+                _items.Add(item.Id, item);
+            }
+        }
+
+        if (File.Exists(mobilesFileName))
+        {
+            var mobiles = await _persistenceManager.DeserializeAsync<MobileEntity>(mobilesFileName);
+            foreach (var mobile in mobiles)
+            {
+                _mobiles.Add(mobile.Id, mobile);
+            }
+        }
+
+        await _eventBusService.PublishAsync(
+            new WorldLoadedEvent(
+                Stopwatch.GetElapsedTime(start),
+                _mobiles.Count + _items.Count
+            )
+        );
+
+        _logger.LogInformation(
+            "World loaded in {Elapsed}. Loaded {Count} entities.",
+            Stopwatch.GetElapsedTime(start),
+            _mobiles.Count + _items.Count
+        );
+
+        _entitiesSemaphore.Release();
+    }
+
+    public TEntity? GetEntityBySerial<TEntity>(Serial id) where TEntity : IHaveSerial
+    {
+        if (typeof(TEntity) == typeof(MobileEntity))
+        {
+            return _mobiles.TryGetValue(id, out var mobile) ? (TEntity)(object)mobile : default;
+        }
+
+        if (typeof(TEntity) == typeof(ItemEntity))
+        {
+            return _items.TryGetValue(id, out var item) ? (TEntity)(object)item : default;
+        }
+
+        throw new InvalidOperationException($"Unknown entity type {typeof(TEntity)}");
+    }
+
+    public bool RemoveWorldEntity(IHaveSerial entity)
+    {
+        ArgumentNullException.ThrowIfNull(entity);
+
+        _entitiesSemaphore.Wait();
+
+        if (entity is MobileEntity mobile)
+        {
+            _mobiles.Remove(mobile.Id);
+        }
+        else if (entity is ItemEntity item)
+        {
+            _items.Remove(item.Id);
+        }
+        else
+        {
+            _entitiesSemaphore.Release();
+            return false;
+        }
+
+        _entitiesSemaphore.Release();
+        return true;
     }
 
     public async Task SaveWorldAsync()
@@ -70,6 +177,7 @@ public class WorldManagerService : IWorldManagerService
 
         // Wait for the event to be processed
         await Task.Delay(1000);
+
         await _entitiesSemaphore.WaitAsync();
 
         var startTime = Stopwatch.GetTimestamp();
@@ -78,6 +186,13 @@ public class WorldManagerService : IWorldManagerService
         var items = _items.Values.ToList();
 
         var mobiles = _mobiles.Values.ToList();
+
+        if (items.Count == 0 && mobiles.Count == 0)
+        {
+            _logger.LogInformation("No world data to save.");
+            _entitiesSemaphore.Release();
+            return;
+        }
 
         var saveDirectory = Path.Combine(_directoriesConfig[DirectoryType.WorldSaves], $"{DateTime.Now:yyyyMMddHHmmss}");
         Directory.CreateDirectory(saveDirectory);
