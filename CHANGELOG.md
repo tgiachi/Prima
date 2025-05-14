@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="0.12.0"></a>
+## [0.12.0](https://www.github.com/tgiachi/Prima/releases/tag/v0.12.0) (2025-05-14)
+
+### Features
+
+* add AutosaveConfig class to handle autosave interval in minutes ([76b012b](https://www.github.com/tgiachi/Prima/commit/76b012bd1e2b92f14977b0625fc38c157b3cc22f))
+* **BinaryWriterExtension.cs:** add BinaryWriterExtension class with methods to write strings, Point2D, Point3D, and Serial types to a binary writer ([944a856](https://www.github.com/tgiachi/Prima/commit/944a856b7b738adbb21e9c34efd6a332e93f3798))
+* **PersistenceManager.cs:** add Version constant for serialization, change magicNumber to byte array, add entitySerializersAsType dictionary for better entity type lookup ([9439e89](https://www.github.com/tgiachi/Prima/commit/9439e893a7249b089fac19adcbcc0a9800b9be55))
+* **Prima.Core.Server:** add SerializableHeaderAttribute to define custom serialization headers for entities ([134292e](https://www.github.com/tgiachi/Prima/commit/134292e8fb1e14884be43ba9408ced143aa8ba76))
+* **Serialization:** introduce new file SerializationDataFile and SerializationEntryData to improve data serialization structure ([db87d30](https://www.github.com/tgiachi/Prima/commit/db87d306c8bb23985b75f406a9a18b90523db60f))
+* **World:** add WorldSavedEvent and WorldSavingEvent classes to handle world saving events ([1a48778](https://www.github.com/tgiachi/Prima/commit/1a48778e101285dc99120384976249fbda7898fb))
+* **WorldManagerService:** add SaveWorldAsync method to IWorldManagerService interface for saving world data asynchronously ([62cbf5f](https://www.github.com/tgiachi/Prima/commit/62cbf5f448ec2bce0acc07ba8a6245e04191b66c))
+
+### Bug Fixes
+
+* **SerializableHeaderAttribute.cs:** remove fileName parameter from SerializableHeaderAttribute constructor as it is not used ([dd3d95a](https://www.github.com/tgiachi/Prima/commit/dd3d95a8e3dca752225205c2be410fc190f2972e))
+
 <a name="0.11.1"></a>
 ## [0.11.1](https://www.github.com/tgiachi/Prima/releases/tag/v0.11.1) (2025-05-12)
 
