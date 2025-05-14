@@ -1,4 +1,3 @@
-using Orion.Foundations.Spans;
 using Prima.UOData.Entities;
 using Prima.UOData.Extensions;
 using Prima.UOData.Serializers.Base;
@@ -12,14 +11,15 @@ public class BinaryMobileSerializer : BaseEntitySerializer<MobileEntity>
         using var buffer = new MemoryStream(data);
         using var stream = new BinaryReader(buffer);
 
-        var mobile = new MobileEntity();
-
-        mobile.Id = stream.ReadSerial();
-        mobile.Name = stream.ReadString();
-        mobile.IsPlayer = stream.ReadBoolean();
-        mobile.Hue = stream.ReadInt32();
-        mobile.Position = stream.ReadPoint3D();
-        mobile.Direction = stream.ReadDirection();
+        var mobile = new MobileEntity
+        {
+            Id = stream.ReadSerial(),
+            Name = stream.ReadString(),
+            IsPlayer = stream.ReadBoolean(),
+            Hue = stream.ReadInt32(),
+            Position = stream.ReadPoint3D(),
+            Direction = stream.ReadDirection()
+        };
 
         return mobile;
     }

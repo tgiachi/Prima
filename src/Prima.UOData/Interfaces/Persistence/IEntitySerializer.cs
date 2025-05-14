@@ -6,8 +6,6 @@ public interface IEntitySerializer
 
     byte Header { get; }
 
-    string FileName { get; }
-
     byte[] Serialize(object entity);
 
     object Deserialize(byte[] data);

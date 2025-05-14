@@ -22,18 +22,6 @@ public static class StreamWriterExtension
         writer.Write(bytes);
     }
 
-    public static void Write(this SpanWriter writer, string? str)
-    {
-        if (str == null)
-        {
-            writer.Write((byte)0);
-            return;
-        }
-
-        var bytes = Encoding.UTF8.GetBytes(str);
-        writer.Write((byte)bytes.Length);
-        writer.Write(bytes);
-    }
 
     public static void Write(this BinaryWriter writer, Point2D point)
     {
@@ -58,29 +46,6 @@ public static class StreamWriterExtension
         return new Point3D(x, y, z);
     }
 
-    public static Point2D ReadPoint(this SpanReader reader)
-    {
-        var x = reader.ReadInt16();
-        var y = reader.ReadInt16();
-
-        return new Point2D(x, y);
-    }
-
-    public static Point3D ReadPoint3D(this SpanReader reader)
-    {
-        var x = reader.ReadInt16();
-        var y = reader.ReadInt16();
-        var z = reader.ReadInt16();
-
-        return new Point3D(x, y, z);
-    }
-
-    public static void Write(this SpanWriter writer, Point2D point)
-    {
-        writer.Write((short)point.X);
-        writer.Write((short)point.Y);
-    }
-
     public static void Write(this BinaryWriter writer, Point3D point)
     {
         writer.Write((short)point.X);
@@ -93,23 +58,12 @@ public static class StreamWriterExtension
         writer.Write((byte)direction);
     }
 
-    public static void Write(this SpanWriter writer, Point3D point)
-    {
-        writer.Write((short)point.X);
-        writer.Write((short)point.Y);
-        writer.Write((short)point.Z);
-    }
-
 
     public static void Write(this BinaryWriter writer, Serial serial)
     {
         writer.Write((uint)serial.Value);
     }
 
-    public static void Write(this SpanWriter writer, Serial serial)
-    {
-        writer.Write(serial.Value);
-    }
 
     public static Serial ReadSerial(this BinaryReader reader)
     {
@@ -121,17 +75,8 @@ public static class StreamWriterExtension
         return new Serial(reader.ReadUInt32());
     }
 
-    public static void Write(this SpanWriter writer, Direction direction)
-    {
-        writer.Write((byte)direction);
-    }
 
     public static Direction ReadDirection(this BinaryReader reader)
-    {
-        return (Direction)reader.ReadByte();
-    }
-
-    public static Direction ReadDirection(this SpanReader reader)
     {
         return (Direction)reader.ReadByte();
     }
@@ -143,16 +88,6 @@ public static class StreamWriterExtension
     }
 
     public static string ReadString(this BinaryReader reader)
-    {
-        var length = reader.ReadByte();
-        if (length == 0)
-            return string.Empty;
-
-        var bytes = reader.ReadBytes(length);
-        return Encoding.UTF8.GetString(bytes);
-    }
-
-    public static string ReadString(this SpanReader reader)
     {
         var length = reader.ReadByte();
         if (length == 0)

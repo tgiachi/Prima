@@ -5,7 +5,7 @@ using Prima.UOData.Entities.Base;
 
 namespace Prima.UOData.Entities;
 
-[SerializableHeader(0x02, "items")]
+[SerializableHeader(0x02)]
 public class ItemEntity : BaseWorldEntity
 {
     public string Name { get; set; }

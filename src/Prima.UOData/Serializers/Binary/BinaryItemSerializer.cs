@@ -9,26 +9,27 @@ public class BinaryItemSerializer : BaseEntitySerializer<ItemEntity>
 {
     public override object Deserialize(byte[] data)
     {
-        using var stream = new SpanReader(data);
+        using var stream = new BinaryReader(new MemoryStream(data));
 
         return new ItemEntity
         {
             Id = stream.ReadSerial(),
-            Name = stream.ReadAscii(),
-            Hue = stream.ReadUInt16(),
+            Name = stream.ReadString(),
+            Hue = stream.ReadInt32(),
             Position = stream.ReadPoint3D()
         };
     }
 
     public override byte[] Serialize(ItemEntity entity)
     {
-        using var stream = new SpanWriter(1, true);
+        var buffer = new MemoryStream();
+        using var stream = new BinaryWriter(buffer);
 
         stream.Write(entity.Id);
-        stream.WriteAscii(entity.Name);
+        stream.Write(entity.Name);
         stream.Write(entity.Hue);
         stream.Write(entity.Position);
 
-        return stream.ToSpan().Span.ToArray();
+        return buffer.ToArray();
     }
 }

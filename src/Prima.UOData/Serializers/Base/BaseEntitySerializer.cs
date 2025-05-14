@@ -7,12 +7,10 @@ namespace Prima.UOData.Serializers.Base;
 
 public abstract class BaseEntitySerializer<TEntity> : IEntitySerializer<TEntity> where TEntity : class, ISerializableEntity
 {
-
     public Type EntityType => typeof(TEntity);
 
     public byte Header { get; }
 
-    public string FileName { get; }
 
     protected BaseEntitySerializer()
     {
@@ -20,11 +18,12 @@ public abstract class BaseEntitySerializer<TEntity> : IEntitySerializer<TEntity>
 
         if (attribute is null)
         {
-            throw new InvalidOperationException($"Entity {typeof(TEntity).Name} does not have a SerializableHeaderAttribute.");
+            throw new InvalidOperationException(
+                $"Entity {typeof(TEntity).Name} does not have a SerializableHeaderAttribute."
+            );
         }
 
         Header = attribute.Header;
-        FileName = attribute.FileName;
     }
 
 

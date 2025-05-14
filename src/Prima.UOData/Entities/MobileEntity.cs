@@ -6,7 +6,7 @@ using Prima.UOData.Types;
 
 namespace Prima.UOData.Entities;
 
-[SerializableHeader(0x01, "mobiles")]
+[SerializableHeader(0x01)]
 public class MobileEntity : BaseWorldEntity
 {
     public string Name { get; set; }

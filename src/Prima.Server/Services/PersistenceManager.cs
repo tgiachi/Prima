@@ -1,4 +1,6 @@
+using System.Security.Cryptography;
 using Orion.Core.Server.Data.Directories;
+using Orion.Foundations.Utils;
 using Prima.Core.Server.Data.Serialization;
 using Prima.UOData.Interfaces.Persistence;
 using Prima.UOData.Interfaces.Persistence.Entities;
@@ -22,10 +24,7 @@ public class PersistenceManager : IPersistenceManager
     }
 
 
-    public Task<List<TEntity>> DeserializeAsync<TEntity>(byte[] data) where TEntity : ISerializableEntity
-    {
-        throw new NotImplementedException();
-    }
+
 
     public async Task<SerializationEntryData> SerializeAsync<TEntity>(TEntity entity) where TEntity : ISerializableEntity
     {
@@ -40,7 +39,7 @@ public class PersistenceManager : IPersistenceManager
 
         var serializerData = serializer.Serialize(entity);
 
-        return new SerializationEntryData(serializer.Header, serializerData, serializer.FileName);
+        return new SerializationEntryData(serializer.Header, serializerData);
     }
 
     public void RegisterEntitySerializer<TEntity>(IEntitySerializer<TEntity> serializer) where TEntity : ISerializableEntity
@@ -50,7 +49,10 @@ public class PersistenceManager : IPersistenceManager
         var type = typeof(TEntity);
         if (_entitySerializers.ContainsKey(serializer.Header))
         {
-            _logger.LogWarning("Serializer for entity type 0x{Header:X2} is already registered. Overwriting.", serializer.Header);
+            _logger.LogWarning(
+                "Serializer for entity type 0x{Header:X2} is already registered. Overwriting.",
+                serializer.Header
+            );
         }
 
         _entitySerializersAsType[type] = serializer;
@@ -59,24 +61,34 @@ public class PersistenceManager : IPersistenceManager
 
     public async Task SaveToFileAsync<TEntity>(List<TEntity> entries, string fileName) where TEntity : ISerializableEntity
     {
-        await using var stream = new FileStream(fileName, FileMode.CreateNew , FileAccess.Write, FileShare.None);
+        await using var stream = new FileStream(fileName, FileMode.CreateNew, FileAccess.Write, FileShare.None);
 
-        await using var writer = new BinaryWriter(stream);
+        using var memoryStream = new MemoryStream();
+        await using var writer = new BinaryWriter(memoryStream);
 
-        writer.Write(_magicNumber); // Magic number
-        writer.Write(Version);             // Version
+        writer.Write(_magicNumber);
+        writer.Write(Version);
         writer.Write((long)entries.Count);
-
 
         foreach (var entry in entries)
         {
             var data = await SerializeAsync(entry);
-
             writer.Write(data.Length);
-            writer.Write((byte)data.Header);
+            writer.Write(data.Header);
             writer.Write(data.Data);
         }
 
+
+        memoryStream.Position = 0;
+        var checksum = Sha256Checksum(memoryStream.ToArray());
+
+
+        memoryStream.Position = 0;
+        await memoryStream.CopyToAsync(stream);
+
+
+        await using var checksumWriter = new BinaryWriter(stream, System.Text.Encoding.Default, leaveOpen: true);
+        checksumWriter.Write(checksum);
     }
 
     public async Task<List<TEntity>> DeserializeAsync<TEntity>(string fileName) where TEntity : ISerializableEntity
@@ -116,6 +128,12 @@ public class PersistenceManager : IPersistenceManager
             }
         }
 
+
         return entries;
+    }
+
+    public static byte[] Sha256Checksum(byte[] data)
+    {
+        return SHA256.HashData(data);
     }
 }
