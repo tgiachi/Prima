@@ -99,6 +99,7 @@ class Program
 
         builder.Services
             .AddService<IMulFileReaderService, MulFileReaderService>()
+            .AddService<IWorldManagerService, WorldManagerService>()
             .AddService<IMapService, MapService>();
 
 

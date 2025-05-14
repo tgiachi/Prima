@@ -2,6 +2,7 @@ using MessagePack;
 using Prima.Core.Server.Attributes;
 using Prima.UOData.Data.Geometry;
 using Prima.UOData.Entities.Base;
+using Prima.UOData.Id;
 using Prima.UOData.Types;
 
 namespace Prima.UOData.Entities;
@@ -18,4 +19,14 @@ public class MobileEntity : BaseWorldEntity
     public Point3D Position { get; set; }
 
     public Direction Direction { get; set; }
+
+    public MobileEntity()
+    {
+
+    }
+
+    public MobileEntity(Serial serial)
+    {
+        Id = serial;
+    }
 }

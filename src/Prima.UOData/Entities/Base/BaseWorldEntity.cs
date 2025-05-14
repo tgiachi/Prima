@@ -9,7 +9,6 @@ namespace Prima.UOData.Entities.Base;
 public class BaseWorldEntity : IHaveSerial, IEntity, ISerializableEntity
 {
     public Serial Id { get; set; }
-
     public Point3D Location { get; set; }
 
     public int MapIndex { get; set; }

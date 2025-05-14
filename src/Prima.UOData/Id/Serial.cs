@@ -24,6 +24,8 @@ public readonly struct Serial
         IEquatable<Serial>, ISpanFormattable, ISpanParsable<Serial>
 {
     public const uint ItemOffset = 0x40000000;
+    public static readonly Serial ItemOffsetSerial = new(ItemOffset);
+
     public const uint MaxItemSerial = 0x7EEEEEEE;
     public const uint MaxMobileSerial = ItemOffset - 1;
 
