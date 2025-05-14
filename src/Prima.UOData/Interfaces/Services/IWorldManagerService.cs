@@ -9,4 +9,7 @@ public interface IWorldManagerService : IOrionStartService, IOrionService
 
     TEntity GenerateWorldEntity<TEntity>() where TEntity : IHaveSerial;
 
+
+    Task SaveWorldAsync();
+
 }

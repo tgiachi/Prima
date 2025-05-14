@@ -34,12 +34,13 @@ public class WorldManagerService : IWorldManagerService
 
     public WorldManagerService(
         ILogger<WorldManagerService> logger, IPersistenceManager persistenceManager, DirectoriesConfig directoriesConfig,
-        PrimaServerConfig primaServerConfig
+        PrimaServerConfig primaServerConfig, ISchedulerSystemService schedulerSystemService
     )
     {
         _persistenceManager = persistenceManager;
         _directoriesConfig = directoriesConfig;
         _primaServerConfig = primaServerConfig;
+        _schedulerSystemService = schedulerSystemService;
         _logger = logger;
 
         _persistenceManager.RegisterEntitySerializer(new BinaryItemSerializer());
@@ -54,12 +55,12 @@ public class WorldManagerService : IWorldManagerService
         );
         _schedulerSystemService.RegisterJob(
             "world_save",
-            OnAutosaveAsync,
+            SaveWorldAsync,
             TimeSpan.FromMinutes(_primaServerConfig.Shard.Autosave.IntervalInMinutes)
         );
     }
 
-    private async Task OnAutosaveAsync()
+    public async Task SaveWorldAsync()
     {
         _logger.LogInformation("Autosaving world data...");
 
@@ -74,6 +75,7 @@ public class WorldManagerService : IWorldManagerService
         var mobilesFileName = Path.Combine(saveDirectory, "mobiles.bin");
 
         await _persistenceManager.SaveToFileAsync(items, itemsFileName);
+
         await _persistenceManager.SaveToFileAsync(mobiles, mobilesFileName);
 
     }
