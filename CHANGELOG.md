@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="0.13.0"></a>
+## [0.13.0](https://www.github.com/tgiachi/Prima/releases/tag/v0.13.0) (2025-05-14)
+
+### Features
+
+* **NetworkSession.cs:** add SetProperty and GetProperty methods to manage session properties ([22681fe](https://www.github.com/tgiachi/Prima/commit/22681feb7213cd2e610ecf116d05b6d0355bb18f))
+
 <a name="0.12.0"></a>
 ## [0.12.0](https://www.github.com/tgiachi/Prima/releases/tag/v0.12.0) (2025-05-14)
 
