@@ -14,8 +14,11 @@ using Prima.Network.Packets.Entries;
 using Prima.Network.Types;
 using Prima.Server.Modules.Scripts;
 using Prima.UOData.Context;
+using Prima.UOData.Entities;
+using Prima.UOData.Entities.Db;
 using Prima.UOData.Interfaces.Services;
 using Prima.UOData.Packets;
+using Prima.UOData.Packets.Entries;
 
 
 namespace Prima.Server.Handlers;
@@ -29,6 +32,10 @@ public class LoginHandler
     private readonly INetworkService _networkService;
     private readonly PrimaServerConfig _primaServerConfig;
 
+    private readonly IDatabaseService _databaseService;
+
+    private readonly IWorldManagerService _worldManagerService;
+
     private readonly IScriptEngineService _scriptEngineService;
     private readonly IProcessQueueService _processQueueService;
     private readonly List<GameServerEntry> _gameServerEntries = new();
@@ -39,7 +46,8 @@ public class LoginHandler
     public LoginHandler(
         ILogger<LoginHandler> logger, INetworkService networkService, IServiceProvider serviceProvider,
         IAccountManager accountManager, PrimaServerConfig primaServerConfig, IMapService mapService,
-        IScriptEngineService scriptEngineService, IProcessQueueService processQueueService
+        IScriptEngineService scriptEngineService, IProcessQueueService processQueueService, IDatabaseService databaseService,
+        IWorldManagerService worldManagerService
     ) :
         base(logger, networkService, serviceProvider)
     {
@@ -49,6 +57,8 @@ public class LoginHandler
         _mapService = mapService;
         _scriptEngineService = scriptEngineService;
         _processQueueService = processQueueService;
+        _databaseService = databaseService;
+        _worldManagerService = worldManagerService;
 
         CreateGameServerList();
     }
@@ -180,12 +190,23 @@ public class LoginHandler
 
         _networkService.MoveLoginSessionToGameSession(session.Id, packet.SessionKey);
 
-        // TODO: Check characeters on database
 
         var charactersAndCities = new CharactersStartingLocations(session.ClientVersion.ProtocolChanges);
 
         charactersAndCities.Cities.AddRange(_mapService.GetAvailableStartingCities());
+
         charactersAndCities.FillCharacters();
+
+        var characters = await _databaseService.QueryAsync<CharacterEntity>(entity => entity.AccountId == account.Id);
+
+
+        for (var i = 0; i < characters.ToList().Count; i++)
+        {
+            var character = characters.ToList()[i];
+            var mobile = _worldManagerService.GetEntityBySerial<MobileEntity>(character.MobileId);
+
+            charactersAndCities.Characters[i] = new CharacterEntry(mobile.Name);
+        }
 
 
         await session.SendPacketAsync(charactersAndCities);

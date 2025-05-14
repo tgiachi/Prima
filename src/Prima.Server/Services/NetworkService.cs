@@ -454,6 +454,8 @@ public class NetworkService : INetworkService
         _packetManager.RegisterPacket<GameServerLogin>();
         _packetManager.RegisterPacket<PingRequest>();
         _packetManager.RegisterPacket<CharacterCreation>();
+        _packetManager.RegisterPacket<CharacterLogin>();
+        _packetManager.RegisterPacket<CharacterDelete>();
     }
 
     public void Dispose()

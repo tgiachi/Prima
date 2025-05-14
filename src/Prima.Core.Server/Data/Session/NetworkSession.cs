@@ -11,6 +11,32 @@ public class NetworkSession : INetworkSession
 
     public delegate Task DisconnectDelegate(string id);
 
+
+    private readonly Dictionary<string, object> _properties = new();
+
+
+    public void SetProperty<T>(T value, string name = "default")
+    {
+        if (_properties.ContainsKey(name))
+        {
+            _properties[name] = value;
+        }
+        else
+        {
+            _properties.Add(name, value);
+        }
+    }
+
+    public T GetProperty<T>(string name = "default")
+    {
+        if (_properties.TryGetValue(name, out var value))
+        {
+            return (T)value;
+        }
+
+        return default;
+    }
+
     public DateTime LastPing { get; set; }
 
     public event SendPacketDelegate OnSendPacket;
@@ -29,7 +55,6 @@ public class NetworkSession : INetworkSession
     public uint AuthId { get; set; }
 
     public string AccountId { get; set; }
-
 
     public ClientVersion ClientVersion { get; set; }
 

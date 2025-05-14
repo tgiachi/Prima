@@ -1,7 +1,6 @@
 using Orion.Foundations.Spans;
 using Prima.Core.Server.Types.Uo;
 using Prima.Network.Packets.Base;
-
 using Prima.UOData.Context;
 using Prima.UOData.Data;
 using Prima.UOData.Data.Map;
@@ -77,7 +76,14 @@ public class CharactersStartingLocations : BaseUoNetworkPacket
 
         foreach (var character in Characters)
         {
-            writer.Clear(60);
+            if (character == null)
+            {
+                writer.Clear(60);
+                continue;
+            }
+
+            writer.WriteAscii(character.Name, 30);
+            writer.WriteAscii(character.Password, 30);
         }
 
         writer.Write((byte)cityInfo.Count);
