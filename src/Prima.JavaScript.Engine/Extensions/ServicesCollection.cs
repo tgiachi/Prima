@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Orion.Core.Server.Extensions;
-using Orion.JavaScript.Engine.Data.Configs;
 using Prima.Core.Server.Interfaces.Services;
+using Prima.JavaScript.Engine.Data.Configs;
 using Prima.JavaScript.Engine.Services;
 
 namespace Prima.JavaScript.Engine.Extensions;

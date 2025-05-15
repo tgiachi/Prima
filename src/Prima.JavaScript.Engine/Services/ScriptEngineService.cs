@@ -8,10 +8,10 @@ using Orion.Core.Server.Events.Server;
 using Orion.Core.Server.Interfaces.Services.System;
 using Orion.Core.Server.Listeners.EventBus;
 using Orion.Foundations.Extensions;
-using Orion.JavaScript.Engine.Data.Configs;
 using Orion.JavaScript.Engine.Data.Internal;
 using Prima.Core.Server.Attributes.Scripts;
 using Prima.Core.Server.Interfaces.Services;
+using Prima.JavaScript.Engine.Data.Configs;
 using Prima.JavaScript.Engine.Utils.Scripts;
 
 namespace Prima.JavaScript.Engine.Services;
@@ -38,6 +38,7 @@ public class ScriptEngineService : IScriptEngineService, IEventBusListener<Serve
 
     private readonly IEventBusService _eventBusService;
 
+    private Func<string, string> _nameResolver;
 
     public ScriptEngineService(
         ILogger<ScriptEngineService> logger, DirectoriesConfig directoriesConfig, IServiceProvider serviceProvider,
@@ -57,6 +58,9 @@ public class ScriptEngineService : IScriptEngineService, IEventBusListener<Serve
 
         _initScripts = _scriptEngineConfig.InitScriptsFileNames;
 
+
+        CreateNameResolver();
+
         var typeResolver = TypeResolver.Default;
 
         typeResolver.MemberNameCreator = MemberNameCreator;
@@ -71,10 +75,24 @@ public class ScriptEngineService : IScriptEngineService, IEventBusListener<Serve
         _eventBusService.Subscribe(this);
     }
 
+    private void CreateNameResolver()
+    {
+        _nameResolver = name => name.ToSnakeCase();
+
+        _nameResolver = _scriptEngineConfig.NamingConvention switch
+        {
+            ScriptNameConversion.CamelCase  => name => name.ToCamelCase(),
+            ScriptNameConversion.PascalCase => name => name.ToPascalCase(),
+            ScriptNameConversion.SnakeCase  => name => name.ToSnakeCase(),
+            _                               => _nameResolver
+        };
+    }
+
     private IEnumerable<string> MemberNameCreator(MemberInfo memberInfo)
     {
-        _logger.LogTrace("[JS] Creating member name  {MemberInfo}", memberInfo.Name.ToSnakeCase());
-        yield return memberInfo.Name.ToSnakeCase();
+        var memberType = _nameResolver(memberInfo.Name);
+        _logger.LogTrace("[JS] Creating member name  {MemberInfo}", memberType);
+        yield return memberType;
     }
 
 
@@ -118,7 +136,8 @@ public class ScriptEngineService : IScriptEngineService, IEventBusListener<Serve
             _appNameData.AppName,
             _versionService.GetVersionInfo().Version,
             _scriptModules,
-            _constants
+            _constants,
+            _nameResolver
         );
 
         File.WriteAllText(Path.Combine(_directoriesConfig["Scripts"], "index.d.ts"), documentation);

@@ -12,16 +12,24 @@ namespace Prima.JavaScript.Engine.Utils.Scripts;
 
 public static class TypeScriptDocumentationGenerator
 {
-    private static readonly HashSet<Type> _processedTypes = new();
+    private static readonly HashSet<Type> _processedTypes = [];
     private static readonly StringBuilder _interfacesBuilder = new();
     private static readonly StringBuilder _constantsBuilder = new();
     private static readonly StringBuilder _enumsBuilder = new();
-    private static readonly List<Type> _interfaceTypesToGenerate = new();
+    private static readonly List<Type> _interfaceTypesToGenerate = [];
+
+    private static Func<string, string> _nameResolver = name => name.ToSnakeCase();
 
     public static string GenerateDocumentation(
-        string appName, string appVersion, List<ScriptModuleData> scriptModules, Dictionary<string, object> constants
+        string appName, string appVersion, List<ScriptModuleData> scriptModules, Dictionary<string, object> constants,
+        Func<string, string> nameResolver = null
     )
     {
+        if (nameResolver != null)
+        {
+            _nameResolver = nameResolver;
+        }
+
         var sb = new StringBuilder();
         sb.AppendLine("/**");
         sb.AppendLine($" * {appName} v{appVersion} JavaScript API TypeScript Definitions");
@@ -75,7 +83,7 @@ public static class TypeScriptDocumentationGenerator
                     continue;
                 }
 
-                var functionName = method.Name.ToSnakeCase();
+                var functionName = _nameResolver(method.Name);
                 var description = scriptFunctionAttr.HelpText;
 
                 // Generate function documentation
@@ -87,7 +95,7 @@ public static class TypeScriptDocumentationGenerator
                 foreach (var param in parameters)
                 {
                     var paramType = ConvertToTypeScriptType(param.ParameterType);
-                    sb.AppendLine($"     * @param {param.Name.ToSnakeCase()} {paramType}");
+                    sb.AppendLine($"     * @param {_nameResolver(param.Name)} {paramType}");
                 }
 
                 // Add return type documentation if not void
@@ -112,7 +120,7 @@ public static class TypeScriptDocumentationGenerator
                                      typeof(Nullable<>) ||
                                      paramType.EndsWith("[]?");
 
-                    sb.Append($"{param.Name.ToSnakeCase()}{(isOptional ? "?" : "")}: {paramType}");
+                    sb.Append($"{_nameResolver(param.Name)}{(isOptional ? "?" : "")}: {paramType}");
 
                     if (i < parameters.Length - 1)
                     {
@@ -198,11 +206,11 @@ public static class TypeScriptDocumentationGenerator
 
             // Add property documentation
             _interfacesBuilder.AppendLine($"    /**");
-            _interfacesBuilder.AppendLine($"     * {property.Name.ToSnakeCase()}");
+            _interfacesBuilder.AppendLine($"     * {_nameResolver(property.Name)}");
             _interfacesBuilder.AppendLine($"     */");
 
             // Add property
-            _interfacesBuilder.AppendLine($"    {property.Name.ToSnakeCase()}: {propertyType};");
+            _interfacesBuilder.AppendLine($"    {_nameResolver(property.Name)}: {propertyType};");
         }
 
         // End interface - make sure it's properly closed
@@ -406,7 +414,7 @@ public static class TypeScriptDocumentationGenerator
         if (type.IsEnum)
         {
             GenerateEnumInterface(type);
-            return type.Name.ToSnakeCase();
+            return _nameResolver(type.Name);
         }
 
         if (typeof(Delegate).IsAssignableFrom(type))
@@ -446,7 +454,7 @@ public static class TypeScriptDocumentationGenerator
 
         if (type.IsEnum)
         {
-            return $"{type.Name.ToSnakeCase()}.{value}";
+            return $"{_nameResolver(type.Name)}.{value}";
         }
 
         // For numerical values and other types
@@ -495,7 +503,7 @@ public static class TypeScriptDocumentationGenerator
         _enumsBuilder.AppendLine($"/**");
         _enumsBuilder.AppendLine($" * Generated enum for {enumType.FullName}");
         _enumsBuilder.AppendLine($" */");
-        _enumsBuilder.AppendLine($"export enum {enumType.Name.ToSnakeCase()} {{");
+        _enumsBuilder.AppendLine($"export enum {_nameResolver(enumType.Name)} {{");
 
         var enumValues = Enum.GetNames(enumType);
 
