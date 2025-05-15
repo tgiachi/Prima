@@ -1,4 +1,7 @@
+using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using Orion.Foundations.Extensions;
@@ -12,7 +15,8 @@ public static class TypeScriptDocumentationGenerator
     private static readonly HashSet<Type> _processedTypes = new();
     private static readonly StringBuilder _interfacesBuilder = new();
     private static readonly StringBuilder _constantsBuilder = new();
-
+    private static readonly StringBuilder _enumsBuilder = new();
+    private static readonly List<Type> _interfaceTypesToGenerate = new();
 
     public static string GenerateDocumentation(
         string appName, string appVersion, List<ScriptModuleData> scriptModules, Dictionary<string, object> constants
@@ -25,10 +29,12 @@ public static class TypeScriptDocumentationGenerator
         sb.AppendLine(" **/");
         sb.AppendLine();
 
-        // Reset processed types and interfaces builder for this generation run
+        // Reset processed types and builders for this generation run
         _processedTypes.Clear();
         _interfacesBuilder.Clear();
-
+        _constantsBuilder.Clear();
+        _enumsBuilder.Clear();
+        _interfaceTypesToGenerate.Clear();
 
         var distinctConstants = constants
             .GroupBy(kvp => kvp.Key)
@@ -123,30 +129,89 @@ public static class TypeScriptDocumentationGenerator
             sb.AppendLine();
         }
 
-        // Add all generated interfaces
-        var interfacesText = _interfacesBuilder.ToString();
+        // Now generate all the interfaces that were collected during type conversion
+        GenerateAllInterfaces();
 
-        // Adjust indentation for interfaces (remove 4 spaces from each line)
-        var lines = interfacesText.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-        for (var i = 0; i < lines.Length; i++)
-        {
-            if (!string.IsNullOrEmpty(lines[i]))
-            {
-                if (lines[i].StartsWith("    "))
-                {
-                    lines[i] = lines[i].Substring(4);
-                }
-            }
-        }
 
-        sb.Append(string.Join(Environment.NewLine, lines));
+        // First append all enums, then append all interfaces
+        sb.Append(string.Join(Environment.NewLine, _enumsBuilder));
+        sb.AppendLine();
+        sb.Append(string.Join(Environment.NewLine, _interfacesBuilder));
 
         return sb.ToString();
     }
 
+    // Method to generate all interfaces after collecting them
+    private static void GenerateAllInterfaces()
+    {
+        // Use a more thorough approach to handle dependencies between types
+        bool processedSomething;
+
+        do
+        {
+            // Create a copy of the list to avoid "Collection was modified" exception
+            var typesToGenerate = new List<Type>(_interfaceTypesToGenerate);
+
+            // Keep track of whether we processed any types in this iteration
+            processedSomething = false;
+
+            // Process types not yet processed
+            foreach (var type in typesToGenerate)
+            {
+                // Skip if already processed
+                if (!_processedTypes.Contains(type))
+                {
+                    GenerateInterface(type);
+                    processedSomething = true;
+                }
+            }
+
+            // Continue until no new types are processed
+        } while (processedSomething);
+    }
+
+    // Method to generate a single interface
+    private static void GenerateInterface(Type type)
+    {
+        if (!_processedTypes.Add(type))
+        {
+            return; // Already processed
+        }
+
+        var interfaceName = $"I{type.Name}";
+
+        // Start building the interface
+        _interfacesBuilder.AppendLine();
+        _interfacesBuilder.AppendLine($"/**");
+        _interfacesBuilder.AppendLine($" * Generated interface for {type.FullName}");
+        _interfacesBuilder.AppendLine($" */");
+        _interfacesBuilder.AppendLine($"interface {interfaceName} {{");
+
+        // Get properties
+        var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            .Where(p => p.CanRead)
+            .ToList();
+
+        foreach (var property in properties)
+        {
+            var propertyType = ConvertToTypeScriptType(property.PropertyType);
+
+            // Add property documentation
+            _interfacesBuilder.AppendLine($"    /**");
+            _interfacesBuilder.AppendLine($"     * {property.Name.ToSnakeCase()}");
+            _interfacesBuilder.AppendLine($"     */");
+
+            // Add property
+            _interfacesBuilder.AppendLine($"    {property.Name.ToSnakeCase()}: {propertyType};");
+        }
+
+        // End interface - make sure it's properly closed
+        _interfacesBuilder.AppendLine("}");
+    }
 
     private static string ConvertToTypeScriptType(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods)] Type type
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods)]
+        Type type
     )
     {
         if (type == typeof(void))
@@ -327,36 +392,12 @@ public static class TypeScriptDocumentationGenerator
                 return interfaceName;
             }
 
-            // Mark type as processed to prevent infinite recursion
-            _processedTypes.Add(type);
-
-            // Start building the interface
-            _interfacesBuilder.AppendLine();
-            _interfacesBuilder.AppendLine($"/**");
-            _interfacesBuilder.AppendLine($" * Generated interface for {type.FullName}");
-            _interfacesBuilder.AppendLine($" */");
-            _interfacesBuilder.AppendLine($"interface {interfaceName} {{");
-
-            // Get properties
-            var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(p => p.CanRead)
-                .ToList();
-
-            foreach (var property in properties)
+            // Add this type to our list of types that need interfaces generated
+            // Instead of generating the interface now, we'll do it later
+            if (!_interfaceTypesToGenerate.Contains(type))
             {
-                var propertyType = ConvertToTypeScriptType(property.PropertyType);
-
-                // Add property documentation
-                _interfacesBuilder.AppendLine($"    /**");
-                _interfacesBuilder.AppendLine($"     * {property.Name.ToSnakeCase()}");
-                _interfacesBuilder.AppendLine($"     */");
-
-                // Add property
-                _interfacesBuilder.AppendLine($"    {property.Name.ToSnakeCase()}: {propertyType};");
+                _interfaceTypesToGenerate.Add(type);
             }
-
-            // End interface
-            _interfacesBuilder.AppendLine("}");
 
             return interfaceName;
         }
@@ -412,7 +453,6 @@ public static class TypeScriptDocumentationGenerator
         return value.ToString();
     }
 
-
     private static void ProcessConstants(Dictionary<string, object> constants)
     {
         if (constants.Count == 0)
@@ -451,20 +491,20 @@ public static class TypeScriptDocumentationGenerator
             return;
         }
 
-        _interfacesBuilder.AppendLine();
-        _interfacesBuilder.AppendLine($"/**");
-        _interfacesBuilder.AppendLine($" * Generated enum for {enumType.FullName}");
-        _interfacesBuilder.AppendLine($" */");
-        _interfacesBuilder.AppendLine($"export enum {enumType.Name.ToSnakeCase()} {{");
+        _enumsBuilder.AppendLine();
+        _enumsBuilder.AppendLine($"/**");
+        _enumsBuilder.AppendLine($" * Generated enum for {enumType.FullName}");
+        _enumsBuilder.AppendLine($" */");
+        _enumsBuilder.AppendLine($"export enum {enumType.Name.ToSnakeCase()} {{");
 
         var enumValues = Enum.GetNames(enumType);
 
         foreach (var value in enumValues)
         {
             var numericValue = (int)Enum.Parse(enumType, value);
-            _interfacesBuilder.AppendLine($"    {value} = {numericValue},");
+            _enumsBuilder.AppendLine($"    {value} = {numericValue},");
         }
 
-        _interfacesBuilder.AppendLine("}");
+        _enumsBuilder.AppendLine("}");
     }
 }
