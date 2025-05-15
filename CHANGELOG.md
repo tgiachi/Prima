@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="0.15.0"></a>
+## [0.15.0](https://www.github.com/tgiachi/Prima/releases/tag/v0.15.0) (2025-05-15)
+
+### Features
+
+* **Deflate.cs:** add Deflate class for compression using LibDeflateBinding ([db5f721](https://www.github.com/tgiachi/Prima/commit/db5f72152a654d77deba9528a099a11edd362726))
+* **MultiData.cs:** add new MultiData class to handle loading and configuring multi data for the application ([3c40054](https://www.github.com/tgiachi/Prima/commit/3c400541abbbb39395a14a464efae847695495e7))
+
 <a name="0.14.0"></a>
 ## [0.14.0](https://www.github.com/tgiachi/Prima/releases/tag/v0.14.0) (2025-05-15)
 
