@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="0.14.0"></a>
+## [0.14.0](https://www.github.com/tgiachi/Prima/releases/tag/v0.14.0) (2025-05-15)
+
+### Features
+
+* added dictionary from UOX3 (thanks guys) ([6a09ae7](https://www.github.com/tgiachi/Prima/commit/6a09ae76306ae6055a47f5841b081029e8b9c8a4))
+* **CommandsScriptModule.cs:** add logging functionality to log executed commands for debugging purposes ([68b66bf](https://www.github.com/tgiachi/Prima/commit/68b66bf7c46f3f03f7cafbbcb1cb2ab84e57fb53))
+* **ConsoleCommandService.cs:** add System.Diagnostics namespace for using Process class ([a0d4bc7](https://www.github.com/tgiachi/Prima/commit/a0d4bc70fabf6312a6d6c0c19b7dc897ee403e3c))
+* **Point3D.cs, BaseWorldEntity.cs, FodyWeavers.xml, Prima.UOData.csproj:** implement INotifyPropertyChanged interface to enable property change notifications in Point3D and BaseWorldEntity classes ([3864595](https://www.github.com/tgiachi/Prima/commit/3864595c46bffd44f8a35f25d6a049586d194ff7))
+* **Prima.sln:** add Prima.JavaScript.Engine project to the solution ([9a05d13](https://www.github.com/tgiachi/Prima/commit/9a05d1334f19fe4649c6b86509e22e1d9615fb5a))
+* **Program.cs:** add Prima.UOData.Modules.Scripts namespace for new script modules ([1567ef2](https://www.github.com/tgiachi/Prima/commit/1567ef2c99bbcbe897f6fb30e3ac559ac877a15a))
+* **ShardConfig.cs:** update TimeZone property to dynamically set based on local time ([3dfff2f](https://www.github.com/tgiachi/Prima/commit/3dfff2f7fd62ad5a27b0ae7e1835740d19a6acc4))
+
+<a name="0.13.0"></a>
+## [0.13.0](https://www.github.com/tgiachi/Prima/releases/tag/v0.13.0) (2025-05-14)
+
+### Features
+
+* **NetworkSession.cs:** add SetProperty and GetProperty methods to manage session properties ([22681fe](https://www.github.com/tgiachi/Prima/commit/22681feb7213cd2e610ecf116d05b6d0355bb18f))
+
 <a name="0.12.0"></a>
 ## [0.12.0](https://www.github.com/tgiachi/Prima/releases/tag/v0.12.0) (2025-05-14)
 
