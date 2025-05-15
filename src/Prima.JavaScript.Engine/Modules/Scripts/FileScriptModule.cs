@@ -1,8 +1,8 @@
-using Orion.Core.Server.Attributes.Scripts;
 using Orion.Core.Server.Data.Directories;
-using Orion.Core.Server.Interfaces.Services.System;
+using Prima.Core.Server.Attributes.Scripts;
+using Prima.Core.Server.Interfaces.Services;
 
-namespace Prima.Core.Server.Modules.Scripts;
+namespace Prima.JavaScript.Engine.Modules.Scripts;
 
 [ScriptModule("files")]
 public class FileScriptModule

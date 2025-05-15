@@ -69,7 +69,7 @@ public class UoFiles
                 if (filePath != null)
                 {
                     MulPath[fileName.ToLower()] = Path.Combine(filePath, fileName);
-                    _logger.Information("Found UO {File}", fileName.ToLower());
+                    _logger.Debug("Found UO {File}", fileName.ToLower());
                 }
             }
         }

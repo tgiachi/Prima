@@ -9,6 +9,7 @@ using Orion.Core.Server.Extensions;
 using Orion.Core.Server.Interfaces.Services.System;
 using Orion.Core.Server.Modules.Container;
 using Orion.Foundations.Utils;
+using Orion.JavaScript.Engine.Extensions;
 using Orion.Network.Core.Interfaces.Services;
 using Orion.Network.Core.Services;
 using Prima.Core.Server.Data;
@@ -17,8 +18,10 @@ using Prima.Core.Server.Data.Config.Internal.EventLoop;
 using Prima.Core.Server.Data.Options;
 using Prima.Core.Server.Interfaces.Services;
 using Prima.Core.Server.Modules.Container;
-using Prima.Core.Server.Modules.Scripts;
+
 using Prima.Core.Server.Types;
+using Prima.JavaScript.Engine.Extensions;
+using Prima.JavaScript.Engine.Modules.Scripts;
 using Prima.Network.Modules;
 using Prima.Server.Handlers;
 using Prima.Server.Hosted;
@@ -30,6 +33,7 @@ using Prima.Server.Services;
 using Prima.UOData.Converters;
 using Prima.UOData.Interfaces.Persistence;
 using Prima.UOData.Interfaces.Services;
+using Prima.UOData.Modules.Scripts;
 using Prima.UOData.Services;
 using Serilog;
 
@@ -71,7 +75,7 @@ class Program
         builder.Services
             .AddEventBusService()
             .AddProcessQueueService()
-            .AddScriptEngineService()
+            .AddJsScriptEngineService()
             .AddDiagnosticService(
                 new DiagnosticServiceConfig()
                 {
@@ -82,7 +86,7 @@ class Program
 
         builder.Services
             .AddModule<DefaultOrionServiceModule>()
-            .AddModule<DefaultOrionScriptsModule>()
+
             .AddModule<UoNetworkContainerModule>()
             .AddModule<PrimaServerModuleContainer>()
             .AddModule<AuthServicesModule>()
@@ -98,7 +102,6 @@ class Program
         // Services for uo
 
         builder.Services
-            .AddService<IMulFileReaderService, MulFileReaderService>()
             .AddService<IWorldManagerService, WorldManagerService>()
             .AddService<IMapService, MapService>();
 
@@ -108,15 +111,19 @@ class Program
             .AddService<INetworkService, NetworkService>()
             .AddService<ISerialGeneratorService, SerialGeneratorService>()
             .AddService<ITimerService, TimerService>()
-            .AddService<IClientConfigurationService, ClientConfigurationService>()
+            .AddService<ILocalizedTextService, LocalizedTextService>()
+            .AddService<IClientConfigurationService, ClientConfigurationService>(priority: -1)
             ;
 
         builder.Services
+            .AddScriptModule<JsLoggerModule>()
             .AddScriptModule<EventScriptModule>()
             .AddScriptModule<SchedulerModule>()
             .AddScriptModule<VariableModule>()
             .AddScriptModule<FileScriptModule>()
             .AddScriptModule<TimerScriptModule>()
+            .AddScriptModule<ItemsScriptModule>()
+            .AddScriptModule<ConsoleScriptModule>()
             .AddScriptModule<CommandsScriptModule>();
 
         builder.Services

@@ -13,15 +13,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-using System;
-using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Orion.Foundations.Extensions;
-using Prima.UOData.Mul;
 using Prima.UOData.Utils;
 
-namespace Server;
+namespace Prima.UOData.Mul;
 
 public struct LandData
 {
@@ -33,6 +30,11 @@ public struct LandData
     {
         Name = name;
         Flags = flags;
+    }
+
+    public override string ToString()
+    {
+        return $" {Name} ({Flags})";
     }
 }
 
@@ -103,6 +105,12 @@ public struct ItemData
     {
         get => _height;
         set => _height = (byte)value;
+    }
+
+
+    public override string ToString()
+    {
+        return $" {Name} ({Flags})";
     }
 
     public int CalcHeight => Bridge ? _height / 2 : _height;
@@ -287,13 +295,8 @@ public static class TileData
     public static int MaxLandValue { get; private set; }
     public static int MaxItemValue { get; private set; }
 
-    static TileData()
-    {
 
-        Load();
-    }
-
-    private static unsafe void Load()
+    public static unsafe void Configure()
     {
         var filePath = UoFiles.GetFilePath("tiledata.mul");
 

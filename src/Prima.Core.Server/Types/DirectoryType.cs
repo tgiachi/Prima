@@ -8,5 +8,6 @@ public enum DirectoryType
     WorldSaves,
     Templates,
     Configs,
+    Dictionaries,
     Data
 }

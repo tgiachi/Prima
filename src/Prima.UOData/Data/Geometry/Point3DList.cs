@@ -1,5 +1,3 @@
-using Server;
-
 namespace Prima.UOData.Data.Geometry;
 
 public class Point3DList
