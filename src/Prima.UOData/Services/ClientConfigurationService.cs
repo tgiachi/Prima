@@ -43,17 +43,32 @@ public class ClientConfigurationService : IClientConfigurationService, IEventBus
         _expansionsPath = Path.Combine(_directoriesConfig[DirectoryType.Data], _expansionsPath);
         _expansionConfigurationPath = Path.Combine(_directoriesConfig[DirectoryType.Configs], _expansionConfigurationPath);
 
+        LoadData();
         _eventBusService.Subscribe(this);
     }
 
-    public async Task HandleAsync(ServerStartedEvent @event, CancellationToken cancellationToken)
+    private async Task LoadData()
     {
+        UoFiles.ScanForFiles(_primaServerConfig.Shard.UoDirectory);
+
         await GetClientVersionAsync();
         await GetExpansionAsync();
         await LoadSkillInfoAsync();
         await BuildProfessionsAsync();
 
+
+        _logger.LogInformation("Loading TileData...");
+        TileData.Configure();
+
+        _logger.LogInformation("Found {Count} Items", TileData.ItemTable.Length);
+        _logger.LogInformation("Found {Count} LandTiles", TileData.LandTable.Length);
+
         RaceDefinitions.Configure();
+    }
+
+    public async Task HandleAsync(ServerStartedEvent @event, CancellationToken cancellationToken)
+    {
+
     }
 
     private async Task GetExpansionAsync()

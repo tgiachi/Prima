@@ -30,6 +30,7 @@ using Prima.Server.Services;
 using Prima.UOData.Converters;
 using Prima.UOData.Interfaces.Persistence;
 using Prima.UOData.Interfaces.Services;
+using Prima.UOData.Modules.Scripts;
 using Prima.UOData.Services;
 using Serilog;
 
@@ -98,7 +99,6 @@ class Program
         // Services for uo
 
         builder.Services
-            .AddService<IMulFileReaderService, MulFileReaderService>()
             .AddService<IWorldManagerService, WorldManagerService>()
             .AddService<IMapService, MapService>();
 
@@ -109,7 +109,7 @@ class Program
             .AddService<ISerialGeneratorService, SerialGeneratorService>()
             .AddService<ITimerService, TimerService>()
             .AddService<ILocalizedTextService, LocalizedTextService>()
-            .AddService<IClientConfigurationService, ClientConfigurationService>()
+            .AddService<IClientConfigurationService, ClientConfigurationService>(priority: -1)
             ;
 
         builder.Services
@@ -118,6 +118,7 @@ class Program
             .AddScriptModule<VariableModule>()
             .AddScriptModule<FileScriptModule>()
             .AddScriptModule<TimerScriptModule>()
+            .AddScriptModule<ItemsScriptModule>()
             .AddScriptModule<CommandsScriptModule>();
 
         builder.Services

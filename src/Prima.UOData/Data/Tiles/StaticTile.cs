@@ -1,6 +1,5 @@
 using System.Runtime.InteropServices;
 using Prima.UOData.Mul;
-using Server;
 
 namespace Prima.UOData.Data.Tiles;
 

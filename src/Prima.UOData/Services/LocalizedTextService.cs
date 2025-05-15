@@ -60,8 +60,6 @@ public partial class LocalizedTextService : ILocalizedTextService
                         part = part[..part.IndexOf('#')].Trim();
                     }
 
-                    // Convert %s to numeric format
-
 
                     _localizedText[id] = ConvertCFormatToCSharp(part);
                 }

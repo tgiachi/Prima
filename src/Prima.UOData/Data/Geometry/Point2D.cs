@@ -17,7 +17,6 @@ using System.Runtime.CompilerServices;
 using Orion.Foundations.Extensions;
 using Prima.UOData.Interfaces.Geometry;
 using Prima.UOData.Utils;
-using Server;
 
 namespace Prima.UOData.Data.Geometry;
 

@@ -1,6 +1,5 @@
 using Prima.UOData.Mul;
 using Prima.UOData.Types;
-using Server;
 
 namespace Prima.UOData.Data.Tiles;
 
