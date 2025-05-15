@@ -220,12 +220,12 @@ public class ConsoleCommandService : IHostedService, IDisposable
         System.Console.Write(new string(' ', _prompt.Length + Math.Max(input.Length + 1, 1)));
 
         // Redraw prompt and input
-        System.Console.SetCursorPosition(0, currentTop);
-        System.Console.Write(_prompt);
-        System.Console.Write(input);
+        Console.SetCursorPosition(0, currentTop);
+        Console.Write(_prompt);
+        Console.Write(input);
 
         // Restore cursor position
-        System.Console.SetCursorPosition(_prompt.Length + cursorPosition, currentTop);
+        Console.SetCursorPosition(_prompt.Length + cursorPosition, currentTop);
     }
 
     /// <summary>
@@ -247,6 +247,8 @@ public class ConsoleCommandService : IHostedService, IDisposable
 
             _cts.Dispose();
             _isDisposed = true;
+
+            Environment.Exit(0);
         }
     }
 

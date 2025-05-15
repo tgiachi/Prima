@@ -108,6 +108,7 @@ class Program
             .AddService<INetworkService, NetworkService>()
             .AddService<ISerialGeneratorService, SerialGeneratorService>()
             .AddService<ITimerService, TimerService>()
+            .AddService<ILocalizedTextService, LocalizedTextService>()
             .AddService<IClientConfigurationService, ClientConfigurationService>()
             ;
 
