@@ -123,6 +123,7 @@ class Program
             .AddScriptModule<FileScriptModule>()
             .AddScriptModule<TimerScriptModule>()
             .AddScriptModule<ItemsScriptModule>()
+            .AddScriptModule<ConsoleScriptModule>()
             .AddScriptModule<CommandsScriptModule>();
 
         builder.Services

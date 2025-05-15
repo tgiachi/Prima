@@ -1,4 +1,3 @@
-
 using Prima.Core.Server.Attributes.Scripts;
 using Prima.Core.Server.Interfaces.Services;
 using Prima.Core.Server.Types;
@@ -10,9 +9,13 @@ public class CommandsScriptModule
 {
     private readonly ICommandSystemService _commandSystemService;
 
-    public CommandsScriptModule(ICommandSystemService commandSystemService)
+
+    private readonly ILogger _logger;
+
+    public CommandsScriptModule(ICommandSystemService commandSystemService, ILogger<CommandsScriptModule> logger)
     {
         _commandSystemService = commandSystemService;
+        _logger = logger;
     }
 
     /// <summary>
@@ -28,10 +31,24 @@ public class CommandsScriptModule
     ///
     [ScriptFunction("Register a console command")]
     public bool RegisterConsoleCommand(
-        string command, string description, Func<string[], Task> execute, string[] aliases = null,
+        string command, string description, Action<string[]> execute, string[] aliases = null,
         CommandType type = CommandType.Console, CommandPermissionType permission = CommandPermissionType.Admin
     )
     {
-        return _commandSystemService.RegisterCommand(command, description, null, execute, aliases, type, permission);
+        return _commandSystemService.RegisterCommand(
+            command,
+            description,
+            null,
+            strings =>
+            {
+                _logger.LogDebug("JS Executing command: {Command}", command);
+                execute(strings);
+
+                return Task.CompletedTask;
+            },
+            aliases,
+            type,
+            permission
+        );
     }
 }

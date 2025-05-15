@@ -31,6 +31,11 @@ public class CommandSystemService : ICommandSystemService
         CommandType type = CommandType.InGame, CommandPermissionType permission = CommandPermissionType.Admin
     )
     {
+        if (arguments == null)
+        {
+            arguments = new Dictionary<string, string>();
+        }
+
         if (string.IsNullOrEmpty(command))
         {
             _logger.LogError("Command cannot be null or empty");
@@ -128,7 +133,6 @@ public class CommandSystemService : ICommandSystemService
             {
                 if (args.Length == 0)
                 {
-
                     var commands = _commandIndex.Values
                         .Select(c => $"{c.Command} - {c.Description}")
                         .ToArray();
