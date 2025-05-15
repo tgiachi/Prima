@@ -263,19 +263,19 @@ public static partial class Utility
 
     public static void FixPoints(ref Point3D top, ref Point3D bottom)
     {
-        if (bottom.m_X < top.m_X)
+        if (bottom.X < top.X)
         {
-            (top.m_X, bottom.m_X) = (bottom.m_X, top.m_X);
+            (top.X, bottom.X) = (bottom.X, top.X);
         }
 
-        if (bottom.m_Y < top.m_Y)
+        if (bottom.Y < top.Y)
         {
-            (top.m_Y, bottom.m_Y) = (bottom.m_Y, top.m_Y);
+            (top.Y, bottom.Y) = (bottom.Y, top.Y);
         }
 
-        if (bottom.m_Z < top.m_Z)
+        if (bottom.Z < top.Z)
         {
-            (top.m_Z, bottom.m_Z) = (bottom.m_Z, top.m_Z);
+            (top.Z, bottom.Z) = (bottom.Z, top.Z);
         }
     }
 
