@@ -1,5 +1,6 @@
 using MessagePack;
 using Prima.Core.Server.Attributes;
+using Prima.Core.Server.Types;
 using Prima.UOData.Data.Geometry;
 using Prima.UOData.Entities.Base;
 using Prima.UOData.Id;
@@ -14,6 +15,8 @@ public class MobileEntity : BaseWorldEntity
 
     public bool IsPlayer { get; set; }
 
+    public CommandPermissionType AccessLevel { get; set; }
+
     public int Hue { get; set; }
 
     public Point3D Position { get; set; }
@@ -22,7 +25,6 @@ public class MobileEntity : BaseWorldEntity
 
     public MobileEntity()
     {
-
     }
 
     public MobileEntity(Serial serial)

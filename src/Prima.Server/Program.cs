@@ -9,6 +9,7 @@ using Orion.Core.Server.Extensions;
 using Orion.Core.Server.Interfaces.Services.System;
 using Orion.Core.Server.Modules.Container;
 using Orion.Foundations.Utils;
+using Orion.JavaScript.Engine.Extensions;
 using Orion.Network.Core.Interfaces.Services;
 using Orion.Network.Core.Services;
 using Prima.Core.Server.Data;
@@ -17,8 +18,10 @@ using Prima.Core.Server.Data.Config.Internal.EventLoop;
 using Prima.Core.Server.Data.Options;
 using Prima.Core.Server.Interfaces.Services;
 using Prima.Core.Server.Modules.Container;
-using Prima.Core.Server.Modules.Scripts;
+
 using Prima.Core.Server.Types;
+using Prima.JavaScript.Engine.Extensions;
+using Prima.JavaScript.Engine.Modules.Scripts;
 using Prima.Network.Modules;
 using Prima.Server.Handlers;
 using Prima.Server.Hosted;
@@ -72,7 +75,7 @@ class Program
         builder.Services
             .AddEventBusService()
             .AddProcessQueueService()
-            .AddScriptEngineService()
+            .AddJsScriptEngineService()
             .AddDiagnosticService(
                 new DiagnosticServiceConfig()
                 {
@@ -83,7 +86,7 @@ class Program
 
         builder.Services
             .AddModule<DefaultOrionServiceModule>()
-            .AddModule<DefaultOrionScriptsModule>()
+
             .AddModule<UoNetworkContainerModule>()
             .AddModule<PrimaServerModuleContainer>()
             .AddModule<AuthServicesModule>()
@@ -113,6 +116,7 @@ class Program
             ;
 
         builder.Services
+            .AddScriptModule<JsLoggerModule>()
             .AddScriptModule<EventScriptModule>()
             .AddScriptModule<SchedulerModule>()
             .AddScriptModule<VariableModule>()

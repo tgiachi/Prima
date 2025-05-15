@@ -1,4 +1,4 @@
-using Orion.Core.Server.Attributes.Scripts;
+using Prima.Core.Server.Attributes.Scripts;
 using Prima.UOData.Js.Items;
 using Prima.UOData.Mul;
 

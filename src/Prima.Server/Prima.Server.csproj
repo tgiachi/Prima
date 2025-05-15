@@ -39,6 +39,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Prima.Core.Server\Prima.Core.Server.csproj" />
+        <ProjectReference Include="..\Prima.JavaScript.Engine\Prima.JavaScript.Engine.csproj" />
         <ProjectReference Include="..\Prima.Network\Prima.Network.csproj" />
         <ProjectReference Include="..\Prima.UOData\Prima.UOData.csproj" />
 

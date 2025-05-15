@@ -1,4 +1,5 @@
-using Orion.Core.Server.Attributes.Scripts;
+
+using Prima.Core.Server.Attributes.Scripts;
 using Prima.Core.Server.Interfaces.Services;
 using Prima.Core.Server.Types;
 
