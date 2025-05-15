@@ -54,22 +54,22 @@ public struct Rectangle3D : IEquatable<Rectangle3D>, ISpanFormattable
 
     public int X
     {
-        get => _start.m_X;
-        set => _start.m_X = value;
+        get => _start.X;
+        set => _start.X = value;
     }
 
 
     public int Y
     {
-        get => _start.m_Y;
-        set => _start.m_Y = value;
+        get => _start.Y;
+        set => _start.Y = value;
     }
 
 
     public int Z
     {
-        get => _start.m_Z;
-        set => _start.m_Z = value;
+        get => _start.Z;
+        set => _start.Z = value;
     }
 
 
@@ -93,64 +93,64 @@ public struct Rectangle3D : IEquatable<Rectangle3D>, ISpanFormattable
 
     public void MakeHold(Rectangle3D r)
     {
-        if (r._start.m_X < _start.m_X)
+        if (r._start.X < _start.X)
         {
-            _start.m_X = r._start.m_X;
+            _start.X = r._start.X;
         }
 
-        if (r._start.m_Y < _start.m_Y)
+        if (r._start.Y < _start.Y)
         {
-            _start.m_Y = r._start.m_Y;
+            _start.Y = r._start.Y;
         }
 
-        if (r._start.m_Z < _start.m_Z)
+        if (r._start.Z < _start.Z)
         {
-            _start.m_Z = r._start.m_Z;
+            _start.Z = r._start.Z;
         }
 
-        if (r._end.m_X > _end.m_X)
+        if (r._end.X > _end.X)
         {
-            _end.m_X = r._end.m_X;
+            _end.X = r._end.X;
         }
 
-        if (r._end.m_Y > _end.m_Y)
+        if (r._end.Y > _end.Y)
         {
-            _end.m_Y = r._end.m_Y;
+            _end.Y = r._end.Y;
         }
 
-        if (r._end.m_Z < _end.m_Z)
+        if (r._end.Z < _end.Z)
         {
-            _end.m_Z = r._end.m_Z;
+            _end.Z = r._end.Z;
         }
     }
 
     public bool Contains(Point3D p) =>
-        p.m_X >= _start.m_X
-        && p.m_X < _end.m_X
-        && p.m_Y >= _start.m_Y
-        && p.m_Y < _end.m_Y
-        && p.m_Z >= _start.m_Z
-        && p.m_Z < _end.m_Z;
+        p.X >= _start.X
+        && p.X < _end.X
+        && p.Y >= _start.Y
+        && p.Y < _end.Y
+        && p.Z >= _start.Z
+        && p.Z < _end.Z;
 
     public bool Contains(Point2D p) =>
-        p.m_X >= _start.m_X
-        && p.m_X < _end.m_X
-        && p.m_Y >= _start.m_Y
-        && p.m_Y < _end.m_Y;
+        p.X >= _start.X
+        && p.X < _end.X
+        && p.Y >= _start.Y
+        && p.Y < _end.Y;
 
     public bool Contains(IPoint2D p) =>
-        p.X >= _start.m_X
-        && p.X < _end.m_X
-        && p.Y >= _start.m_Y
-        && p.Y < _end.m_Y;
+        p.X >= _start.X
+        && p.X < _end.X
+        && p.Y >= _start.Y
+        && p.Y < _end.Y;
 
     public bool Contains(IPoint3D p) =>
-        p.X >= _start.m_X
-        && p.X < _end.m_X
-        && p.Y >= _start.m_Y
-        && p.Y < _end.m_Y
-        && p.Z >= _start.m_Z
-        && p.Z < _end.m_Z;
+        p.X >= _start.X
+        && p.X < _end.X
+        && p.Y >= _start.Y
+        && p.Y < _end.Y
+        && p.Z >= _start.Z
+        && p.Z < _end.Z;
 
     public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider provider)
         => destination.TryWrite(provider, $"({X}, {Y}, {Z})+({Width}, {Height}, {Depth})", out charsWritten);

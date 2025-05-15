@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Orion.Core.Server.Data.Directories;
 using Orion.Core.Server.Events.Server;
@@ -13,6 +14,7 @@ using Prima.Core.Server.Types;
 using Prima.Core.Server.Types.Uo;
 using Prima.UOData.Context;
 using Prima.UOData.Data;
+using Prima.UOData.Data.Tiles;
 using Prima.UOData.Interfaces.Services;
 using Prima.UOData.Mul;
 using Prima.UOData.Types;
@@ -49,6 +51,7 @@ public class ClientConfigurationService : IClientConfigurationService, IEventBus
 
     private async Task LoadData()
     {
+        var startTime = Stopwatch.GetTimestamp();
         UoFiles.ScanForFiles(_primaServerConfig.Shard.UoDirectory);
 
         await GetClientVersionAsync();
@@ -64,11 +67,16 @@ public class ClientConfigurationService : IClientConfigurationService, IEventBus
         _logger.LogInformation("Found {Count} LandTiles", TileData.LandTable.Length);
 
         RaceDefinitions.Configure();
+
+        MultiData.Configure();
+
+        _logger.LogInformation("Found {Count} MultiDefs", MultiData.Count);
+
+        _logger.LogInformation("Loading took {Elapsed}ms", Stopwatch.GetElapsedTime(startTime));
     }
 
     public async Task HandleAsync(ServerStartedEvent @event, CancellationToken cancellationToken)
     {
-
     }
 
     private async Task GetExpansionAsync()

@@ -35,9 +35,9 @@ public class Point3DList
             }
         }
 
-        m_List[Count].m_X = x;
-        m_List[Count].m_Y = y;
-        m_List[Count].m_Z = z;
+        m_List[Count].X = x;
+        m_List[Count].Y = y;
+        m_List[Count].Z = z;
         ++Count;
     }
 
@@ -54,9 +54,9 @@ public class Point3DList
             }
         }
 
-        m_List[Count].m_X = p.m_X;
-        m_List[Count].m_Y = p.m_Y;
-        m_List[Count].m_Z = p.m_Z;
+        m_List[Count].X = p.X;
+        m_List[Count].Y = p.Y;
+        m_List[Count].Z = p.Z;
         ++Count;
     }
 

@@ -61,51 +61,51 @@ public struct Rectangle2D : IEquatable<Rectangle2D>, ISpanFormattable, ISpanPars
 
     public int X
     {
-        get => _start.m_X;
-        set => _start.m_X = value;
+        get => _start.X;
+        set => _start.X = value;
     }
 
 
     public int Y
     {
-        get => _start.m_Y;
-        set => _start.m_Y = value;
+        get => _start.Y;
+        set => _start.Y = value;
     }
 
 
     public int Width
     {
-        get => _end.m_X - _start.m_X;
-        set => _end.m_X = _start.m_X + value;
+        get => _end.X - _start.X;
+        set => _end.X = _start.X + value;
     }
 
 
     public int Height
     {
-        get => _end.m_Y - _start.m_Y;
-        set => _end.m_Y = _start.m_Y + value;
+        get => _end.Y - _start.Y;
+        set => _end.Y = _start.Y + value;
     }
 
     public void MakeHold(Rectangle2D r)
     {
-        if (r._start.m_X < _start.m_X)
+        if (r._start.X < _start.X)
         {
-            _start.m_X = r._start.m_X;
+            _start.X = r._start.X;
         }
 
-        if (r._start.m_Y < _start.m_Y)
+        if (r._start.Y < _start.Y)
         {
-            _start.m_Y = r._start.m_Y;
+            _start.Y = r._start.Y;
         }
 
-        if (r._end.m_X > _end.m_X)
+        if (r._end.X > _end.X)
         {
-            _end.m_X = r._end.m_X;
+            _end.X = r._end.X;
         }
 
-        if (r._end.m_Y > _end.m_Y)
+        if (r._end.Y > _end.Y)
         {
-            _end.m_Y = r._end.m_Y;
+            _end.Y = r._end.Y;
         }
     }
 
@@ -120,13 +120,13 @@ public struct Rectangle2D : IEquatable<Rectangle2D>, ISpanFormattable, ISpanPars
     public static bool operator !=(Rectangle2D l, Rectangle2D r) => l._start != r._start || l._end != r._end;
 
     public bool Contains(Point3D p) =>
-        _start.m_X <= p.m_X && _start.m_Y <= p.m_Y && _end.m_X > p.m_X && _end.m_Y > p.m_Y;
+        _start.X <= p.X && _start.Y <= p.Y && _end.X > p.X && _end.Y > p.Y;
 
     public bool Contains(Point2D p) =>
-        _start.m_X <= p.m_X && _start.m_Y <= p.m_Y && _end.m_X > p.m_X && _end.m_Y > p.m_Y;
+        _start.X <= p.X && _start.Y <= p.Y && _end.X > p.X && _end.Y > p.Y;
 
     public bool Contains(int x, int y) =>
-        _start.m_X <= x && _start.m_Y <= y && _end.m_X > x && _end.m_Y > y;
+        _start.X <= x && _start.Y <= y && _end.X > x && _end.Y > y;
 
     public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider provider)
         => destination.TryWrite(provider, $"({X}, {Y})+({Width}, {Height})", out charsWritten);

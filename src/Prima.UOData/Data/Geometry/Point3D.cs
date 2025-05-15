@@ -22,44 +22,21 @@ using Prima.UOData.Utils;
 
 namespace Prima.UOData.Data.Geometry;
 
-
 public struct Point3D
     : IPoint3D, IComparable<Point3D>, IComparable<IPoint3D>, IEquatable<object>, IEquatable<Point3D>,
         IEquatable<IPoint3D>, ISpanFormattable, ISpanParsable<Point3D>, INotifyPropertyChanged
 {
-
+#pragma warning disable 67
     public event PropertyChangedEventHandler? PropertyChanged;
 
+#pragma warning restore 67
 
-    internal int m_X;
-    internal int m_Y;
-    internal int m_Z;
+    public int X { get; set; }
+    public int Y { get; set; }
+    public int Z { get; set; }
 
     public static readonly Point3D Zero = new(0, 0, 0);
 
-
-
-    public int X
-    {
-        get => m_X;
-        set => m_X = value;
-    }
-
-
-
-    public int Y
-    {
-        get => m_Y;
-        set => m_Y = value;
-    }
-
-
-
-    public int Z
-    {
-        get => m_Z;
-        set => m_Z = value;
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Point3D(IPoint3D p) : this(p.X, p.Y, p.Z)
@@ -78,86 +55,86 @@ public struct Point3D
 
     public Point3D(int x, int y, int z)
     {
-        m_X = x;
-        m_Y = y;
-        m_Z = z;
+        X = x;
+        Y = y;
+        Z = z;
     }
 
-    public bool Equals(Point3D other) => m_X == other.m_X && m_Y == other.m_Y && m_Z == other.m_Z;
+    public bool Equals(Point3D other) => X == other.X && Y == other.Y && Z == other.Z;
 
     public bool Equals(IPoint3D other) =>
-        m_X == other?.X && m_Y == other.Y && m_Z == other.Z;
+        X == other?.X && Y == other.Y && Z == other.Z;
 
     public override bool Equals(object obj) => obj is Point3D other && Equals(other);
 
-    public override int GetHashCode() => HashCode.Combine(m_X, m_Y, m_Z);
+    public override int GetHashCode() => HashCode.Combine(X, Y, Z);
 
-    public static bool operator ==(Point3D l, Point3D r) => l.m_X == r.m_X && l.m_Y == r.m_Y && l.m_Z == r.m_Z;
+    public static bool operator ==(Point3D l, Point3D r) => l.X == r.X && l.Y == r.Y && l.Z == r.Z;
 
     public static bool operator ==(Point3D l, IPoint3D r) =>
-        !ReferenceEquals(r, null) && l.m_X == r.X && l.m_Y == r.Y && l.m_Z == r.Z;
+        !ReferenceEquals(r, null) && l.X == r.X && l.Y == r.Y && l.Z == r.Z;
 
-    public static bool operator !=(Point3D l, Point3D r) => l.m_X != r.m_X || l.m_Y != r.m_Y || l.m_Z != r.m_Z;
+    public static bool operator !=(Point3D l, Point3D r) => l.X != r.X || l.Y != r.Y || l.Z != r.Z;
 
     public static bool operator !=(Point3D l, IPoint3D r) =>
-        !ReferenceEquals(r, null) && (l.m_X != r.X || l.m_Y != r.Y || l.m_Z != r.Z);
+        !ReferenceEquals(r, null) && (l.X != r.X || l.Y != r.Y || l.Z != r.Z);
 
-    public static bool operator >(Point3D l, Point3D r) => l.m_X > r.m_X && l.m_Y > r.m_Y && l.m_Z > r.m_Z;
+    public static bool operator >(Point3D l, Point3D r) => l.X > r.X && l.Y > r.Y && l.Z > r.Z;
 
     public static bool operator >(Point3D l, IPoint3D r) =>
-        !ReferenceEquals(r, null) && l.m_X > r.X && l.m_Y > r.Y && l.m_Z > r.Z;
+        !ReferenceEquals(r, null) && l.X > r.X && l.Y > r.Y && l.Z > r.Z;
 
-    public static bool operator <(Point3D l, Point3D r) => l.m_X < r.m_X && l.m_Y < r.m_Y && l.m_Z > r.m_Z;
+    public static bool operator <(Point3D l, Point3D r) => l.X < r.X && l.Y < r.Y && l.Z > r.Z;
 
     public static bool operator <(Point3D l, IPoint3D r) =>
-        !ReferenceEquals(r, null) && l.m_X < r.X && l.m_Y < r.Y && l.m_Z > r.Z;
+        !ReferenceEquals(r, null) && l.X < r.X && l.Y < r.Y && l.Z > r.Z;
 
-    public static bool operator >=(Point3D l, Point3D r) => l.m_X >= r.m_X && l.m_Y >= r.m_Y && l.m_Z > r.m_Z;
+    public static bool operator >=(Point3D l, Point3D r) => l.X >= r.X && l.Y >= r.Y && l.Z > r.Z;
 
     public static bool operator >=(Point3D l, IPoint3D r) =>
-        !ReferenceEquals(r, null) && l.m_X >= r.X && l.m_Y >= r.Y && l.m_Z > r.Z;
+        !ReferenceEquals(r, null) && l.X >= r.X && l.Y >= r.Y && l.Z > r.Z;
 
-    public static bool operator <=(Point3D l, Point3D r) => l.m_X <= r.m_X && l.m_Y <= r.m_Y && l.m_Z > r.m_Z;
+    public static bool operator <=(Point3D l, Point3D r) => l.X <= r.X && l.Y <= r.Y && l.Z > r.Z;
 
     public static bool operator <=(Point3D l, IPoint3D r) =>
-        !ReferenceEquals(r, null) && l.m_X <= r.X && l.m_Y <= r.Y && l.m_Z > r.Z;
+        !ReferenceEquals(r, null) && l.X <= r.X && l.Y <= r.Y && l.Z > r.Z;
 
     public int CompareTo(Point3D other)
     {
-        var xComparison = m_X.CompareTo(other.m_X);
+        var xComparison = X.CompareTo(other.X);
         if (xComparison != 0)
         {
             return xComparison;
         }
 
-        var yComparison = m_Y.CompareTo(other.m_Y);
+        var yComparison = Y.CompareTo(other.Y);
         if (yComparison != 0)
         {
             return yComparison;
         }
 
-        return m_Z.CompareTo(other.m_Z);
+        return Z.CompareTo(other.Z);
     }
 
     public int CompareTo(IPoint3D other)
     {
-        var xComparison = m_X.CompareTo(other.X);
+        var xComparison = X.CompareTo(other.X);
         if (xComparison != 0)
         {
             return xComparison;
         }
 
-        var yComparison = m_Y.CompareTo(other.Y);
+        var yComparison = Y.CompareTo(other.Y);
         if (yComparison != 0)
         {
             return yComparison;
         }
 
-        return m_Z.CompareTo(other.Z);
+        return Z.CompareTo(other.Z);
     }
 
     public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider provider)
-        => destination.TryWrite(provider, $"({m_X}, {m_Y}, {m_Z})", out charsWritten);
+        => destination.TryWrite(provider, $"({X}, {Y}, {Z})", out charsWritten);
 
     public override string ToString()
     {
@@ -287,7 +264,4 @@ public struct Point3D
         result = new Point3D(x, y, z);
         return true;
     }
-
-
-
 }

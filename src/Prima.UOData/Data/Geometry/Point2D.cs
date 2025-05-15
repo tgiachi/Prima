@@ -13,6 +13,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Orion.Foundations.Extensions;
 using Prima.UOData.Interfaces.Geometry;
@@ -22,25 +23,15 @@ namespace Prima.UOData.Data.Geometry;
 
 public struct Point2D
     : IPoint2D, IComparable<Point2D>, IComparable<IPoint2D>, IEquatable<object>, IEquatable<Point2D>,
-        IEquatable<IPoint2D>, ISpanFormattable, ISpanParsable<Point2D>
+        IEquatable<IPoint2D>, ISpanFormattable, ISpanParsable<Point2D>, INotifyPropertyChanged
 {
-    internal int m_X;
-    internal int m_Y;
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    public int X { get; set; }
+    public int Y { get; set; }
 
     public static readonly Point2D Zero = new(0, 0);
 
-    public int X
-    {
-        get => m_X;
-        set => m_X = value;
-    }
-
-
-    public int Y
-    {
-        get => m_Y;
-        set => m_Y = value;
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Point2D(IPoint2D p) : this(p.X, p.Y)
@@ -59,56 +50,56 @@ public struct Point2D
 
     public Point2D(int x, int y)
     {
-        m_X = x;
-        m_Y = y;
+        X = x;
+        Y = y;
     }
 
-    public bool Equals(Point2D other) => m_X == other.m_X && m_Y == other.m_Y;
+    public bool Equals(Point2D other) => X == other.X && Y == other.Y;
 
-    public bool Equals(IPoint2D other) => m_X == other?.X && m_Y == other.Y;
+    public bool Equals(IPoint2D other) => X == other?.X && Y == other.Y;
 
     public override bool Equals(object obj) => obj is Point2D other && Equals(other);
 
-    public override int GetHashCode() => HashCode.Combine(m_X, m_Y);
+    public override int GetHashCode() => HashCode.Combine(X, Y);
 
-    public static bool operator ==(Point2D l, Point2D r) => l.m_X == r.m_X && l.m_Y == r.m_Y;
+    public static bool operator ==(Point2D l, Point2D r) => l.X == r.X && l.Y == r.Y;
 
-    public static bool operator !=(Point2D l, Point2D r) => l.m_X != r.m_X || l.m_Y != r.m_Y;
+    public static bool operator !=(Point2D l, Point2D r) => l.X != r.X || l.Y != r.Y;
 
-    public static bool operator ==(Point2D l, IPoint2D r) => !ReferenceEquals(r, null) && l.m_X == r.X && l.m_Y == r.Y;
+    public static bool operator ==(Point2D l, IPoint2D r) => !ReferenceEquals(r, null) && l.X == r.X && l.Y == r.Y;
 
-    public static bool operator !=(Point2D l, IPoint2D r) => !ReferenceEquals(r, null) && (l.m_X != r.X || l.m_Y != r.Y);
+    public static bool operator !=(Point2D l, IPoint2D r) => !ReferenceEquals(r, null) && (l.X != r.X || l.Y != r.Y);
 
-    public static bool operator >(Point2D l, Point2D r) => l.m_X > r.m_X && l.m_Y > r.m_Y;
+    public static bool operator >(Point2D l, Point2D r) => l.X > r.X && l.Y > r.Y;
 
-    public static bool operator >(Point2D l, IPoint2D r) => !ReferenceEquals(r, null) && l.m_X > r.X && l.m_Y > r.Y;
+    public static bool operator >(Point2D l, IPoint2D r) => !ReferenceEquals(r, null) && l.X > r.X && l.Y > r.Y;
 
-    public static bool operator <(Point2D l, Point2D r) => l.m_X < r.m_X && l.m_Y < r.m_Y;
+    public static bool operator <(Point2D l, Point2D r) => l.X < r.X && l.Y < r.Y;
 
-    public static bool operator <(Point2D l, IPoint2D r) => !ReferenceEquals(r, null) && l.m_X < r.X && l.m_Y < r.Y;
+    public static bool operator <(Point2D l, IPoint2D r) => !ReferenceEquals(r, null) && l.X < r.X && l.Y < r.Y;
 
-    public static bool operator >=(Point2D l, Point2D r) => l.m_X >= r.m_X && l.m_Y >= r.m_Y;
+    public static bool operator >=(Point2D l, Point2D r) => l.X >= r.X && l.Y >= r.Y;
 
-    public static bool operator >=(Point2D l, IPoint2D r) => !ReferenceEquals(r, null) && l.m_X >= r.X && l.m_Y >= r.Y;
+    public static bool operator >=(Point2D l, IPoint2D r) => !ReferenceEquals(r, null) && l.X >= r.X && l.Y >= r.Y;
 
-    public static bool operator <=(Point2D l, Point2D r) => l.m_X <= r.m_X && l.m_Y <= r.m_Y;
+    public static bool operator <=(Point2D l, Point2D r) => l.X <= r.X && l.Y <= r.Y;
 
-    public static bool operator <=(Point2D l, IPoint2D r) => !ReferenceEquals(r, null) && l.m_X <= r.X && l.m_Y <= r.Y;
+    public static bool operator <=(Point2D l, IPoint2D r) => !ReferenceEquals(r, null) && l.X <= r.X && l.Y <= r.Y;
 
     public int CompareTo(Point2D other)
     {
-        var xComparison = m_X.CompareTo(other.m_X);
-        return xComparison != 0 ? xComparison : m_Y.CompareTo(other.m_Y);
+        var xComparison = X.CompareTo(other.X);
+        return xComparison != 0 ? xComparison : Y.CompareTo(other.Y);
     }
 
     public int CompareTo(IPoint2D other)
     {
-        var xComparison = m_X.CompareTo(other.X);
-        return xComparison != 0 ? xComparison : m_Y.CompareTo(other.Y);
+        var xComparison = X.CompareTo(other.X);
+        return xComparison != 0 ? xComparison : Y.CompareTo(other.Y);
     }
 
     public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider provider)
-        => destination.TryWrite(provider, $"({m_X}, {m_Y})", out charsWritten);
+        => destination.TryWrite(provider, $"({X}, {Y})", out charsWritten);
 
     public override string ToString()
     {

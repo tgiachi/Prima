@@ -10,10 +10,12 @@ namespace Prima.UOData.Entities.Base;
 
 public class BaseWorldEntity : IHaveSerial, IEntity, ISerializableEntity, INotifyPropertyChanged
 {
-
+#pragma warning disable 67
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    public Serial Id { get; set; }  
+#pragma warning restore 67
+
+    public Serial Id { get; set; }
     public Point3D Location { get; set; }
 
     public int MapIndex { get; set; }
