@@ -12,6 +12,10 @@
       <ProjectReference Include="..\Prima.Core.Server\Prima.Core.Server.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="PropertyChanged.Fody" PrivateAssets="All" Version="4.1.0" />
+    </ItemGroup>
+
 
 
 

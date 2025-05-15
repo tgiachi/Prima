@@ -1,3 +1,5 @@
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using Prima.UOData.Data.Geometry;
 using Prima.UOData.Id;
 using Prima.UOData.Interfaces.Entities;
@@ -6,9 +8,12 @@ using Prima.UOData.Interfaces.Persistence.Entities;
 
 namespace Prima.UOData.Entities.Base;
 
-public class BaseWorldEntity : IHaveSerial, IEntity, ISerializableEntity
+public class BaseWorldEntity : IHaveSerial, IEntity, ISerializableEntity, INotifyPropertyChanged
 {
-    public Serial Id { get; set; }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    public Serial Id { get; set; }  
     public Point3D Location { get; set; }
 
     public int MapIndex { get; set; }
