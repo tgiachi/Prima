@@ -52,6 +52,7 @@ public class UoFiles
         ScanForFiles(RootDir);
     }
 
+
     public static void ScanForFiles(string path = "")
     {
         RootDir = path;
@@ -87,8 +88,18 @@ public class UoFiles
 
     public static string GetFilePath(string fileName)
     {
-
         return MulPath.GetValueOrDefault(fileName.ToLower());
+    }
+
+    public static string? FindDataFile(string fileName, bool throwError = true)
+    {
+        var filePath = MulPath.GetValueOrDefault(fileName.ToLower());
+        if (filePath == null && throwError)
+        {
+            throw new FileNotFoundException($"File {fileName} not found in {RootDir}");
+        }
+
+        return filePath;
     }
 
     /// <summary>
