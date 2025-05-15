@@ -217,7 +217,7 @@ public class ScriptEngineService : IScriptEngineService, IEventBusListener<Serve
         }
         else
         {
-            _logger.LogInformation("function onStarted not found");
+            _logger.LogInformation("function {OnStartFunction} not found", _nameResolver("onStarted"));
         }
     }
 }
