@@ -7,7 +7,6 @@ using Serilog;
 
 namespace Prima.UOData.Data.Tiles;
 
-// add WIP in commit please
 public class TileMatrix
 {
     public const int SectorShift = 3;
@@ -20,8 +19,10 @@ public class TileMatrix
     private readonly LandTile[] _invalidLandBlock;
     private readonly StaticTile[][][] _emptyStaticBlock;
     private readonly UOPEntry[] _uopMapEntries;
+
     private readonly int _fileIndex;
-    private readonly Map _map;
+
+    //private readonly Map _map;
     private readonly int[][] _staticPatches;
     private readonly int[][] _landPatches;
     private readonly List<TileMatrix> _fileShare = new();
@@ -44,7 +45,9 @@ public class TileMatrix
             isPre6000Trammel; //ServerConfiguration.GetSetting("maps.enablePre6000Trammel", isPre6000Trammel);
     }
 
-    public TileMatrix(Map owner, int fileIndex, int mapID, int width, int height)
+//    public TileMatrix(Map owner, int fileIndex, int mapID, int width, int height)
+
+    public TileMatrix(int fileIndex, int mapID, int width, int height)
     {
         lock (_instances)
         {
@@ -72,7 +75,7 @@ public class TileMatrix
         BlockWidth = width >> SectorShift;
         BlockHeight = height >> SectorShift;
 
-        _map = owner;
+        //  _map = owner;
 
         if (fileIndex != 0x7F)
         {
@@ -216,14 +219,14 @@ public class TileMatrix
         return tiles;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Map.StaticTileEnumerable GetStaticTiles(int x, int y) => new(_map, new Point2D(x, y), includeMultis: false);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Map.StaticTileEnumerable GetStaticAndMultiTiles(int x, int y) => new(_map, new Point2D(x, y));
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Map.StaticTileEnumerable GetMultiTiles(int x, int y) => new(_map, new Point2D(x, y), false);
+    // [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    // public Map.StaticTileEnumerable GetStaticTiles(int x, int y) => new(_map, new Point2D(x, y), includeMultis: false);
+    //
+    // [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    // public Map.StaticTileEnumerable GetStaticAndMultiTiles(int x, int y) => new(_map, new Point2D(x, y));
+    //
+    // [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    // public Map.StaticTileEnumerable GetMultiTiles(int x, int y) => new(_map, new Point2D(x, y), false);
 
     public void SetLandBlock(int x, int y, LandTile[] value)
     {
@@ -372,7 +375,7 @@ public class TileMatrix
         {
             if (DateTime.Now >= m_NextStaticWarning)
             {
-                logger.Warning("Warning: Static EOS for {0} ({1}, {2})", _map, x, y);
+                // logger.Warning("Warning: Static EOS for {0} ({1}, {2})", _map, x, y);
                 m_NextStaticWarning = DateTime.Now + TimeSpan.FromMinutes(1.0);
             }
 
@@ -382,7 +385,6 @@ public class TileMatrix
 
     private DateTime m_NextStaticWarning;
     private DateTime m_NextLandWarning;
-
 
 
     private unsafe LandTile[] ReadLandBlock(int x, int y)
@@ -411,7 +413,7 @@ public class TileMatrix
         {
             if (DateTime.Now >= m_NextLandWarning)
             {
-                logger.Warning("Warning: Land EOS for {0} ({1}, {2})", _map, x, y);
+                // logger.Warning("Warning: Land EOS for {0} ({1}, {2})", _map, x, y);
                 m_NextLandWarning = DateTime.Now + TimeSpan.FromMinutes(1.0);
             }
 
@@ -463,8 +465,3 @@ public class TileMatrix
         IndexReader?.Close();
     }
 }
-
-
-
-
-

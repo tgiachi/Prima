@@ -1,5 +1,6 @@
 using MessagePack;
 using Prima.Core.Server.Attributes;
+using Prima.Core.Server.Data.Session;
 using Prima.Core.Server.Types;
 using Prima.UOData.Data.Geometry;
 using Prima.UOData.Entities.Base;
@@ -12,6 +13,8 @@ namespace Prima.UOData.Entities;
 public class MobileEntity : BaseWorldEntity
 {
     public string Name { get; set; }
+
+    public NetworkSession? NetworkSession { get; set; }
 
     public bool IsPlayer { get; set; }
 

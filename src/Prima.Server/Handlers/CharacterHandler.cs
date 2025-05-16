@@ -59,6 +59,7 @@ public class CharacterHandler
 
         playerMobile.Name = packet.Name;
 
+
         _worldManagerService.AddWorldEntity(playerMobile);
 
         await _databaseService.InsertAsync(characterEntity);

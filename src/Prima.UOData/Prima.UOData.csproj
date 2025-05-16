@@ -16,6 +16,10 @@
       <PackageReference Include="PropertyChanged.Fody" PrivateAssets="All" Version="4.1.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Json\" />
+    </ItemGroup>
+
 
 
 

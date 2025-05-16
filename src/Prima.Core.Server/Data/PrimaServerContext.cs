@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Orion.Core.Server.Data.Directories;
 using Orion.Core.Server.Interfaces.Services.System;
 using Prima.Core.Server.Data.Session;
 using Prima.Core.Server.Data.Uo;
@@ -9,6 +10,8 @@ namespace Prima.Core.Server.Data;
 public static class PrimaServerContext
 {
     public static IServiceProvider ServiceProvider { get; set; }
+
+    public static DirectoriesConfig DirectoriesConfig => ServiceProvider.GetRequiredService<DirectoriesConfig>();
 
     public static IEventLoopService EventLoopService => ServiceProvider.GetRequiredService<IEventLoopService>();
 
