@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="0.17.0"></a>
+## [0.17.0](https://www.github.com/tgiachi/Prima/releases/tag/v0.17.0) (2025-05-16)
+
+### Features
+
+* **README.md:** add multi-language support with localization services and automatic world saving system ([e40cbcb](https://www.github.com/tgiachi/Prima/commit/e40cbcbcf02e5c4703d73c265395bc2219834b3b))
+
 <a name="0.16.0"></a>
 ## [0.16.0](https://www.github.com/tgiachi/Prima/releases/tag/v0.16.0) (2025-05-16)
 
