@@ -9,6 +9,7 @@ using Prima.Server.Modules.Scripts;
 using Prima.UOData.Data.EventData;
 using Prima.UOData.Entities;
 using Prima.UOData.Entities.Db;
+using Prima.UOData.Events.Login;
 using Prima.UOData.Id;
 using Prima.UOData.Interfaces.Services;
 using Prima.UOData.Packets;
@@ -59,6 +60,7 @@ public class CharacterHandler
 
         playerMobile.Name = packet.Name;
 
+
         _worldManagerService.AddWorldEntity(playerMobile);
 
         await _databaseService.InsertAsync(characterEntity);
@@ -66,6 +68,8 @@ public class CharacterHandler
         TriggerCharacterCreatedEvent(packet);
 
         await session.SendPacketAsync(new ClientVersionReq());
+
+        await PublishEvent(new LoginCompleteEvent(session.Id));
     }
 
     private void TriggerCharacterCreatedEvent(CharacterCreation packet)
@@ -102,11 +106,13 @@ public class CharacterHandler
 
         // TODO: Check if character exists
 
-        session.SetProperty(character.MobileId, "mobileId");
-
         var mobile = _worldManagerService.GetEntityBySerial<MobileEntity>(character.MobileId);
 
+        session.SetProperty(mobile);
+
         await session.SendPacketAsync(new ClientVersionReq());
+
+        await PublishEvent(new LoginCompleteEvent(session.Id));
     }
 
     public async Task OnPacketReceived(NetworkSession session, CharacterDelete packet)

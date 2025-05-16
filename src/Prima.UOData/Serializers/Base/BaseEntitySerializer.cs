@@ -8,9 +8,7 @@ namespace Prima.UOData.Serializers.Base;
 public abstract class BaseEntitySerializer<TEntity> : IEntitySerializer<TEntity> where TEntity : class, ISerializableEntity
 {
     public Type EntityType => typeof(TEntity);
-
     public byte Header { get; }
-
 
     protected BaseEntitySerializer()
     {

@@ -82,6 +82,7 @@ public static class StreamWriterExtension
     }
 
 
+
     public static void Write(this BinaryWriter writer, IHaveSerial serial)
     {
         writer.Write(serial.Id.Value);

@@ -1,7 +1,10 @@
 using System.Runtime.CompilerServices;
+using Microsoft.Extensions.DependencyInjection;
+using Prima.Core.Server.Data;
 using Prima.Core.Server.Data.Uo;
 using Prima.Core.Server.Types.Uo;
 using Prima.UOData.Data;
+using Prima.UOData.Interfaces.Services;
 using Prima.UOData.Types;
 
 namespace Prima.UOData.Context;
@@ -15,6 +18,9 @@ public static class UOContext
     public static Expansion Expansion { get; set; }
 
     public static ExpansionInfo ExpansionInfo { get; set; }
+
+    public static IWorldManagerService WorldManagerService =>
+        PrimaServerContext.ServiceProvider.GetRequiredService<IWorldManagerService>();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool HasProtocolChanges(ProtocolChanges changes) => (ClientVersion.ProtocolChanges & changes) != 0;

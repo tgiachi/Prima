@@ -1,3 +1,5 @@
+using Prima.UOData.Types;
+
 namespace Prima.UOData.Js.Items;
 
 public class JSItemObject
@@ -10,7 +12,7 @@ public class JSItemObject
 
     public double Weight { get; set; }
 
-    public string Layer { get; set; }
+    public Layer Layer { get; set; }
 
     public int Amount { get; set; }
 

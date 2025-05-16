@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Orion.Core.Server.Interfaces.Services.Base;
 using Orion.Core.Server.Interfaces.Services.System;
+using Orion.Core.Server.Listeners.EventBus;
 using Prima.Core.Server.Data.Session;
 using Prima.Core.Server.Interfaces.Listeners;
 using Prima.Core.Server.Interfaces.Services;
@@ -78,5 +79,20 @@ public abstract class BasePacketListenerHandler : INetworkPacketListener, IOrion
     protected NetworkSession? GetSession(string sessionId)
     {
         return _serviceProvider.GetRequiredService<INetworkSessionService<NetworkSession>>().GetSession(sessionId);
+    }
+
+    protected Task PublishEvent<TEvent>(TEvent eventArgs) where TEvent : class
+    {
+        return _serviceProvider.GetRequiredService<IEventBusService>().PublishAsync(eventArgs);
+    }
+
+    protected void SubscribeEvent<TEvent>(Func<TEvent, Task> handler) where TEvent : class
+    {
+        _serviceProvider.GetRequiredService<IEventBusService>().Subscribe(handler);
+    }
+
+    protected void SubscribeEvent<TEvent>(IEventBusListener<TEvent> listener) where TEvent : class
+    {
+        _serviceProvider.GetRequiredService<IEventBusService>().Subscribe(listener);
     }
 }

@@ -1,6 +1,7 @@
 using Prima.UOData.Entities;
 using Prima.UOData.Extensions;
 using Prima.UOData.Serializers.Base;
+using Prima.UOData.Types;
 
 namespace Prima.UOData.Serializers.Binary;
 
@@ -21,6 +22,17 @@ public class BinaryMobileSerializer : BaseEntitySerializer<MobileEntity>
             Direction = stream.ReadDirection()
         };
 
+        // Read items count
+        var itemsCount = stream.ReadInt32();
+
+        for (var i = 0; i < itemsCount; i++)
+        {
+            var itemId = stream.ReadSerial();
+            var layer = (Layer)stream.ReadByte();
+            var item = new ItemEntity(itemId);
+            mobile.Items.Add(layer, item);
+        }
+
         return mobile;
     }
 
@@ -35,6 +47,15 @@ public class BinaryMobileSerializer : BaseEntitySerializer<MobileEntity>
         stream.Write(entity.Hue);
         stream.Write(entity.Position);
         stream.Write(entity.Direction);
+        // Start to write items
+        stream.Write(entity.Items.Count);
+
+        foreach (var item in entity.Items)
+        {
+            stream.Write((byte)item.Key);
+            stream.Write(item.Value.Id);
+        }
+
 
         return buffer.ToArray();
     }

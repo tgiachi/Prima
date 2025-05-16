@@ -32,4 +32,5 @@ public class BinaryItemSerializer : BaseEntitySerializer<ItemEntity>
 
         return buffer.ToArray();
     }
+
 }
