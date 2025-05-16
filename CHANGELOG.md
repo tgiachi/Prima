@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="0.16.0"></a>
+## [0.16.0](https://www.github.com/tgiachi/Prima/releases/tag/v0.16.0) (2025-05-16)
+
+### Features
+
+* added region files from ModernUO (thanks guys!) ([b0eedf6](https://www.github.com/tgiachi/Prima/commit/b0eedf69ea6eee14557cf396f9c0a6223cace7a2))
+* **NetworkSession.cs:** remove unused import of Prima.Network.Packets ([4010a97](https://www.github.com/tgiachi/Prima/commit/4010a9760cfba911313b8475dd63d5956cf8b205))
+* **Prima.UOData:** add new LandTile and TileMatrix classes to handle tile data ([77110ff](https://www.github.com/tgiachi/Prima/commit/77110ff025c0632a39e875513ce477e301a2d82b))
+* **ScriptEngineService.cs:** add method to generate enum definitions and ([036c2c6](https://www.github.com/tgiachi/Prima/commit/036c2c69a746712cf45b00995cad26b999c078b1))
+* **ValueLinkList.cs:** add ValueLinkList class with methods to manage linked list nodes ([a1d7ad1](https://www.github.com/tgiachi/Prima/commit/a1d7ad19d878622e4d3e874e247fc83b12e596d6))
+
+### Bug Fixes
+
+* **LoginCompleteHandler.cs:** remove unnecessary parameter in GetSession method call ([a4e3a3e](https://www.github.com/tgiachi/Prima/commit/a4e3a3e8272e77c7d1bc06ca31e5df60ebea626a))
+
 <a name="0.15.0"></a>
 ## [0.15.0](https://www.github.com/tgiachi/Prima/releases/tag/v0.15.0) (2025-05-15)
 
