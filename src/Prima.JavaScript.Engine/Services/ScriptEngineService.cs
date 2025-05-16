@@ -142,11 +142,39 @@ public class ScriptEngineService : IScriptEngineService, IEventBusListener<Serve
 
         File.WriteAllText(Path.Combine(_directoriesConfig["Scripts"], "index.d.ts"), documentation);
 
+        GenerateEnumDefinitions(TypeScriptDocumentationGenerator.FoundEnums);
 
         ExecuteBootstrap();
 
 
         return Task.CompletedTask;
+    }
+
+    private void GenerateEnumDefinitions(List<Type> enumTypes)
+    {
+        foreach (var enumType in enumTypes)
+        {
+            var enumName = enumType.Name;
+            var enumDictionary = ConvertEnumToDictionary(enumType);
+
+            _jsEngine.SetValue(enumName, enumDictionary);
+        }
+    }
+
+
+    public static Dictionary<string, object> ConvertEnumToDictionary(Type enumType)
+    {
+        if (!enumType.IsEnum)
+        {
+            throw new ArgumentException($"Type {enumType.Name} is not an enum", nameof(enumType));
+        }
+
+
+        return Enum.GetNames(enumType)
+            .ToDictionary(
+                name => name.ToSnakeCaseUpper(),
+                name => (object)Enum.Parse(enumType, name)
+            );
     }
 
     public Task StopAsync(CancellationToken cancellationToken = default)

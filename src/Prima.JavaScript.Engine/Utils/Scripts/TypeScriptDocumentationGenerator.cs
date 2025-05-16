@@ -18,6 +18,8 @@ public static class TypeScriptDocumentationGenerator
     private static readonly StringBuilder _enumsBuilder = new();
     private static readonly List<Type> _interfaceTypesToGenerate = [];
 
+    public static List<Type> FoundEnums { get; } = [];
+
     private static Func<string, string> _nameResolver = name => name.ToSnakeCase();
 
     public static string GenerateDocumentation(
@@ -499,6 +501,8 @@ public static class TypeScriptDocumentationGenerator
             return;
         }
 
+        FoundEnums.Add(enumType);
+
         _enumsBuilder.AppendLine();
         _enumsBuilder.AppendLine($"/**");
         _enumsBuilder.AppendLine($" * Generated enum for {enumType.FullName}");
@@ -509,8 +513,20 @@ public static class TypeScriptDocumentationGenerator
 
         foreach (var value in enumValues)
         {
-            var numericValue = (int)Enum.Parse(enumType, value);
-            _enumsBuilder.AppendLine($"    {value} = {numericValue},");
+            var numericValue = -1;
+            try
+            {
+                numericValue = Convert.ToInt32(Enum.Parse(enumType, value));
+            }
+            catch (InvalidCastException)
+            {
+                // Handle the case where the enum value is not an integer
+                // This can happen if the enum is defined with a different underlying type
+                numericValue = (int)Enum.Parse(enumType, value);
+            }
+
+
+            _enumsBuilder.AppendLine($"    {value.ToSnakeCaseUpper()} = {numericValue},");
         }
 
         _enumsBuilder.AppendLine("}");
