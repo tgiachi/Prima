@@ -34,7 +34,7 @@ public class LoginCompleteHandler : BasePacketListenerHandler, IEventBusListener
         // GeneralInformation packet
         await session.SendPacketAsync(new SeasonalInformation(Season.Spring, true));
         await session.SendPacketAsync(new DrawGamePlayer(mobile));
-        // CharacterDraw
+        await session.SendPacketAsync(new CharacterDraw(mobile));
 
         await session.SendPacketAsync(new GlobalLightLevel(0xFF));
         await session.SendPacketAsync(new PersonalLightLevel(mobile, 0xFF));

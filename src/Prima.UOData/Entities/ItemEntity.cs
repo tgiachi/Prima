@@ -9,6 +9,8 @@ namespace Prima.UOData.Entities;
 [SerializableHeader(0x02)]
 public class ItemEntity : BaseWorldEntity
 {
+    public short ModelId { get; set; }
+
     public string Name { get; set; }
     public int Hue { get; set; }
 

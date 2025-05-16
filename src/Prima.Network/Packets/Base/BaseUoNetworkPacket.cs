@@ -18,7 +18,7 @@ public abstract class BaseUoNetworkPacket : IUoNetworkPacket
     /// <summary>
     ///  Gets the length of the packet data.
     /// </summary>
-    public int Length { get;  }
+    public int Length { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the BaseUoNetworkPacket class with the specified operation code.

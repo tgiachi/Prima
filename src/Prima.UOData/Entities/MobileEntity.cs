@@ -17,6 +17,8 @@ public class MobileEntity : BaseWorldEntity
 
     public string Title { get; set; }
 
+    public CharacterStatus StatusFlag { get; set; } = CharacterStatus.Normal;
+
     public NetworkSession? NetworkSession { get; set; }
     public bool IsPlayer { get; set; }
 
@@ -24,12 +26,14 @@ public class MobileEntity : BaseWorldEntity
 
     public CommandPermissionType AccessLevel { get; set; }
 
+    public Notoriety Notoriety { get; set; } = Notoriety.Friend;
+
     public int Hue { get; set; }
 
     public Point3D Position { get; set; }
     public Direction Direction { get; set; }
 
-    public Dictionary<Layer, List<ItemEntity>> Items { get; set; } = new();
+    public Dictionary<Layer, ItemEntity> Items { get; set; } = new();
 
     public MobileEntity()
     {
