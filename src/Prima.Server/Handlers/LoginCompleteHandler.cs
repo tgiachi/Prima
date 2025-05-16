@@ -26,7 +26,7 @@ public class LoginCompleteHandler : BasePacketListenerHandler, IEventBusListener
 
     public async Task HandleAsync(LoginCompleteEvent @event, CancellationToken cancellationToken = default)
     {
-        var session = SessionService.GetSession(@event.SessionId, true);
+        var session = SessionService.GetSession(@event.SessionId);
         var mobile = session.GetProperty<MobileEntity>();
 
         // Login confirmation packet
