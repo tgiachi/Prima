@@ -1,7 +1,6 @@
 using Orion.Core.Server.Interfaces.Sessions;
 using Prima.Core.Server.Data.Uo;
 using Prima.Network.Interfaces.Packets;
-using Prima.Network.Packets;
 
 namespace Prima.Core.Server.Data.Session;
 
