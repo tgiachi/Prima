@@ -1,6 +1,8 @@
 using System.Text;
+using Prima.UOData.Data.Geometry;
 using Prima.UOData.Id;
 using Prima.UOData.Interfaces.Persistence.Entities;
+using Prima.UOData.Types;
 
 namespace Prima.UOData.Extensions;
 
@@ -224,4 +226,54 @@ public static class BinarySerializationExtensions
     {
         return (TEnum)Enum.ToObject(typeof(TEnum), reader.ReadInt32());
     }
+
+    /// <summary>
+    ///  Serializes a Point3D to a BinaryWriter.
+    /// </summary>
+    /// <param name="writer"></param>
+    /// <param name="point"></param>
+    public static void Write(this BinaryWriter writer, Point3D point)
+    {
+        writer.Write(point.X);
+        writer.Write(point.Y);
+        writer.Write(point.Z);
+    }
+
+    /// <summary>
+    ///  Deserializes a Point3D from a BinaryReader.
+    /// </summary>
+    /// <param name="reader"></param>
+    /// <returns></returns>
+    public static Point3D ReadPoint3D(this BinaryReader reader)
+    {
+        return new Point3D(reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32());
+    }
+
+
+    /// <summary>
+    ///  Serializes a Serial to a BinaryWriter.
+    /// </summary>
+    /// <param name="writer"></param>
+    /// <param name="serial"></param>
+    public static void Write(this BinaryWriter writer, Serial serial)
+    {
+        writer.Write(serial.Value);
+    }
+
+    /// <summary>
+    ///  Deserializes a Serial from a BinaryReader.
+    /// </summary>
+    /// <param name="writer"></param>
+    /// <param name="direction"></param>
+    public static void Write(this BinaryWriter writer, Direction direction)
+    {
+        writer.Write((byte)direction);
+    }
+
+    public static Direction ReadDirection(this BinaryReader reader)
+    {
+        return (Direction)reader.ReadByte();
+    }
+
+
 }

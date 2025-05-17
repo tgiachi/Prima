@@ -16,6 +16,7 @@ public class BinaryMobileSerializer : BaseEntitySerializer<MobileEntity>
         writer.Write(entity.Hue);
         writer.Write(entity.Position);
         writer.Write(entity.Direction);
+
         // Start to write items
         writer.Write(entity.Items.Count);
 
