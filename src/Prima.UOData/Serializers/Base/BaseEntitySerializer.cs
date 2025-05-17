@@ -25,11 +25,29 @@ public abstract class BaseEntitySerializer<TEntity> : IEntitySerializer<TEntity>
     }
 
 
-    public byte[] Serialize(object entity)
+    public byte[] Serialize(object entity, IPersistenceManager persistenceManager)
     {
-        return Serialize(entity as TEntity);
+        return Serialize(entity as TEntity, persistenceManager);
     }
 
-    public abstract object Deserialize(byte[] data);
-    public abstract byte[] Serialize(TEntity entity);
+    public byte[] Serialize(TEntity entity, IPersistenceManager persistenceManager)
+    {
+        using var stream = new MemoryStream();
+        using var writer = new BinaryWriter(stream);
+        Serialize(writer, entity, persistenceManager);
+
+        writer.Flush();
+        return stream.ToArray();
+    }
+
+    public object Deserialize(byte[] data, IPersistenceManager persistenceManager)
+    {
+        using var stream = new MemoryStream(data);
+        using var reader = new BinaryReader(stream);
+        return Deserialize(reader, persistenceManager);
+    }
+
+    public abstract void Serialize(BinaryWriter writer, TEntity entity, IPersistenceManager persistenceManager);
+
+    public abstract object Deserialize(BinaryReader reader, IPersistenceManager persistenceManager);
 }

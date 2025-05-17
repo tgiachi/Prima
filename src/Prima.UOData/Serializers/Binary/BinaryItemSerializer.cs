@@ -1,36 +1,29 @@
 using Orion.Foundations.Spans;
 using Prima.UOData.Entities;
 using Prima.UOData.Extensions;
+using Prima.UOData.Interfaces.Persistence;
 using Prima.UOData.Serializers.Base;
 
 namespace Prima.UOData.Serializers.Binary;
 
 public class BinaryItemSerializer : BaseEntitySerializer<ItemEntity>
 {
-    public override object Deserialize(byte[] data)
+    public override void Serialize(BinaryWriter writer, ItemEntity entity, IPersistenceManager persistenceManager)
     {
-        using var stream = new BinaryReader(new MemoryStream(data));
+        writer.Write(entity.Id);
+        writer.Write(entity.Name);
+        writer.Write(entity.Hue);
+        writer.Write(entity.Position);
+    }
 
+    public override object Deserialize(BinaryReader reader, IPersistenceManager persistenceManager)
+    {
         return new ItemEntity
         {
-            Id = stream.ReadSerial(),
-            Name = stream.ReadString(),
-            Hue = stream.ReadInt32(),
-            Position = stream.ReadPoint3D()
+            Id = reader.ReadSerial(),
+            Name = reader.ReadString(),
+            Hue = reader.ReadInt32(),
+            Position = reader.ReadPoint3D()
         };
     }
-
-    public override byte[] Serialize(ItemEntity entity)
-    {
-        var buffer = new MemoryStream();
-        using var stream = new BinaryWriter(buffer);
-
-        stream.Write(entity.Id);
-        stream.Write(entity.Name);
-        stream.Write(entity.Hue);
-        stream.Write(entity.Position);
-
-        return buffer.ToArray();
-    }
-
 }

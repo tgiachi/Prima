@@ -37,7 +37,7 @@ public class PersistenceManager : IPersistenceManager
             throw new InvalidOperationException($"No serializer registered for entity type {entity.GetType()}");
         }
 
-        var serializerData = serializer.Serialize(entity);
+        var serializerData = serializer.Serialize(entity, this);
 
         return new SerializationEntryData(serializer.Header, serializerData);
     }
@@ -120,7 +120,7 @@ public class PersistenceManager : IPersistenceManager
 
             if (_entitySerializers.TryGetValue(header, out var serializer))
             {
-                entries.Add((TEntity)serializer.Deserialize(data));
+                entries.Add((TEntity)serializer.Deserialize(data, this));
             }
             else
             {
