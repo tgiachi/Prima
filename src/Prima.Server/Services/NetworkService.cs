@@ -104,13 +104,6 @@ public class NetworkService : INetworkService
         {
             var transport = _networkTransportManager.GetTransport(transportId);
 
-            _logger.LogDebug(
-                "-> {Session} ({Size} bytes) {Transport} {Data}",
-                id.ToShortSessionId(),
-                data.Length,
-                transport.Id,
-                data.HumanizedContent(20)
-            );
         };
     }
 
@@ -232,6 +225,15 @@ public class NetworkService : INetworkService
                 data = packetContent;
             }
 
+
+
+            _logger.LogDebug(
+                "-> {PacketType} {Session} ({Size} bytes) {Data}",
+                packet.GetType().Name,
+                sessionId.ToShortSessionId(),
+                data.Length,
+                data.ToArray().HumanizedContent(20)
+            );
 
             await _networkTransportManager.EnqueueMessageAsync(
                 new NetworkMessageData(sessionId, data.ToArray(), ServerNetworkType.None)

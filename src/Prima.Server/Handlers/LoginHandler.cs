@@ -205,7 +205,14 @@ public class LoginHandler
             var character = characters.ToList()[i];
             var mobile = _worldManagerService.GetEntityBySerial<MobileEntity>(character.MobileId);
 
-            charactersAndCities.Characters[i] = new CharacterEntry(mobile.Name);
+            if (mobile != null)
+            {
+                charactersAndCities.Characters[i] = new CharacterEntry(mobile.Name);
+            }
+            else
+            {
+                Logger.LogWarning("Character {CharacterId} not found", character.Id);
+            }
         }
 
 

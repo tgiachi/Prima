@@ -60,6 +60,8 @@ public class CharacterHandler
 
         playerMobile.Name = packet.Name;
 
+        session.SetProperty(playerMobile);
+
 
         _worldManagerService.AddWorldEntity(playerMobile);
 

@@ -23,7 +23,10 @@ public class BinaryMobileSerializer : BaseEntitySerializer<MobileEntity>
         foreach (var item in entity.Items)
         {
             writer.Write((byte)item.Key);
-            writer.Write(item.Value.Id);
+            var bytes = persistenceManager.Serialize(item.Value);
+
+            writer.Write(bytes.Length);
+            writer.Write(bytes.Data);
         }
     }
 
@@ -44,10 +47,6 @@ public class BinaryMobileSerializer : BaseEntitySerializer<MobileEntity>
 
         for (var i = 0; i < itemsCount; i++)
         {
-            var itemId = reader.ReadSerial();
-            var layer = (Layer)reader.ReadByte();
-            var item = new ItemEntity(itemId);
-            mobile.Items.Add(layer, item);
         }
 
         return mobile;

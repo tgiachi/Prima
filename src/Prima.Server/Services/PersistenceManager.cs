@@ -38,6 +38,22 @@ public class PersistenceManager : IPersistenceManager
         return new SerializationEntryData(serializer.Header, serializerData);
     }
 
+    public SerializationEntryData Serialize<TEntity>(TEntity entity) where TEntity : ISerializableEntity
+    {
+        ArgumentNullException.ThrowIfNull(entity);
+
+        var serializer = _entitySerializersAsType[entity.GetType()];
+
+        if (serializer is null)
+        {
+            throw new InvalidOperationException($"No serializer registered for entity type {entity.GetType()}");
+        }
+
+        var serializerData = serializer.Serialize(entity, this);
+
+        return new SerializationEntryData(serializer.Header, serializerData);
+    }
+
     public void RegisterEntitySerializer<TEntity>(IEntitySerializer<TEntity> serializer) where TEntity : ISerializableEntity
     {
         ArgumentNullException.ThrowIfNull(serializer);

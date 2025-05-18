@@ -8,6 +8,8 @@ public interface IPersistenceManager : IOrionService
 {
     Task<SerializationEntryData> SerializeAsync<TEntity>(TEntity entity) where TEntity : ISerializableEntity;
 
+    SerializationEntryData Serialize<TEntity>(TEntity entity) where TEntity : ISerializableEntity;
+
    // Task<List<TEntity>> DeserializeAsync<TEntity>(byte[] data) where TEntity : ISerializableEntity;
 
     void RegisterEntitySerializer<TEntity>(IEntitySerializer<TEntity> serializer) where TEntity : ISerializableEntity;

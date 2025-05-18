@@ -7,4 +7,10 @@ public class LoginComplete : BaseUoNetworkPacket
     public LoginComplete() : base(0x55, 1)
     {
     }
+
+    public override Span<byte> Write()
+    {
+
+        return Span<byte>.Empty;
+    }
 }

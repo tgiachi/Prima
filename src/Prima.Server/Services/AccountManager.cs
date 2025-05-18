@@ -124,7 +124,7 @@ public class AccountManager : IAccountManager
             return;
         }
 
-        var generatedPassword = HashUtils.GenerateRandomRefreshToken(8);
+        var generatedPassword = "admin";
 
         var defaultAdminUser = new AccountEntity
         {

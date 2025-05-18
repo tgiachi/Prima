@@ -36,7 +36,7 @@ public class DrawGamePlayer : BaseUoNetworkPacket
 
     public override Span<byte> Write()
     {
-        using var writer = new SpanWriter(stackalloc byte[Length - 1]);
+        using var writer = new SpanWriter(stackalloc byte[Length]);
 
         writer.Write((uint)MobileId);
         writer.Write((short)BodyType);
