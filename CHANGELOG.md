@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="0.18.0"></a>
+## [0.18.0](https://www.github.com/tgiachi/Prima/releases/tag/v0.18.0) (2025-05-18)
+
+### Features
+
+* **CharacterHandler.cs:** add session property setting for playerMobile ([a80b084](https://www.github.com/tgiachi/Prima/commit/a80b084f0622bc4249016a7749add392df637f18))
+
 <a name="0.17.0"></a>
 ## [0.17.0](https://www.github.com/tgiachi/Prima/releases/tag/v0.17.0) (2025-05-16)
 
