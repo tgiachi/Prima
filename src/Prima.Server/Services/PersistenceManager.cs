@@ -1,6 +1,4 @@
 using System.Security.Cryptography;
-using Orion.Core.Server.Data.Directories;
-using Orion.Foundations.Utils;
 using Prima.Core.Server.Data.Serialization;
 using Prima.UOData.Interfaces.Persistence;
 using Prima.UOData.Interfaces.Persistence.Entities;
@@ -24,8 +22,6 @@ public class PersistenceManager : IPersistenceManager
     }
 
 
-
-
     public async Task<SerializationEntryData> SerializeAsync<TEntity>(TEntity entity) where TEntity : ISerializableEntity
     {
         ArgumentNullException.ThrowIfNull(entity);
@@ -37,7 +33,23 @@ public class PersistenceManager : IPersistenceManager
             throw new InvalidOperationException($"No serializer registered for entity type {entity.GetType()}");
         }
 
-        var serializerData = serializer.Serialize(entity);
+        var serializerData = serializer.Serialize(entity, this);
+
+        return new SerializationEntryData(serializer.Header, serializerData);
+    }
+
+    public SerializationEntryData Serialize<TEntity>(TEntity entity) where TEntity : ISerializableEntity
+    {
+        ArgumentNullException.ThrowIfNull(entity);
+
+        var serializer = _entitySerializersAsType[entity.GetType()];
+
+        if (serializer is null)
+        {
+            throw new InvalidOperationException($"No serializer registered for entity type {entity.GetType()}");
+        }
+
+        var serializerData = serializer.Serialize(entity, this);
 
         return new SerializationEntryData(serializer.Header, serializerData);
     }
@@ -120,7 +132,7 @@ public class PersistenceManager : IPersistenceManager
 
             if (_entitySerializers.TryGetValue(header, out var serializer))
             {
-                entries.Add((TEntity)serializer.Deserialize(data));
+                entries.Add((TEntity)serializer.Deserialize(data, this));
             }
             else
             {

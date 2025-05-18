@@ -130,6 +130,7 @@ class Program
             .AddService<ConnectionHandler>()
             .AddService<PingPongHandler>()
             .AddService<CharacterHandler>()
+            .AddService<LoginCompleteHandler>()
             .AddService<LoginHandler>();
 
         builder.Services.AddHostedService<PrimaHostedService>();

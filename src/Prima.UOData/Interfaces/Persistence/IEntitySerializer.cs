@@ -6,14 +6,12 @@ public interface IEntitySerializer
 
     byte Header { get; }
 
-    byte[] Serialize(object entity);
+    byte[] Serialize(object entity, IPersistenceManager persistenceManager);
 
-    object Deserialize(byte[] data);
+    object Deserialize(byte[] data, IPersistenceManager persistenceManager);
 }
 
 public interface IEntitySerializer<in TEntity> : IEntitySerializer
 {
-    byte[] Serialize(TEntity entity);
-
-
+    byte[] Serialize(TEntity entity, IPersistenceManager persistenceManager);
 }

@@ -38,7 +38,7 @@ public class LoginCompleteHandler : BasePacketListenerHandler, IEventBusListener
 
         await session.SendPacketAsync(new GlobalLightLevel(0xFF));
         await session.SendPacketAsync(new PersonalLightLevel(mobile, 0xFF));
-        await session.SendPacketAsync(new FeatureFlagsResponse(FeatureFlags.UOR | FeatureFlags.AOS));
+        await session.SendPacketAsync(new FeatureFlagsResponse(FeatureFlags.T2A | FeatureFlags.UOR));
         await session.SendPacketAsync(new CharacterWarMode(false));
         await session.SendPacketAsync(new LoginComplete());
     }
