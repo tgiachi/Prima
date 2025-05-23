@@ -231,8 +231,8 @@ public class NetworkService : INetworkService
                 "-> {PacketType} {Session} ({Size} bytes) {Data}",
                 packet.GetType().Name,
                 sessionId.ToShortSessionId(),
-                data.Length,
-                data.ToArray().HumanizedContent(20)
+                packetContent.Length,
+                packetContent.HumanizedContent(20)
             );
 
             await _networkTransportManager.EnqueueMessageAsync(
