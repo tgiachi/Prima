@@ -26,12 +26,15 @@ public class LoginCompleteHandler : BasePacketListenerHandler, IEventBusListener
 
     public async Task HandleAsync(LoginCompleteEvent @event, CancellationToken cancellationToken = default)
     {
+
         var session = SessionService.GetSession(@event.SessionId);
+        session.UseNetworkCompression = true;
+
         var mobile = session.GetProperty<MobileEntity>();
 
         // Login confirmation packet
         await session.SendPacketAsync(new CharLocaleAndBody(mobile));
-        // GeneralInformation packet
+        //GeneralInformation packet
         await session.SendPacketAsync(new SeasonalInformation(Season.Spring, true));
         await session.SendPacketAsync(new DrawGamePlayer(mobile));
         await session.SendPacketAsync(new CharacterDraw(mobile));
